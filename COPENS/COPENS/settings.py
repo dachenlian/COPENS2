@@ -122,3 +122,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
+CWB_DATA_DIR = os.path.join(BASE_DIR, 'cwb', 'data')
+CWB_RAW_DIR = os.path.join(BASE_DIR, 'cwb', 'raw')
+

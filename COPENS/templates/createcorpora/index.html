@@ -5,9 +5,10 @@
     <div class="row">
     <div class="col">
         <h1>Upload a corpus</h1>
-        <form action="">
+        <form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|crispy }}
+            <button class="btn btn-primary" type="submit">Upload</button>
         </form>
     </div>
     </div>
