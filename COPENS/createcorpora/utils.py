@@ -37,7 +37,7 @@ def save_file_to_drive(file: UploadedFile) -> None:
 
 def cwb_encode(vrt_file: Path, p_attrs: str, s_attrs: str) -> None:
     """
-    Encode the verticalized XML file as a CWB corpus.
+    Encode a verticalized XML file as a CWB corpus.
     :param vrt_file: A path to a verticalized XML file
     :param p_attrs: A string describing all positional attributes of the corpus
     :param s_attrs: A string describing all structural attributes of the corpus
@@ -51,8 +51,27 @@ def cwb_encode(vrt_file: Path, p_attrs: str, s_attrs: str) -> None:
 
     command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {reg_dir} {p_attrs} {s_attrs} -c utf8"
 
-    result = subprocess.run(command, shell=True)
+    result = subprocess.run(command, shell=True, capture_output=True)
     if result.returncode != 0:
         logging.exception(f'cwb-encode exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
     else:
         logging.info('Successfully encoded .vrt file.')
+
+
+def cwb_make(vrt_file: str) -> None:
+    """
+    Index and compress an encoded corpus.
+    :param vrt_file: A path to a verticalized XML file.
+    """
+    name = vrt_file.upper()
+
+    command = f"cwb-make --validate {name} --registry {settings.CWB_REGISTRY_DIR} --memory 500"
+
+    result = subprocess.run(command, shell=True, capture_output=True)
+    if result.returncode != 0:
+        logging.exception(f'cwb-make exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
+    else:
+        logging.info('Successfully indexed and compressed corpus.')
+
+
+

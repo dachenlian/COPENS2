@@ -18,6 +18,7 @@ class UploadCorporaView(FormView):
         s_attrs = self.request.POST['structural_attrs']
         utils.save_file_to_drive(file)
         utils.cwb_encode(Path(settings.CWB_RAW_DIR) / file.name, p_attrs=p_attrs, s_attrs=s_attrs)
+        utils.cwb_make(Path(file.name).stem)
         return super().form_valid(form)
 
 
