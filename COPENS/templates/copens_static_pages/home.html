@@ -1,0 +1,358 @@
+{% extends 'copens_static_pages/generic/base.html' %}
+{% load static %}
+{% block content %}
+	<!-- ***** Welcome Area Start ***** -->
+  <div class="welcome-area" id="welcome">
+    <!-- ***** Header Background Image Start ***** -->
+    <div class="right-bg">
+      <img src="{% static 'images/header.jpg' %}" class="img-fluid float-right" alt="">
+    </div>
+    <!-- ***** Header Background Image End ***** -->
+
+    <div class="header-bg">
+      <!-- <img src="images/header-bg.svg" class="img-fluid" alt=""> -->
+    </div>
+
+    <!-- ***** Header Text Start ***** -->
+    <div class="header-text">
+      <div class="container">
+        <div class="row">
+          <div class="offset-lg-3 col-lg-6 col-md-12 col-sm-12">
+            <h1>Corpora Open and Search (COPENS)</h1>
+            <p>開放語料庫與搜尋工具<br>讓我們期待一個內容共享，工具共創，製程開放的新一代語料庫語言學。</p>
+            <div class="buttons">
+              <!-- <a href="#" class="btn-white-line"></a> -->
+              <a href="#" class="btn-primary-line">免費試用</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- ***** Welcome Area End ***** -->
+
+
+  <!-- ***** Features Small Start ***** -->
+  <section class="section" id="features" style="padding: 50px 0">
+    <div class="container">
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="row">
+            <!-- ***** Features Small Item Start ***** -->
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12" data-scroll-reveal="enter bottom move 50px over 0.6s after 0.2s" data-scroll-reveal-id="1" data-scroll-reveal-initialized="true" data-scroll-reveal-complete="true">
+              <a href="" class="features-small-item">
+                <div class="icon">
+                  <i class="fa fa-comments-o"></i>
+                </div>
+                <h5 class="features-title">多種語料庫查詢</h5>
+                <p>Morbilling pharetra sapiening ut mattis viverra. Curabitur magna.</p>
+              </a>
+            </div>
+            <!-- ***** Features Small Item End ***** -->
+
+            <!-- ***** Features Small Item Start ***** -->
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12" data-scroll-reveal="enter bottom move 50px over 0.6s after 0.4s" data-scroll-reveal-id="2" data-scroll-reveal-initialized="true" data-scroll-reveal-complete="true">
+              <a href="" class="features-small-item">
+                <div class="icon">
+                  <i class="fa fa-cube"></i>
+                </div>
+                <h5 class="features-title">多樣化的查詢功能</h5>
+                <p>Donec pellentesque turpis utium lorem imperdiet semper viverra.</p>
+              </a>
+            </div>
+            <!-- ***** Features Small Item End ***** -->
+
+            <!-- ***** Features Small Item Start ***** -->
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12" data-scroll-reveal="enter bottom move 50px over 0.6s after 0.6s" data-scroll-reveal-id="3" data-scroll-reveal-initialized="true" data-scroll-reveal-complete="true">
+              <a href="" class="features-small-item">
+                <div class="icon">
+                  <i class="fa fa-bank"></i>
+                </div>
+                <h5 class="features-title">豐富的語料</h5>
+                <p>Facilisis arcu ligula, malesuada id tincidunt laoreet, facilisis at justo.</p>
+              </a>
+            </div>
+            <!-- ***** Features Small Item End ***** -->
+
+            <!-- ***** Features Small Item Start ***** -->
+            <div class="col-lg-3 col-md-6 col-sm-6 col-12" data-scroll-reveal="enter bottom move 50px over 0.6s after 0.8s" data-scroll-reveal-id="4" data-scroll-reveal-initialized="true" data-scroll-reveal-complete="true">
+              <a href="" class="features-small-item">
+                <div class="icon">
+                  <i class="fa fa-dollar"></i>
+                </div>
+                <h5 class="features-title">簡潔的資料呈現</h5>
+                <p>Proin arcu ligula, malesuada id tincidunt laoreet, facilisis at justo.</p>
+              </a>
+            </div>
+            <!-- ***** Features Small Item End ***** -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ***** Features Small End ***** -->
+
+
+  <!-- ***** Features Big Item Start ***** -->
+  <!-- <section class="section colored">
+    <div class="top"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-5 col-md-12 col-sm-12 align-self-center mobile-top-fix" data-scroll-reveal="enter left move 30px over 0.6s after 0.4s" data-scroll-reveal-id="5" data-scroll-reveal-initialized="true" data-scroll-reveal-complete="true">
+          <div class="home-img-left">
+            <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/1_003.jpg" class="rounded img-fluid d-block mx-auto" alt="App">
+          </div>
+        </div>
+        <div class="col-lg-1"></div>
+        <div class="col-lg-6 col-md-12 col-sm-12 align-self-center mobile-bottom-fix">
+          <div class="left-heading">
+            <h2 class="section-title">Features to run every part of your business</h2>
+          </div>
+          <div class="left-text">
+            <p>Phasellus vitae velit sit amet diam semper commodo quis quis 
+libero. Morbi consequat arcu augue, molestie faucibus metus ullamcorper 
+vel.</p>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home active" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Process Invoices</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Reconcile Fast</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Information Security</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Mobile App</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Easy Integration</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Monthly Backup</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Advanced Reporting</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Multi Currency</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom"></div>
+  </section> -->
+  <!-- ***** Features Big Item End ***** -->
+
+
+  <!-- ***** Features Big Item Start ***** -->
+  <!-- <section class="section padding-top-20">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-12 col-sm-12 align-self-center mobile-bottom-fix">
+          <div class="left-heading">
+            <h2 class="section-title">Integration with other systems</h2>
+          </div>
+          <div class="left-text">
+            <p>Phasellus vitae velit sit amet diam semper commodo quis quis 
+libero. Morbi consequat arcu augue, molestie faucibus metus ullamcorper 
+vel.</p>
+            <div class="row">
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home active" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Process Invoices</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Reconcile Fast</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Information Security</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Mobile App</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Easy Integration</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Monthly Backup</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Advanced Reporting</span>
+                </a>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <a class="btn-home" href="#">
+                  <i class="fa fa-angle-right"></i>
+                  <span>Multi Currency</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-1"></div>
+        <div class="col-lg-5 col-md-12 col-sm-12 align-self-center mobile-bottom-fix-big" data-scroll-reveal="enter left move 30px over 0.6s after 0.4s" data-scroll-reveal-id="6" style="-webkit-transform: translatex(-30px);transform: translatex(-30px);opacity: 0;" data-scroll-reveal-initialized="true">
+          <div class="home-img-right">
+            <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/2.jpg" class="rounded img-fluid d-block mx-auto" alt="App">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section> -->
+  <!-- ***** Features Big Item End ***** -->
+
+
+  <!-- ***** Home Seperator Start ***** -->
+  <section class="section home-seperator">
+    <div class="top"></div>
+      <div class="left-item imgfix_top_container" style="overflow: hidden;"><div id="imgfix_wrapper_layer_0_0" class="imgfix_wrapper_layer" style="position: relative; padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden;">
+        <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/3_003.jpg" alt="" class="imgfix_src_img" style="opacity: 1;">
+        <div class="content">
+          <h6></h6>
+          <p>任何想法或回饋<br>歡迎隨時告訴我們</p>
+          <a href="#" class="btn-primary-line">聯絡我們</a>
+        </div>
+      </div></div>
+      <div class="right-item imgfix_top_container" style="overflow: hidden;"><div id="imgfix_wrapper_layer_0_1" class="imgfix_wrapper_layer" style="position: relative; padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden;">
+        <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/4.jpg" alt="" class="imgfix_src_img" style="opacity: 1;">
+        <div class="content">
+          <h6></h6>
+          <p>無須註冊<br>免費使用語料庫查詢功能</p>
+          <a href="#" class="btn-primary-line">立馬查詢</a>
+        </div>
+      </div></div>
+    <div class="bottom"></div>
+  </section>
+  <!-- ***** Home Seperator End ***** -->
+
+
+
+  <!-- ***** Testimonials Start ***** -->
+  <!-- ***** Testimonials End ***** -->
+
+
+  <!-- ***** Pricing Plans Start ***** -->
+  <!-- ***** Pricing Plans End ***** -->
+
+
+  <!-- ***** Blog Start ***** -->
+  <section class="section" id="blog">
+    <div class="container">
+      <!-- ***** Section Title Start ***** -->
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="center-heading">
+            <h2 class="section-title">更多LOPE計畫</h2>
+          </div>
+        </div>
+        
+      </div>
+      <!-- ***** Section Title End ***** -->
+
+      <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="blog-post-thumb">
+            <!-- <div class="img imgfix_top_container" style="overflow: hidden;"><div id="imgfix_wrapper_layer_1_0" class="imgfix_wrapper_layer" style="position: relative; padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden;">
+              <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/1_002.jpg" alt="" class="imgfix_src_img" style="opacity: 1;">
+            </div></div> -->
+            <div class="blog-content">
+              <img src="images/logo_ptt.jpg" alt="" style="height: 66px">
+
+              <h3>
+                <a href="">PTT Corpus</a>
+              </h3>
+              <div class="text">
+                作為一個台灣特有的 BBS 系統，PTT 記錄了珍貴而有趣的社會語言文化現象。提供了語言接觸與演化，與「精簡語言學」重要的經驗訊息。
+              </div>
+              <a href="" class="btn-primary-line">Read More</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="blog-post-thumb">
+            <!-- <div class="img imgfix_top_container" style="overflow: hidden;"><div id="imgfix_wrapper_layer_1_1" class="imgfix_wrapper_layer" style="position: relative; padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden;">
+              <img src="images/logo_cwn.png" alt="" class="imgfix_src_img" style="opacity: 1;">
+            </div>
+            </div> -->
+            <div class="blog-content">
+              <img src="images/logo_cwn.png" alt="" style="height: 66px">
+              <h3>
+                <a href="">Chinese WordNet</a>
+              </h3>
+              <div class="text">
+                中文詞彙地圖是一個以華語文教學爲目的的詞彙知識素描混搭系統。也是字典學的破壞性創新提案。
+              </div>
+              <a href="" class="btn-primary-line">Read More</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-md-6 col-sm-12">
+          <div class="blog-post-thumb">
+            <!-- <div class="img imgfix_top_container" style="overflow: hidden;"><div id="imgfix_wrapper_layer_1_2" class="imgfix_wrapper_layer" style="position: relative; padding: 0; margin: 0; width: 100%; height: 100%; overflow: hidden;">
+              <img src="Babil%20-%20Startup%20and%20SaaS%20template_files/3_002.jpg" alt="" class="imgfix_src_img" style="opacity: 1;">
+            </div></div> -->
+            <div class="blog-content">
+              <img src="images/logo_cwm.svg" alt="" style="height: 66px">
+
+              <h3>
+                <a href="">Chinese Word Map</a>
+              </h3>
+              <div class="text">
+                中文詞彙網路著眼於建構一個深層的語義與概念網路。精細的詞意分析與開放的關係設計將有助於理解語言與心智的構作。
+              </div>
+              <a href="" class="btn-primary-line">Read More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ***** Blog End ***** -->
+{% endblock content %}

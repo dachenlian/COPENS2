@@ -1,0 +1,40 @@
+{% load static %}
+<header class="header-area {% if not home %} not-index-header {% endif %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="{% url 'copens_static_pages:home' %}" class="logo">
+              <img src="{% static 'images/copens_logo.svg' %}" class="light-logo" alt="Babil" style="display: block;">
+              <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="Babil" style="display: none;">
+            </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                        <li><a href="{% url 'copens_static_pages:home' %}">首頁</a></li>
+                        <li class="submenu">
+                            <a href="{% url 'copens_static_pages:query' %}">語料庫</a>
+                        </li>
+                        <li class="submenu">
+                            <a href="{% url 'copens_static_pages:api_doc' %}">API</a>
+                        </li>
+                        <li class="submenu">
+                            <a href="">關於</a>
+                            <ul>
+                                <li><a href="{% url 'copens_static_pages:about' %}">關於COPENS</a></li>
+                                <li><a href="{% url 'copens_static_pages:term_of_use' %}">使用條款</a></li>
+                                <li><a href="{% url 'copens_static_pages:contact' %}">聯絡我們</a></li>
+                            </ul>
+                        </li>
+                        <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li>
+                    </ul>
+                    <a class="menu-trigger">
+              <span>Menu</span>
+            </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>

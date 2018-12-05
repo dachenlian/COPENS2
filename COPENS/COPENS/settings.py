@@ -26,7 +26,7 @@ SECRET_KEY = '_a#_eig*^mlb72q6!j2(mp06mkxg34n155&m=nigk&32nie!iw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
 
+    'copens_static_pages.apps.CopensStaticPagesConfig',
     'createcorpora.apps.CreatecorporaConfig',
     'crispy_forms',
 ]
@@ -160,6 +161,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    # '/var/www/static/',
+]
 STATIC_URL = '/static/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -174,6 +179,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 
 
-LOGIN_REDIRECT_URL = reverse_lazy('create:home')
-LOGOUT_REDIRECT_URL = reverse_lazy('create:home')
+LOGIN_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
+LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 
