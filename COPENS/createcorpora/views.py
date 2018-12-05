@@ -8,7 +8,7 @@ from . import utils
 
 
 class UploadCorporaView(FormView):
-    template_name = 'corpora/index.html'
+    template_name = 'createcorpora/index.html'
     form_class = UploadCorpusForm
     success_url = reverse_lazy('create:upload')
 
