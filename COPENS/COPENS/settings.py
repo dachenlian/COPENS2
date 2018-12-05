@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -58,6 +59,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ROOT_URLCONF = 'COPENS.urls'
 
@@ -164,4 +167,13 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
 CWB_DATA_DIR = os.path.join(BASE_DIR, 'cwb', 'data')
 CWB_RAW_DIR = os.path.join(BASE_DIR, 'cwb', 'raw')
+
+SITE_ID = 1
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+
+
+LOGIN_REDIRECT_URL = reverse_lazy('create:home')
+LOGOUT_REDIRECT_URL = reverse_lazy('create:home')
 

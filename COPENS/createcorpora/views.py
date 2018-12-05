@@ -2,9 +2,14 @@ from pathlib import Path
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.conf import settings
+from django.views.generic import TemplateView
 
 from .forms import UploadCorpusForm
 from . import utils
+
+
+class Home(TemplateView):
+    template_name = 'createcorpora/home.html'
 
 
 class UploadCorporaView(FormView):

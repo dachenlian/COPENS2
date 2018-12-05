@@ -12,6 +12,7 @@ cwb-python = "*"
 configparser = "*"
 mysqlclient = "*"
 django-crispy-forms = "*"
+django-allauth = "*"
 
 [dev-packages]
 
