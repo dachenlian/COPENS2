@@ -3,6 +3,7 @@ from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import UploadCorpusForm
 from . import utils
@@ -12,7 +13,8 @@ class Home(TemplateView):
     template_name = 'createcorpora/home.html'
 
 
-class UploadCorporaView(FormView):
+class UploadCorporaView(LoginRequiredMixin, FormView):
+    login_url = 'account_login'
     template_name = 'createcorpora/index.html'
     form_class = UploadCorpusForm
     success_url = reverse_lazy('create:upload')
