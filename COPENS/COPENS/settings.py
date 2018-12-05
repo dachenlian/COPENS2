@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
 
-    'createcorpora',
+    'createcorpora.apps.CreatecorporaConfig',
     'crispy_forms',
 ]
 

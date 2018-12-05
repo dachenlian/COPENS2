@@ -21,8 +21,14 @@ def make_dir(path: Path) -> Path:
         return directory
 
 
+# @receiver(user_logged_in)
+# def message(sender, instance, created, **kwargs):
+#     print(f'Signal received. {instance.username} logged in.')
+
+
 @receiver(post_save, sender=User)
 def create_copens_user(sender, instance, created, **kwargs):
+
     logging.info('User created signal received.')
     raw_dir = make_dir(Path(settings.CWB_RAW_DIR) / instance.username)
     data_dir = make_dir(Path(settings.CWB_DATA_DIR) / instance.username)

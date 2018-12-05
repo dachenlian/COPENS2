@@ -10,6 +10,9 @@ class CopensUser(models.Model):
     data_dir = models.CharField(max_length=255)
     registry_dir = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.user.username
+
 
 class Corpus(models.Model):
     class Meta:
@@ -18,5 +21,8 @@ class Corpus(models.Model):
     en_name = models.CharField(max_length=255)
     zh_name = models.CharField(max_length=255)
     is_public = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.en_name} / {self.zh_name} / {self.owner.user.username}'
 
 
