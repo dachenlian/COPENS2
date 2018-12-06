@@ -13,6 +13,8 @@ configparser = "*"
 mysqlclient = "*"
 django-crispy-forms = "*"
 django-allauth = "*"
+jseg = "*"
+jieba = "*"
 
 [dev-packages]
 

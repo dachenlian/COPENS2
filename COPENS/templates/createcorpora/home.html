@@ -14,5 +14,25 @@
             {% endif %}
         </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <h1>Public corpora</h1>
+            <ul>
+                {% for corpus in public_corpora %}
+                    <li>{{ corpus }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h1>Private corpora</h1>
+            <ul>
+                {% for corpus in private_corpora %}
+                    <li>{{ corpus }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 
 {% endblock content %}
