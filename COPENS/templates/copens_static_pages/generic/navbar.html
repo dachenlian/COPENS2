@@ -6,8 +6,14 @@
                 <nav class="main-nav">
                     <!-- ***** Logo Start ***** -->
                     <a href="{% url 'copens_static_pages:home' %}" class="logo">
-              <img src="{% static 'images/copens_logo.svg' %}" class="light-logo" alt="Babil" style="display: block;">
-              <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="Babil" style="display: none;">
+              <img src="{% static 'images/copens_logo.svg' %}" class="light-logo" alt="COPENS" style="display: block;">
+
+              {% if not home %}
+              <img src="{% static 'images/copens_logo.svg' %}" class="dark-logo" alt="COPENS" style="display: none;">
+              {% else %}
+               <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="COPENS" style="display: none;">
+              {% endif %}
+             
             </a>
                     <!-- ***** Logo End ***** -->
                     <!-- ***** Menu Start ***** -->
@@ -16,9 +22,11 @@
                         <li class="submenu">
                             <a href="{% url 'copens_static_pages:query' %}">語料庫</a>
                         </li>
+                        <!---
                         <li class="submenu">
                             <a href="{% url 'copens_static_pages:api_doc' %}">API</a>
                         </li>
+                        -->
                         <li class="submenu">
                             <a href="">關於</a>
                             <ul>

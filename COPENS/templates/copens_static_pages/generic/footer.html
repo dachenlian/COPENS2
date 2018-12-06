@@ -1,20 +1,27 @@
-
+{% load static %}
 <footer>
     <div class="top"></div>
     <div class="container">
         <div class="row">
-            <div class="col-lg-5 col-md-12 col-sm-12">
-                <img src="images/copens_logo_black.svg" class="logo" alt="">
-                <div class="text">開放語料庫與搜尋工具</div>
+            <div class="col-sm-12" style="text-align: center">
+                <img src="{% static 'images/copens_logo_black.svg' %}" class="logo" alt="">
+                
+                <div class="text">| 開發者 |<br><a href="http://lope.linguistics.ntu.edu.tw/" target="_blank">台灣大學語言學研究所LOPE實驗室</a><br></div>
+                
+                <div class="text">
+                    <img src="https://licensebuttons.net/l/by-nc-sa/3.0/tw/88x31.png">
+                    <br>本著作係採用<br>創用 CC 姓名標示-非商業性-相同方式分享 3.0 台灣<br> 授權條款授權. 
+                </div>
+                <div class="text">
                 <ul class="social">
                     <li><a href="#"><i class="fa fa-facebook"></i></a></li>
                     <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                     <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
                     <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-                    <li><a href="#"><i class="fa fa-github"></i></a></li>
                 </ul>
+                </div>
             </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 col-6">
+            <!-- <div class="col-lg-2 col-md-4 col-sm-6 col-6">
                 <h5>Helpful Links</h5>
                 <ul class="footer-nav">
                     <li><a href="#"><i class="fa fa-angle-right"></i><span>About Us</span></a></li>
@@ -39,7 +46,7 @@
                     <p>Phone: (272) 211-7370</p>
                     <p><span>E-Mail:</span><a href="#">support@yourbrand.com</a></p>
                 </div>
-            </div>
+            </div> -->
         </div>
         <div class="row">
             <div class="col-lg-12">

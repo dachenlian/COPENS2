@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import UploadCorporaView, Home
+from .views import UploadCorporaView, UserPanelView
 
 app_name = 'upload'
 
 urlpatterns = [
-    path('', Home.as_view(), name='home'),
-    path('create/', UploadCorporaView.as_view(), name='upload')
+    path('', UserPanelView.as_view(), name='home'),
+    path('upload/', UploadCorporaView.as_view(), name='upload'),
 ]
