@@ -3,5 +3,16 @@ from .models import CopensUser, Corpus
 
 # Register your models here.
 
-admin.site.register(CopensUser)
+
+class CorpusInline(admin.TabularInline):
+    model = Corpus
+
+
+class CopensUserAdmin(admin.ModelAdmin):
+    inlines = [
+        CorpusInline
+    ]
+
+
+admin.site.register(CopensUser, CopensUserAdmin)
 admin.site.register(Corpus)
