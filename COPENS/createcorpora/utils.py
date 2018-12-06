@@ -49,7 +49,7 @@ def cwb_encode(vrt_file: Path, p_attrs: str, s_attrs: str) -> None:
     if not data_dir.exists():
         data_dir.mkdir()
 
-    command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {reg_dir} {p_attrs} {s_attrs} -c utf8"
+    command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {reg_dir} -xsB {p_attrs} {s_attrs} -c utf8"
 
     result = subprocess.run(command, shell=True, capture_output=True)
     if result.returncode != 0:
