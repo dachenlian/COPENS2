@@ -21,11 +21,6 @@ def make_dir(path: Path) -> Path:
         return directory
 
 
-# @receiver(user_logged_in)
-# def message(sender, instance, created, **kwargs):
-#     print(f'Signal received. {instance.username} logged in.')
-
-
 @receiver(post_save, sender=User)
 def create_copens_user(sender, instance, created, **kwargs):
 
