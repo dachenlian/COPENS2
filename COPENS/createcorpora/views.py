@@ -1,7 +1,7 @@
 from pathlib import Path
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -64,9 +64,9 @@ class ResultsView(View):
             db_choices = form.cleaned_data['db_choices']
             show_pos = form.cleaned_data['show_pos']
             context = form.cleaned_data['context']
-        # else:
 
         return render(request, self.template_name)
+
 
 class UploadCorporaView(LoginRequiredMixin, FormView):
     """
@@ -86,7 +86,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         en_name = form.cleaned_data['en_name']
         is_public = form.cleaned_data['is_public']
 
-        copens_user = CopensUser.objects.get(user=self.request.user)
+        copens_user = get_object_or_404(CopensUser, user=self.request.user)
         raw_dir = Path(copens_user.raw_dir)
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
@@ -96,10 +96,8 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
                          registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
         utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
 
-        print(self.request.user)
-        user = CopensUser.objects.get(user=self.request.user)
         Corpus.objects.create(
-            owner=user,
+            owner=copens_user,
             zh_name=zh_name,
             en_name=en_name,
             is_public=is_public,
