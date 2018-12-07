@@ -1,11 +1,11 @@
 from pathlib import Path
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
-from django.shortcuts import render
-from django.conf import settings
+from django.shortcuts import render, redirect
 from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 
 from .forms import UploadCorpusForm, SearchForm
 from . import utils
@@ -24,21 +24,6 @@ class Home(ListView):
             context['private_corpora'] = Corpus.objects.filter(owner=user)
         context['public_corpora'] = Corpus.objects.filter(is_public=True)
         return context
-
-
-class ResultsView(View):
-    """
-    Results after querying CWB are returned here.
-    """
-    template_name = 'createcorpora/results.html'
-
-    def get(self, request):
-        form = SearchForm(self.request.GET)
-        if form.is_valid():
-            query = form.cleaned_data['query']
-            db_choices = form.cleaned_data['db_choices']
-
-        return render(request, self.template_name)
 
 
 class SearchView(FormView):
@@ -60,6 +45,28 @@ class SearchView(FormView):
     def form_valid(self, form):
         print(form.cleaned_data.items())
 
+
+class ResultsView(View):
+    """
+    Results after querying CWB are returned here.
+    """
+    template_name = 'createcorpora/results.html'
+
+    def get(self, request):
+        if not self.request.GET.get('db_choices'):
+            messages.warning(self.request, 'At least one database must be selected.')
+            return redirect('create:search')
+
+        form = SearchForm(self.request.GET)
+        if form.is_valid():
+            print(form.cleaned_data.items())
+            query = form.cleaned_data['query']
+            db_choices = form.cleaned_data['db_choices']
+            show_pos = form.cleaned_data['show_pos']
+            context = form.cleaned_data['context']
+        # else:
+
+        return render(request, self.template_name)
 
 class UploadCorporaView(LoginRequiredMixin, FormView):
     """

@@ -9,14 +9,17 @@ from .models import Corpus, CopensUser
 
 
 class UploadCorpusForm(forms.Form):
-    zh_name = forms.CharField(max_length=255, initial='噗浪')
-    en_name = forms.CharField(max_length=255, initial='Plurk')
+    zh_name = forms.CharField(max_length=255, initial='噗浪', label='Chinese name')
+    en_name = forms.CharField(max_length=255, initial='Plurk', label='English name')
     file = forms.FileField(help_text='Filename must be the same as the English name.')
     positional_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-P'.",
-                                       required=False, initial='-P pos')
+                                       required=False, initial='-P pos',
+                                       label='Positional attributes')
     structural_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-S'.",
-                                       required=False, initial='-S corpus -S text+id -S s')
-    is_public = forms.BooleanField(required=False, help_text="Do you want this corpus to be available to the public?")
+                                       required=False, initial='-S corpus -S text+id -S s',
+                                       label='Structural attributes')
+    is_public = forms.BooleanField(required=False, help_text="Do you want this corpus to be available to the public?",
+                                   label='Public')
 
     def clean_positional_attrs(self):
         cleaned_data = self.cleaned_data['positional_attrs']
@@ -46,9 +49,14 @@ class SearchForm(forms.Form):
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
         self.fields['db_choices'] = forms.MultipleChoiceField(
+            label="Database choices",
             choices=self.DB_CHOICES,
-            widget=forms.CheckboxSelectMultiple
+            widget=forms.CheckboxSelectMultiple,
+            initial=self.DB_CHOICES[0]
         )
 
     query = forms.CharField(max_length=255, initial='台北',
                             help_text="""若要使用CQL，請在開頭輸入"cql:"，例：cql:[word="台大"]""")
+    show_pos = forms.BooleanField(label="Show POS?", required=False)
+    context = forms.CharField(required=False, max_length=255,
+                              help_text="What should the context around each result look like?")
