@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'copens_static_pages.apps.CopensStaticPagesConfig',
     'createcorpora.apps.CreatecorporaConfig',
     'crispy_forms',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
