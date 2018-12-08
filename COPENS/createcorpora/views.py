@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
@@ -6,6 +8,8 @@ from django.views.generic.list import ListView
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.conf import settings
 
 from .forms import UploadCorpusForm, SearchForm
 from . import utils
@@ -53,19 +57,34 @@ class ResultsView(View):
     template_name = 'createcorpora/results.html'
 
     def get(self, request):
-        if not self.request.GET.get('db_choices'):
+        if not self.request.GET.get('corpora'):
             messages.warning(self.request, 'At least one database must be selected.')
             return redirect('create:search')
 
+        if self.request.GET.get('page'):
+            results_list = self.request.session.get('results_list')
+            print(results_list)
+            paginator = Paginator(results_list, 10)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            return render(request, self.template_name, {'results': results})
+
         form = SearchForm(self.request.GET)
         if form.is_valid():
-            print(form.cleaned_data.items())
-            query = form.cleaned_data['query']
-            db_choices = form.cleaned_data['db_choices']
-            show_pos = form.cleaned_data['show_pos']
-            context = form.cleaned_data['context']
+            results_list = []
+            user_registry = utils.get_user_registry(self.request)
+            results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            for corpus, path in results_dict.items():
+                results_list.extend(utils.read_results(path))
 
-        return render(request, self.template_name)
+            paginator = Paginator(results_list, 100)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            self.request.session['results_list'] = results_list
+
+            return render(request, self.template_name, {'results': results})
+
+        return redirect('create:home')
 
 
 class UploadCorporaView(LoginRequiredMixin, FormView):
@@ -78,7 +97,6 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('create:upload')
 
     def form_valid(self, form):
-        print(form.cleaned_data.items())
         file = form.cleaned_data['file']
         p_attrs = form.cleaned_data['positional_attrs']
         s_attrs = form.cleaned_data['structural_attrs']
@@ -87,9 +105,15 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         is_public = form.cleaned_data['is_public']
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
+        print(copens_user.user)
         raw_dir = Path(copens_user.raw_dir)
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
+
+        print(raw_dir.joinpath(file.name))
+        if raw_dir.joinpath(file.name).exists():
+            messages.warning(self.request, 'This corpus already exists.')
+            return redirect('create:upload')
 
         utils.save_file_to_drive(file, raw_dir)
         utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
@@ -102,7 +126,10 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             en_name=en_name,
             is_public=is_public,
         )
-
+        if is_public:
+            os.link(registry_dir.joinpath(file.name.split('.')[0]),
+                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0]),
+                    )
         return super().form_valid(form)
 
 

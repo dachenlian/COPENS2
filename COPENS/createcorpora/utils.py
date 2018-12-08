@@ -1,11 +1,17 @@
 """
-Helper functions to use while uploading a corpus file.
+Helper functions to use while uploading a corpus file or making queries.
 """
-from django.core.files.uploadedfile import UploadedFile
-from django.conf import settings
 from pathlib import Path
 import logging
 import subprocess
+import random
+
+from django.core.files.uploadedfile import UploadedFile
+from django.conf import settings
+from django.http import request
+import pexpect
+
+from .models import CopensUser
 
 
 logging.basicConfig(level=logging.INFO,
@@ -22,56 +28,110 @@ console.setFormatter(formatter)
 logging.getLogger(__name__).addHandler(console)
 
 
-def save_file_to_drive(file: UploadedFile) -> None:
+def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
     """
     :param file: A Django UploadedFile file
+    :param raw_dir: A path to user uploaded unprocessed corpora files.
     """
     name = file.name
     logging.info(f'Received: {name}, size: {file.size}')
-    path = Path(settings.CWB_RAW_DIR) / name
+    path = raw_dir / name
     with open(path, 'wb+') as fp:
         for chunk in file.chunks():
             fp.write(chunk)
     logging.info(f'Writing to disk complete.')
 
 
-def cwb_encode(vrt_file: Path, p_attrs: str, s_attrs: str) -> None:
+def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str, s_attrs: str) -> None:
     """
     Encode a verticalized XML file as a CWB corpus.
     :param vrt_file: A path to a verticalized XML file
+    :param data_dir: A path to corpus binary files.
+    :param registry_dir: A path to a user's registry.
     :param p_attrs: A string describing all positional attributes of the corpus
     :param s_attrs: A string describing all structural attributes of the corpus
     :return:
     """
-    name = vrt_file.stem
-    data_dir = Path(settings.CWB_DATA_DIR) / name
-    reg_dir = Path(settings.CWB_REGISTRY_DIR) / name
+    name = vrt_file.stem  # filename without suffix
+    data_dir = data_dir / name
+    registry_dir = registry_dir / name
     if not data_dir.exists():
         data_dir.mkdir()
 
-    command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {reg_dir} -xsB {p_attrs} {s_attrs} -c utf8"
+    command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {registry_dir} -xsB {p_attrs} {s_attrs} -c utf8"
 
     result = subprocess.run(command, shell=True, capture_output=True)
     if result.returncode != 0:
-        logging.exception(f'cwb-encode exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
+        logging.exception(
+            f'cwb-encode exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
     else:
         logging.info('Successfully encoded .vrt file.')
 
 
-def cwb_make(vrt_file: str) -> None:
+def cwb_make(vrt_file: str, registry_dir: Path) -> None:
     """
     Index and compress an encoded corpus.
     :param vrt_file: A path to a verticalized XML file.
+    :param registry_dir: A path to the user's registry.
     """
     name = vrt_file.upper()
 
-    command = f"cwb-make --validate {name} --registry {settings.CWB_REGISTRY_DIR} --memory 500"
+    command = f"cwb-make --validate {name} --registry {registry_dir} --memory 500"
 
     result = subprocess.run(command, shell=True, capture_output=True)
     if result.returncode != 0:
-        logging.exception(f'cwb-make exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
+        logging.exception(
+            f'cwb-make exception occurred, ARGS: {result.args}\nSTDOUT:{result.stdout}\nERROR:{result.stderr}')
     else:
         logging.info('Successfully indexed and compressed corpus.')
 
 
+def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_registry=None) -> dict:
+    """
+    Use pexpect to send queries to cqp and write to file. Then, open and read said file and return contents.
+    :param query: A query to be entered into the cqp program.
+    :param corpora: A list of corpora for a query to be searched against.
+    :param show_pos: Show part of speech for each token.
+    :param context: Context size around the query.
+    :param user_registry: A path to the user's personal registry.
+    :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
+    """
+    corpora_results = {}
+    registry = f"{settings.CWB_PUBLIC_REG_DIR}"
+    if user_registry:
+        registry += f":{user_registry}"
+    cqp = pexpect.spawn(f'cqp -e -r {registry}', encoding='utf8')
+    if context:
+        cqp.write(f'set CONTEXT {context}')
+    logging.info(f'Query received: {query}')
 
+    for corpus in corpora:
+        filename = f'{random.randint(1, 1000000000)}.txt'
+        path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
+
+        commands = [
+            f'{corpus.upper()};',
+            f'show -cpos;',  # corpus position
+            f"'{query}';",
+            f"cat > '{path}';",
+            f"exit;"
+        ]
+        if show_pos:
+            commands.insert(-1, 'show +pos;')
+        for c in commands:
+            cqp.sendline(c)  # must send a linesep to work
+
+        corpora_results[corpus] = path
+    return corpora_results
+
+
+def read_results(path: str):
+    with open(path) as fp:
+        return fp.readlines()[1:-2]  # remove <ul> tags
+
+
+def get_user_registry(http_request: request):
+    user = http_request.user
+    if user.is_authenticated:
+        registry_dir = CopensUser.objects.get(user=user).registry_dir
+        return registry_dir

@@ -178,6 +178,7 @@ STATIC_URL = '/static/'
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
+CWB_PUBLIC_REG_DIR = os.path.join(CWB_REGISTRY_DIR, 'public')
 CWB_DATA_DIR = os.path.join(BASE_DIR, 'cwb', 'data')
 CWB_RAW_DIR = os.path.join(BASE_DIR, 'cwb', 'raw')
 CWB_QUERY_RESULTS_DIR = os.path.join(BASE_DIR, 'cwb', 'results')

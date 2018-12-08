@@ -48,7 +48,7 @@ class SearchForm(forms.Form):
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
-        self.fields['db_choices'] = forms.MultipleChoiceField(
+        self.fields['corpora'] = forms.MultipleChoiceField(
             label="Database choices",
             choices=self.DB_CHOICES,
             widget=forms.CheckboxSelectMultiple,

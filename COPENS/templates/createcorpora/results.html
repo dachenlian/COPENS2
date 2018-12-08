@@ -1,4 +1,37 @@
 {% extends 'base.html' %}
+{% load my_tags %}
 {% block content %}
+    <div class="row">
+        <div class="col">
+            <h1>Results </h1>
+            <small><a href="{% url 'create:search' %}">New search?</a></small>
+            <ul>
+                {% for result in results %}
+                    {{ result|safe }}
+                {% endfor %}
+            </ul>
 
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="pagination">
+    <span class="step-links">
+        {% if results.has_previous %}
+            <a href="?{% param_replace page=1 %}">&laquo; first</a>
+            <a href="?{% param_replace page=results.previous_page_number %}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ results.number }} of {{ results.paginator.num_pages }}.
+        </span>
+
+        {% if results.has_next %}
+            <a href="?{% param_replace page=results.next_page_number %}">next</a>
+            <a href="?{% param_replace page=results.paginator.num_pages %}">last &raquo;</a>
+        {% endif %}
+    </span>
+            </div>
+        </div>
+    </div>
 {% endblock %}
