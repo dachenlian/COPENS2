@@ -66,6 +66,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ROOT_URLCONF = 'COPENS.urls'
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -173,6 +180,7 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
 CWB_DATA_DIR = os.path.join(BASE_DIR, 'cwb', 'data')
 CWB_RAW_DIR = os.path.join(BASE_DIR, 'cwb', 'raw')
+CWB_QUERY_RESULTS_DIR = os.path.join(BASE_DIR, 'cwb', 'results')
 
 SITE_ID = 1
 

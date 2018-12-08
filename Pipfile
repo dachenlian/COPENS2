@@ -15,8 +15,12 @@ django-crispy-forms = "*"
 django-allauth = "*"
 jseg = "*"
 jieba = "*"
+pexpect = "*"
+django-extensions = "*"
+python-memcached = "*"
 
 [dev-packages]
+ipython = "*"
 
 [requires]
 python_version = "3.7"
