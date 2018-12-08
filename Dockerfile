@@ -1,16 +1,18 @@
-FROM ubuntu:16.04
+FROM python:3.7.1
+RUN apt-get update && apt-get install bison flex libwww-perl -y
+RUN mkdir /app
+COPY .cqprc /home
+ADD . /app
+WORKDIR /app/cwb/
+RUN make clean && make depend && ./install-scripts/install-linux
+ENV PATH="/usr/local/cwb-3.4.15/bin:${PATH}"
+WORKDIR /app/cwb-perl/CWB
+RUN perl Makefile.PL && make && make test && make install
+WORKDIR /app
+RUN pip install pipenv
+RUN pipenv install --system
+WORKDIR /app/COPENS
+RUN mkdir -p cwb/raw cwb/registry/public cwb/data cwb/results
 
-RUN set -ex \
- \
- && apt-get update \
- && apt-get install -y wget \
- && apt-get install -y python-pip \
- && apt-get install -y libffi-dev libpcre3 libpcre++-dev python apache2 python-dev python-cheetah python-simplejson libltdl7 \
-# && pip install signalfd python-signalfd \
- && wget -O python-signalfd.deb "https://corpora.fi.muni.cz/noske/deb/1604/python-signalfd/python-signalfd_0.1-1ubuntu1_amd64.deb" \
- && wget -O bonito.deb "https://corpora.fi.muni.cz/noske/deb/1604/bonito-open/bonito-open_3.105.1-1_all.deb" \
- && wget -O bonito-www.deb "https://corpora.fi.muni.cz/noske/deb/1604/bonito-open/bonito-open-www_3.105.1-1_all.deb" \
- && wget -O manatee.deb "https://corpora.fi.muni.cz/noske/deb/1604/manatee-open/manatee-open_2.158.8-1ubuntu1_amd64.deb" \
- && wget -O manatee-python.deb "https://corpora.fi.muni.cz/noske/deb/1604/manatee-open/manatee-open-python_2.158.8-1ubuntu1_amd64.deb" \
- && wget -O manatee-susanne.deb "https://corpora.fi.muni.cz/noske/deb/1604/manatee-open/manatee-open-susanne_2.158.8-1ubuntu1_amd64.deb" \
- && dpkg -i  ./python-signalfd.deb ./bonito.deb ./bonito-www.deb ./manatee.deb ./manatee-python.deb ./manatee-susanne.deb \
+
+

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6364d486afd635f3edda0d4e1a81c5fdb11a45866af2c289605a5d0ecbfdd45d"
+            "sha256": "480fa6f167bade0a4fdc46d3ba1f81f9007f85d22ed6307df03afe70781a4005"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -36,19 +36,6 @@
             ],
             "index": "pypi",
             "version": "==3.5.0"
-        },
-        "cwb-python": {
-            "hashes": [
-                "sha256:0005a252727b9898e2f1af4ad93aae804142fc792fe26493ad99021cbcdaa6bf",
-                "sha256:1e45ed5ab2bd95838049505f0adf599ada5bf33989e789220b7ee7852cfbc178",
-                "sha256:40286bb8bf3d18ba1b05503338cccf36ecf4015e298c7c287763d5a9c3e6e89a",
-                "sha256:4280ef744ee740fd724c1bef0b4d8fe426ec7b020e2ca35f83f2a42caf5b6e2c",
-                "sha256:70c51d788779cdb699b02e683073b7d2babf1a574980d286e5f344c685a354a0",
-                "sha256:93e7b429e492840795ef9556890c141a5ef7ac485adb1d9bc99aa20daa8db9cc",
-                "sha256:e71f7cb194d865eaebd8bbf68ca6478fa3feb350b3e5953bada8380fad609002"
-            ],
-            "index": "pypi",
-            "version": "==0.2.2"
         },
         "cython": {
             "hashes": [
@@ -241,6 +228,13 @@
                 "sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"
             ],
             "version": "==1.24.1"
+        },
+        "uwsgi": {
+            "hashes": [
+                "sha256:d2318235c74665a60021a4fc7770e9c2756f9fc07de7b8c22805efe85b5ab277"
+            ],
+            "index": "pypi",
+            "version": "==2.0.17.1"
         }
     },
     "develop": {

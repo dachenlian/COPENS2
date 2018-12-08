@@ -1,24 +1,59 @@
 version: '3'
 
 services:
-#  nginx:
-#    image: nginx
-#    container_name: copens_nginx
-#    restart: always
-#    ports:
-#      - "8000:8000"
-#    volumes:
-#      - ./config/nginx:/etc/nginx/conf.d
-#    depends_on:
-#      - web
+  memcached:
+    image: memcached
+    restart: always
+    container_name: copens_memcached
+    entrypoint:
+      - memcached
+      - -m 2000
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '3'
+      driver: json-file
+  copens_db:
+    container_name: copens_db
+    restart: always
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=copens
+      - MYSQL_DATABASE=copens
+      - MYSQL_USER=copens
+      - MYSQL_PASSWORD=copens
+    volumes:
+      - ./config/mariadb:/etc/mysql/conf.d
+      - ./mysql:/var/lib/mysql
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '3'
+      driver: json-file
   web:
     build: .
+    volumes:
+      - cwb:/app/cwb/
     container_name: copens_web
-    command: apachectl -D FOREGROUND
+    depends_on:
+      - copens_db
+      - memcached
+    command: >
+      bash -c "python manage.py makemigrations --noinput
+      && python manage.py migrate --noinput
+      && python manage.py collectstatic --noinput
+      && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi --static-map /static_cwm=static_all
+      --process 4 --manage-script-name --mount=/copens=COPENS/wsgi.py"
     restart: always
-#    stdin_open: true
-#    tty: true
     ports:
-      - "80:80"
+      - "8000:8000"
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '3'
+      driver: json-file
+
+volumes:
+  cwb:
 
 

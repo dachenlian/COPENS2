@@ -59,6 +59,7 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
         data_dir.mkdir()
 
     command = f"cwb-encode -d {data_dir} -f {vrt_file} -R {registry_dir} -xsB {p_attrs} {s_attrs} -c utf8"
+    print(f'Command: {command}')
 
     result = subprocess.run(command, shell=True, capture_output=True)
     if result.returncode != 0:
@@ -110,18 +111,20 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
         path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
 
         commands = [
+            'set AutoShow off;',
+            'set PrintMode html;'
             f'{corpus.upper()};',
             f'show -cpos;',  # corpus position
             f"'{query}';",
             f"cat > '{path}';",
-            f"exit;"
         ]
         if show_pos:
-            commands.insert(-1, 'show +pos;')
+            commands.insert(-2, 'show +pos;')
         for c in commands:
             cqp.sendline(c)  # must send a linesep to work
 
         corpora_results[corpus] = path
+    cqp.sendline('exit;')
     return corpora_results
 
 

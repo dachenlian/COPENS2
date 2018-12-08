@@ -63,8 +63,7 @@ class ResultsView(View):
 
         if self.request.GET.get('page'):
             results_list = self.request.session.get('results_list')
-            print(results_list)
-            paginator = Paginator(results_list, 10)
+            paginator = Paginator(results_list, 100)
             page = request.GET.get('page')
             results = paginator.get_page(page)
             return render(request, self.template_name, {'results': results})
@@ -73,6 +72,7 @@ class ResultsView(View):
         if form.is_valid():
             results_list = []
             user_registry = utils.get_user_registry(self.request)
+            print(list(form.cleaned_data.items()))
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             for corpus, path in results_dict.items():
                 results_list.extend(utils.read_results(path))
@@ -97,6 +97,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('create:upload')
 
     def form_valid(self, form):
+        print(list(form.cleaned_data.items()))
         file = form.cleaned_data['file']
         p_attrs = form.cleaned_data['positional_attrs']
         s_attrs = form.cleaned_data['structural_attrs']

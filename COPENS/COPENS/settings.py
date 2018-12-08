@@ -26,7 +26,7 @@ SECRET_KEY = '_a#_eig*^mlb72q6!j2(mp06mkxg34n155&m=nigk&32nie!iw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
 
 
 # Application definition
@@ -69,9 +69,11 @@ ROOT_URLCONF = 'COPENS.urls'
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': 'memcached:11211',
     }
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 TEMPLATES = [
     {
@@ -105,8 +107,12 @@ WSGI_APPLICATION = 'COPENS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'copens',
+        'USER': 'copens',
+        'PASSWORD': 'copens',
+        'HOST': 'copens_db',
+        'PORT': 3306,
     }
 }
 
@@ -171,9 +177,9 @@ USE_TZ = True
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
-    # '/var/www/static/',
 ]
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 

@@ -16,7 +16,7 @@ class UploadCorpusForm(forms.Form):
                                        required=False, initial='-P pos',
                                        label='Positional attributes')
     structural_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-S'.",
-                                       required=False, initial='-S corpus -S text+id -S s',
+                                       required=False, initial='-S text+id -S s -0 corpus',
                                        label='Structural attributes')
     is_public = forms.BooleanField(required=False, help_text="Do you want this corpus to be available to the public?",
                                    label='Public')
@@ -25,11 +25,13 @@ class UploadCorpusForm(forms.Form):
         cleaned_data = self.cleaned_data['positional_attrs']
         if cleaned_data and not cleaned_data.startswith('-P'):
             raise forms.ValidationError("Positional attributes must begin with -P")
+        return cleaned_data
 
     def clean_structural_attrs(self):
         cleaned_data = self.cleaned_data['structural_attrs']
         if cleaned_data and not cleaned_data.startswith('-S'):
             raise forms.ValidationError("Structural attributes must begin with -S")
+        return cleaned_data
 
 
 class SearchForm(forms.Form):
