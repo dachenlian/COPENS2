@@ -17,3 +17,7 @@ You'll need an account to upload and do searches and stuff, so:
 3. Go to `127.0.0.1:8000`
 
 You'll have to upload a corpus first.
+
+### Functions
+#### Searching
+url: `/user/search/`
