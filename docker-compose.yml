@@ -34,8 +34,10 @@ services:
     build: .
     volumes:
       - cwb-volume:/app/COPENS/cwb/
-      - ./:/app
-#      - ./COPENS/templates:/app/COPENS/templates
+      - ./COPENS/:/app/COPENS/
+    environment:
+      - PYTHONUNBUFFERED=0
+    tty: true
     container_name: copens_web
     depends_on:
       - copens_db
@@ -44,8 +46,9 @@ services:
       bash -c "python manage.py makemigrations --noinput
       && python manage.py migrate --noinput
       && python manage.py collectstatic --noinput
-      && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi --static-map /static_cwm=static_all
-      --process 4 --manage-script-name --mount=/copens=COPENS/wsgi.py"
+      && python -u manage.py runserver 0.0.0.0:8000"
+#      && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi --static-map /static_cwm=static_all
+#      --process 4 --manage-script-name --mount=/copens=COPENS/wsgi.py"
     restart: always
     ports:
       - "8000:8000"
