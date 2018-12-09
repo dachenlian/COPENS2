@@ -9,17 +9,17 @@ from .models import Corpus, CopensUser
 
 
 class UploadCorpusForm(forms.Form):
-    zh_name = forms.CharField(max_length=255, initial='噗浪', label='Chinese name')
-    en_name = forms.CharField(max_length=255, initial='Plurk', label='English name')
-    file = forms.FileField(help_text='Filename must be the same as the English name.')
+    zh_name = forms.CharField(max_length=255, initial='噗浪', label='語料庫名稱(中文)')
+    en_name = forms.CharField(max_length=255, initial='Plurk', label='語料庫名稱(英文)')
+    file = forms.FileField(label='檔案', help_text='檔案名稱必須與語料庫名稱(英文)相同')
     positional_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-P'.",
                                        required=False, initial='-P pos',
-                                       label='Positional attributes')
+                                       label='位置屬性(Positional attributes)')
     structural_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-S'.",
                                        required=False, initial='-S text+id -S s -0 corpus',
-                                       label='Structural attributes')
-    is_public = forms.BooleanField(required=False, help_text="Do you want this corpus to be available to the public?",
-                                   label='Public')
+                                       label='結構屬性(Structural attributes)')
+    is_public = forms.BooleanField(required=False, help_text="您是否希望公開這份語料庫嗎？",
+                                   label='設為公開')
 
     def clean_positional_attrs(self):
         cleaned_data = self.cleaned_data['positional_attrs']

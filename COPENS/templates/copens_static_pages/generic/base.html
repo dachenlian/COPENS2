@@ -26,62 +26,139 @@
 <body>
   <!--- Login modal: begin -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-dialog-centered modal-md " role="document">
     <div class="modal-content">
-      
+      <div class="modal-header">
+        <!-- <h5 class="modal-title" id="exampleModalLabel">Modal title</h5> -->
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-6">
-            <a class="btn btn-secondary btn-lg btn-block" href="{% provider_login_url 'github' %}" role="button">使用Github登入</a>
-          </div>
-          <div class="col-lg-6">
-            <a class="btn btn-secondary btn-lg btn-block" href="{% provider_login_url 'google' %}" role="button">使用Google登入</a>
-          </div>
           <div class="col-lg-12">
-            <form class="login form-horizontal" method="POST" action="{% url 'account_login' %}">
-              {% csrf_token %}
-              {{ form.non_field_errors }}
-              <div class="form-group">
-                {{ form.login.errors }}
-                  
-                <input class="form-control" autofocus="autofocus" id="id_login" maxlength="30" name="login" placeholder="帳號" type="text" />
+            <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">登入</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">註冊</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+              <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
+                <div class="row" style="margin: 20px 0">
+                  <div class="col-lg-6">
+                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'github' %}" role="button">使用Github帳號</a>
+                  </div>
+                  <div class="col-lg-6">
+                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'google' %}" role="button">使用Google帳號</a>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-12">
+                    <form class="login form-horizontal" method="POST" action="{% url 'account_login' %}">
+                      {% csrf_token %}
+                      {{ form.non_field_errors }}
+                      <div class="form-group">
+                        {{ form.login.errors }}
+                        <input class="form-control" autofocus="autofocus" id="id_login" maxlength="30" name="login" placeholder="帳號" type="text" />
+                      </div>
+                      <div class="form-group">
+                        {{ form.password.errors }}
+                        <input class="form-control" id="id_password" name="password" placeholder="密碼" >
+                        <a href="{% url 'account_reset_password' %}">忘記密碼?</a>
+                      </div>
+                      <div class="form-group">
+                        {{ form.remember.errors }}
+                        <!-- <label for="inputDefault" class="col-lg-3 control-label"></label> -->
+                        <input id="id_remember" name="remember" type="checkbox" /> 記住我
+                      </div>
+                      {% if redirect_field_value %}
+                      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                      {% endif %}
+
+                      <div class="form-group">
+                        <button class="primaryAction btn btn-block btn-primary" type="submit">登入</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
+              <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                <!-- <div class="row" style="margin: 20px 0">
+                  <div class="col-lg-6">
+                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'github' %}" role="button">使用Github帳號</a>
+                  </div>
+                  <div class="col-lg-6">
+                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'google' %}" role="button">使用Google帳號</a>
+                  </div>
+                </div> -->
+                <div class="row" style="margin: 20px 0">
+                  <div class="col-lg-12">
+                    <form class="login form-horizontal" method="POST" action="{% url 'account_login' %}">
+                      {% csrf_token %}
+                      {{ form.non_field_errors }}
+                      <div class="form-group">
+                        {{ form.login.errors }}
+                        <input class="form-control" autofocus="autofocus" id="id_login" maxlength="30" name="login" placeholder="帳號" type="text" />
+                      </div>
+                      <div class="form-group">
+                        {{ form.password.errors }}
+                        <input class="form-control" id="id_password" name="password" placeholder="密碼" >
+                      </div>
+                      <div class="form-group">
+                        {{ form.password.errors }}
+                        <input class="form-control" id="id_password" name="password" placeholder="確認密碼" >
+                      </div>
+                      
+                      {% if redirect_field_value %}
+                      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                      {% endif %}
 
-              <div class="form-group">
-                {{ form.password.errors }}
-        
-       
-                <input class="form-control" id="id_password" name="password" placeholder="密碼" >
-
+                      <div class="form-group">
+                        <button class="primaryAction btn btn-block btn-primary" type="submit">註冊</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
-
-        <div class="form-group">
-        {{ form.remember.errors }}
-        <label for="inputDefault" class="col-lg-3 control-label"></label>
-
-        <div class="col-lg-9">
-        <input id="id_remember" name="remember" type="checkbox" /> 記住我
-        </div>
-
-        </div>
-
-        {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-        {% endif %}
-
-        <div class="form-group">
-
-        <div class="col-lg-9 col-lg-offset-3">
-        <button class="primaryAction btn btn-default btn-primary" type="submit">登入</button>
-        <a class="button btn btn-primary" href="{% url 'account_reset_password' %}">忘記密碼</a>
-        </div>
-        </div>
-        </form>
+            </div>
           </div>
 
+            <!-- <div class="col-lg-12">
+              <form class="login form-horizontal" method="POST" action="{% url 'account_login' %}">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                  {{ form.login.errors }}
+                  <input class="form-control" autofocus="autofocus" id="id_login" maxlength="30" name="login" placeholder="帳號" type="text" />
+                </div>
+                <div class="form-group">
+                  {{ form.password.errors }}
+                  <input class="form-control" id="id_password" name="password" placeholder="密碼" >
+                  <a href="{% url 'account_reset_password' %}">忘記密碼</a>
+                </div>
+
+                <div class="form-group">
+                  {{ form.remember.errors }}
+                  <label for="inputDefault" class="col-lg-3 control-label"></label>
+                  <input id="id_remember" name="remember" type="checkbox" /> 記住我
+                </div>
+
+
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                {% endif %}
+
+                <div class="form-group">
+                  <div class="col-lg-9 col-lg-offset-3">
+                  <button class="primaryAction btn btn-default btn-primary" type="submit">登入</button>
+                </div>
+              </form>
+            </div> -->
         </div>
       </div>
-      
     </div>
   </div>
 </div>

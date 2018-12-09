@@ -35,7 +35,14 @@
                                 <li><a href="{% url 'copens_static_pages:contact' %}">聯絡我們</a></li>
                             </ul>
                         </li>
-                        <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'create:home' %}" class="btn-nav">使用者後台</a></li>
+                            <li>
+                                <form class="login form-horizontal" method="POST" action="{% url 'account_logout' %}"><button type="submit" class="btn-nav">登出</button> {% csrf_token %}</form></li>
+                        {% else %}
+                            <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li>
+                        {% endif %}
+                        
                     </ul>
                     <a class="menu-trigger">
               <span>Menu</span>

@@ -35,7 +35,6 @@ class SearchView(FormView):
     """
     User chooses what databases to query from.
     """
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
 
     template_name = 'createcorpora/search.html'
     form_class = SearchForm
@@ -60,10 +59,9 @@ class ResultsView(View):
     template_name = 'createcorpora/results.html'
 
     def get(self, request):
-        print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
         if not self.request.GET.get('corpora'):
-            messages.warning(self.request, 'At least one database must be selected.')
-            return redirect('create:search')
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('create:home')
 
         if self.request.GET.get('page'):
             results_list = self.request.session.get('results_list')
@@ -73,12 +71,18 @@ class ResultsView(View):
             return render(request, self.template_name, {'results': results})
 
         form = SearchForm(self.request.GET)
-        print('xxxxxxxxxxxx')
+
         if form.is_valid():
             results_list = []
             user_registry = utils.get_user_registry(self.request)
+            print('********************')
+            print(user_registry)
+
+            print('********************')
             print(list(form.cleaned_data.items()))
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            print(results_dict)
+
             for corpus, path in results_dict.items():
                 results_list.extend(utils.read_results(path))
 
@@ -177,8 +181,8 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
 
         print(raw_dir.joinpath(file.name))
         if raw_dir.joinpath(file.name).exists():
-            messages.warning(self.request, 'This corpus already exists.')
-            return redirect('create:upload')
+            messages.warning(self.request, '您上傳的語料庫已存在！')
+            return redirect('create:home')
 
         utils.save_file_to_drive(file, raw_dir)
         utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,

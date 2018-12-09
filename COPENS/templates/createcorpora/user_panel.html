@@ -13,6 +13,7 @@
     </section>
     <section class="section content-section" id="user-panel-section">
         <div class="container">
+            
             <div class="row">
                 <div class="col-12">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -22,16 +23,24 @@
                         <li class="nav-item">
                             <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">使用自訂語料庫查詢</a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">其他</a>
-                        </li>
+                        </li> -->
                     </ul>
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <div class="row">
                                 <div class="col-lg-12">
                                     <section>
-                                        <h4>上傳語料</h4>
+                                        {% if messages %}
+                                            <div class="alert alert-warning" role="alert">
+                                                {% for m in messages %}
+                                            <p>{{ m }}</p>
+                                            {% endfor %}
+                                            </div>
+                                            
+                                        {% endif %}
+                                        
                                         <form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             {{ forms.upload|crispy }}
@@ -84,6 +93,7 @@
                             </div>
                         </div>
                         <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                            <section>
                             {% if no_corpus %}
                                 <h1>請先上傳語料庫！</h1>
                             {% else %}
@@ -92,9 +102,9 @@
                             <button class="btn btn-primary" type="submit">Search</button>
                             </form>
                             {% endif %}
-                            
+                            </section>
                         </div>
-                        <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                        <!-- <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div> -->
                     </div>
                 </div>
             </div>

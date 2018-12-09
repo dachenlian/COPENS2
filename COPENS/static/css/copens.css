@@ -3580,7 +3580,7 @@ footer .container {
 
 }
 
-#toc-section h4 {
+#toc-section h6 {
     margin-top: 40px;
     margin-bottom: 20px;
 
@@ -3588,6 +3588,10 @@ footer .container {
 
 #toc-section ul {
     margin-bottom: 20px;
+}
+
+#toc-section li, #toc-section p {
+    font-size: 14px;
 }
 
 #user-panel-section h4 {
@@ -3613,5 +3617,13 @@ footer .text {
 }
 
 section h2, section h3, section h4 {
-    font-weight: 300;
+    /* font-weight: 300; */
+}
+
+.content-section .features-small-item {
+    height: 280px;
+}
+
+.header-section h2 {
+    font-size: 1.3rem;
 }
