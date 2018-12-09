@@ -33,7 +33,8 @@ services:
   web:
     build: .
     volumes:
-      - cwb:/app/cwb/
+      - cwb-volume:/app/COPENS/cwb/
+      - ./COPENS/templates:/app/COPENS/templates
     container_name: copens_web
     depends_on:
       - copens_db
@@ -54,6 +55,6 @@ services:
       driver: json-file
 
 volumes:
-  cwb:
+  cwb-volume:
 
 
