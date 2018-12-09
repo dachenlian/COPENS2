@@ -34,7 +34,7 @@
                                         <h4>上傳語料</h4>
                                         <form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {{ form|crispy }}
+                                            {{ forms.upload|crispy }}
                                             <button class="btn btn-primary" type="submit">Upload</button>
                                         </form>
                                     </section>
@@ -83,7 +83,17 @@
                                 
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">...</div>
+                        <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                            {% if no_corpus %}
+                                <h1>請先上傳語料庫！</h1>
+                            {% else %}
+                            <form action="{% url 'create:results' %}" method="get">
+                            {{ forms.search|crispy }}
+                            <button class="btn btn-primary" type="submit">Search</button>
+                            </form>
+                            {% endif %}
+                            
+                        </div>
                         <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
                     </div>
                 </div>
