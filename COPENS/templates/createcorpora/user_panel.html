@@ -53,38 +53,47 @@
                                             <thead class="thead-light">
                                                 <tr>
                                                     <th scope="col">#</th>
-                                                    <th scope="col">上傳日期</th>
-                                                    <th scope="col">上傳時間</th>
-                                                    <th scope="col">檔案名稱</th>
-                                                    <th scope="col">檔案大小</th>
+                                                    <th scope="col">上傳日期時間</th>
+                                                    <th scope="col">英文名稱</th>
+                                                    <th scope="col">中文名稱</th>
+                                                    <th scope="col">是否公開</th>
+                                                    <th scope="col">刪掉</th>
 
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                            {% for corpus in corpora %}
                                                 <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
-
+                                                    <th scope="row">{{ forloop.counter }}</th>
+                                                    <td>{{ corpus.date_uploaded|date:'M d, Y H:i' }}</td>
+                                                    <td>{{ corpus.en_name }}</td>
+                                                    <td>{{ corpus.zh_name }}</td>
+                                                    <td>{{ corpus.is_public }}</td>
+                                                    <td><a class="btn btn-primary btn-sm" href="{% url 'create:delete' pk=corpus.id %}">刪掉</a></td>
                                                 </tr>
-                                                <tr>
-                                                    <th scope="row">2</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
-
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">3</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
-                                                    
-                                                </tr>
+                                            {% endfor %}
+{#                                                    <td>2018-12-01</td>#}
+{#                                                    <td>22:01:01</td>#}
+{#                                                    <td>ptt.txt</td>#}
+{#                                                    <td>2 MB</td>#}
+{##}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <th scope="row">2</th>#}
+{#                                                    <td>2018-12-01</td>#}
+{#                                                    <td>22:01:01</td>#}
+{#                                                    <td>ptt.txt</td>#}
+{#                                                    <td>2 MB</td>#}
+{##}
+{#                                                </tr>#}
+{#                                                <tr>#}
+{#                                                    <th scope="row">3</th>#}
+{#                                                    <td>2018-12-01</td>#}
+{#                                                    <td>22:01:01</td>#}
+{#                                                    <td>ptt.txt</td>#}
+{#                                                    <td>2 MB</td>#}
+{#                                                    #}
+{#                                                </tr>#}
                                             </tbody>
                                         </table>
                                     </section>

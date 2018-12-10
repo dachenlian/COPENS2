@@ -1,8 +1,10 @@
 import os
+import logging
 
 from pathlib import Path
 from django.db.models import Q
 from django.views.generic.edit import FormView
+from django.views.generic import DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic.list import ListView
@@ -16,6 +18,9 @@ from .forms import UploadCorpusForm, SearchForm
 from . import utils
 from .models import Corpus, CopensUser
 from .mixins import MultiFormMixin, MultiFormsView
+
+logger = logging.getLogger('django')
+
 
 class Home(ListView):
     template_name = 'createcorpora/home.html'
@@ -65,7 +70,7 @@ class ResultsView(View):
 
         if self.request.GET.get('page'):
             results_list = self.request.session.get('results_list')
-            paginator = Paginator(results_list, 100)
+            paginator = Paginator(results_list, 20)
             page = request.GET.get('page')
             results = paginator.get_page(page)
             return render(request, self.template_name, {'results': results})
@@ -94,6 +99,7 @@ class ResultsView(View):
 
         return redirect('create:home')
 
+
 def for_concordance_tag(elm):
     import re
     p = re.compile('<B>(.*)</B>')
@@ -107,6 +113,7 @@ def for_concordance_tag(elm):
         'context_right': context_right
     }
 
+
 class UploadCorporaView(LoginRequiredMixin, FormView):
     """
     User can upload personal corpora to COPENS.
@@ -114,7 +121,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     login_url = 'account_login'
     template_name = 'createcorpora/index.html'
     form_class = UploadCorpusForm
-    success_url = reverse_lazy('create:upload')
+    success_url = reverse_lazy('create:home')
 
     def form_valid(self, form):
         print(list(form.cleaned_data.items()))
@@ -146,12 +153,30 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             zh_name=zh_name,
             en_name=en_name,
             is_public=is_public,
+            file_name=file.name,
         )
         if is_public:
             os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0]),
+                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
                     )
         return super().form_valid(form)
+
+
+class DeleteCorpusView(LoginRequiredMixin, DeleteView):
+    """Delete user uploaded corpora."""
+    login_url = 'account_login'
+    model = Corpus
+    success_url = reverse_lazy('create:home')
+
+    def delete(self, request, *args, **kwargs):
+        copens_user = get_object_or_404(CopensUser, user=self.request.user)
+        corpus = self.get_object()
+        if copens_user == corpus.owner:
+            utils.delete_files_from_drive(copens_user, corpus)
+            messages.success(request, '刪除語料庫成功！')
+            return super().delete(request, *args, **kwargs)
+        else:
+            return redirect('create:home')
 
 
 class UserPanelView(LoginRequiredMixin, MultiFormsView):
@@ -174,6 +199,7 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
         copens_user = CopensUser.objects.get(user=self.request.user)
         corpora = [c for c in Corpus.objects.filter(Q(owner=copens_user))]
         context['no_corpus'] = True if len(corpora) == 0 else False
+        context['corpora'] = corpora
         print('xxxxxxxxxxxxxx')
         print(context)
         return context
@@ -212,7 +238,7 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
         )
         if is_public:
             os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0]),
+                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
                     )
         return super().upload_form_valid(form)
 
