@@ -198,8 +198,8 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         copens_user = CopensUser.objects.get(user=self.request.user)
-        private_corpora = [c for c in Corpus.objects.filter(owner=copens_user)]
-        public_corpora = [c for c in Corpus.objects.filter(is_public=True)]
+        private_corpora = Corpus.objects.filter(owner=copens_user)
+        public_corpora = Corpus.objects.filter(is_public=True)
         context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
         context['private_corpora'] = private_corpora
         return context
