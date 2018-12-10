@@ -95,7 +95,11 @@
                         <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                             <section>
                             {% if no_corpus %}
-                                <h1>請先上傳語料庫！</h1>
+                                <div class="alert alert-warning" role="alert">
+
+                                <p>尚無可用語料庫</p>
+
+                                </div>
                             {% else %}
                             <form action="{% url 'create:results' %}" method="get">
                             {{ forms.search|crispy }}

@@ -50,12 +50,15 @@ class SearchForm(forms.Form):
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
-        self.fields['corpora'] = forms.MultipleChoiceField(
-            label="Database choices",
-            choices=self.DB_CHOICES,
-            widget=forms.CheckboxSelectMultiple,
-            initial=self.DB_CHOICES[0]
-        )
+        try:
+            self.fields['corpora'] = forms.MultipleChoiceField(
+                label="Database choices",
+                choices=self.DB_CHOICES,
+                widget=forms.CheckboxSelectMultiple,
+                initial=self.DB_CHOICES[0]
+            )
+        except:
+            self.fields['corpora'] = forms.MultipleChoiceField()
 
     query = forms.CharField(max_length=255, initial='台北',
                             help_text="""若要使用CQL，請在開頭輸入"cql:"，例：cql:[word="台大"]""")

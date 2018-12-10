@@ -664,7 +664,7 @@ header
     color: #C7E5FF;
 }
 
-.header-area .main-nav .nav li a.btn-nav {
+.header-area .main-nav .nav li .btn-nav {
     border: 1px solid #fff;
     padding-left: 30px;
     padding-right: 30px;
@@ -674,9 +674,12 @@ header
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
+    background: none;
+    line-height: 40px;
+    color: white;
 }
 
-.header-area .main-nav .nav li a.btn-nav:hover {
+.header-area .main-nav .nav li .btn-nav:hover {
     background: #fff;
     color: #506CEA;
 }

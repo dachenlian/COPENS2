@@ -75,26 +75,37 @@ class ResultsView(View):
         if form.is_valid():
             results_list = []
             user_registry = utils.get_user_registry(self.request)
-            print('********************')
-            print(user_registry)
-
-            print('********************')
             print(list(form.cleaned_data.items()))
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             print(results_dict)
-
             for corpus, path in results_dict.items():
                 results_list.extend(utils.read_results(path))
 
-            paginator = Paginator(results_list, 100)
+            paginator = Paginator(results_list, 20)
             page = request.GET.get('page')
             results = paginator.get_page(page)
+            print(',,,,,,,,,')
+
+            results.object_list = list(map(for_concordance_tag, results.object_list))
             self.request.session['results_list'] = results_list
+            print(results_list)
 
             return render(request, self.template_name, {'results': results})
 
         return redirect('create:home')
 
+def for_concordance_tag(elm):
+    import re
+    p = re.compile('<B>(.*)</B>')
+    query_word = p.search(elm).group(1)
+    context_left = elm.split('<B>')[0].replace('<LI>', '')
+    context_right = elm.split('</B>')[1].replace('</LI>', '')
+
+    return {
+        'context_left': context_left,
+        'query_word': query_word,
+        'context_right': context_right
+    }
 
 class UploadCorporaView(LoginRequiredMixin, FormView):
     """
@@ -158,13 +169,17 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     }
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        print('xxxxxxxxxxxxxxxxxxxxxxxxx')
         context = super().get_context_data(**kwargs)
         copens_user = CopensUser.objects.get(user=self.request.user)
         corpora = [c for c in Corpus.objects.filter(Q(owner=copens_user))]
         context['no_corpus'] = True if len(corpora) == 0 else False
+        print('xxxxxxxxxxxxxx')
+        print(context)
         return context
 
     def upload_form_valid(self, form):
+        import pdb; pdb.set_trace()
         print(list(form.cleaned_data.items()))
         file = form.cleaned_data['file']
         p_attrs = form.cleaned_data['positional_attrs']
