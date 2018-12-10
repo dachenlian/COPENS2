@@ -2,6 +2,7 @@ from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.edit import ProcessFormView
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
 
+
 class MultiFormMixin(ContextMixin):
 
     form_classes = {} 
@@ -122,7 +123,8 @@ class BaseMultipleFormsView(MultiFormMixin, ProcessMultipleFormsView):
     """
     A base view for displaying several forms.
     """
- 
+
+
 class MultiFormsView(TemplateResponseMixin, BaseMultipleFormsView):
     """
     A view for displaying several forms, and rendering a template response.

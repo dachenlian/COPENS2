@@ -5,13 +5,16 @@ from pathlib import Path
 import logging
 import subprocess
 import random
+import sys
+import os
+import shutil
 
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
 from django.http import request
 import pexpect
 
-from .models import CopensUser
+from .models import CopensUser, Corpus
 
 
 logging.basicConfig(level=logging.INFO,
@@ -42,6 +45,27 @@ def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
     logging.info(f'Writing to disk complete.')
 
 
+def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
+    """
+    Delete a user uploaded corpus
+    :param copens_user: An instance of CopensUser
+    :param corpus: An instance of Corpus
+    :return: None
+    """
+    raw_path = Path(copens_user.raw_dir) / corpus.file_name
+    reg_path = Path(copens_user.registry_dir) / corpus.en_name.lower()
+    data_path = Path(copens_user.data_dir) / corpus.en_name.lower()
+
+    if corpus.is_public:
+        os.unlink(Path(settings.CWB_PUBLIC_REG_DIR) / corpus.en_name.lower())
+    try:
+        os.remove(raw_path)
+        os.remove(reg_path)
+        shutil.rmtree(data_path)
+    except FileNotFoundError as e:
+        logging.warning(f'Cannot find files: {e}')
+
+
 def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str, s_attrs: str) -> None:
     """
     Encode a verticalized XML file as a CWB corpus.
@@ -50,7 +74,7 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
     :param registry_dir: A path to a user's registry.
     :param p_attrs: A string describing all positional attributes of the corpus
     :param s_attrs: A string describing all structural attributes of the corpus
-    :return:
+    :return: None
     """
     name = vrt_file.stem  # filename without suffix
     data_dir = data_dir / name
@@ -102,8 +126,9 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     if user_registry:
         registry += f":{user_registry}"
     cqp = pexpect.spawn(f'cqp -e -r {registry}', encoding='utf8')
+    cqp.logfile_read = sys.stdout
     if context:
-        cqp.write(f'set CONTEXT {context}')
+        cqp.write(f'set CONTEXT {context};')
     logging.info(f'Query received: {query}')
 
     for corpus in corpora:
