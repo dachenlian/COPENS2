@@ -5,6 +5,7 @@ Forms to deal with creating corpora or searching within corpora.
 from django import forms
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
+
 from .models import Corpus, CopensUser
 
 
@@ -57,11 +58,11 @@ class SearchForm(forms.Form):
                 widget=forms.CheckboxSelectMultiple,
                 initial=self.DB_CHOICES[0]
             )
-        except:
+        except IndexError:
             self.fields['corpora'] = forms.MultipleChoiceField()
 
     query = forms.CharField(max_length=255, initial='台北',
                             help_text="""若要使用CQL，請在開頭輸入"cql:"，例：cql:[word="台大"]""")
-    context = forms.CharField(required=False, max_length=255,
-                              help_text="What should the context around each result look like?")
+    context = forms.IntegerField(label="Window size", initial=10,
+                                 widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30}))
     show_pos = forms.BooleanField(label="顯示詞性(POS)", required=False)
