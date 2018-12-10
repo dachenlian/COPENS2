@@ -44,7 +44,10 @@
                                         <form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             {{ forms.upload|crispy }}
-                                            <button class="btn btn-primary" type="submit">Upload</button>
+
+                                                    <button class="btn btn-outline-primary btn-block" type="submit">Upload</button>
+
+                                            
                                         </form>
                                     </section>
                                     <section>
@@ -54,37 +57,28 @@
                                                 <tr>
                                                     <th scope="col">#</th>
                                                     <th scope="col">上傳日期</th>
-                                                    <th scope="col">上傳時間</th>
-                                                    <th scope="col">檔案名稱</th>
-                                                    <th scope="col">檔案大小</th>
+
+                                                    <th scope="col">中文名稱</th>
+                                                    <th scope="col">英文名稱</th>
+                                                    <th scope="col">是否公開</th>
+                                                    <th scope="col">上傳者</th>
 
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <th scope="row">1</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
+                                                {% for corpus in private_corpora %}
+                                                    <tr>
+                                                        <th scope="row">{{ forloop.counter }}</th>
+                                                        <td>{{ corpus.date_uploaded }}</td>
+                                                        <td>{{ corpus.zh_name }}</td>
+                                                        <td>{{ corpus.en_name }}</td>
+                                                        <td>{{ corpus.is_public }}</td>
+                                                        <td>{{ corpus.owner }}</td>
 
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">2</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
+                                                    </tr>
+                                                {% endfor %}
 
-                                                </tr>
-                                                <tr>
-                                                    <th scope="row">3</th>
-                                                    <td>2018-12-01</td>
-                                                    <td>22:01:01</td>
-                                                    <td>ptt.txt</td>
-                                                    <td>2 MB</td>
-                                                    
-                                                </tr>
+                                                
                                             </tbody>
                                         </table>
                                     </section>

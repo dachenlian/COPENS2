@@ -65,9 +65,11 @@ class ResultsView(View):
 
         if self.request.GET.get('page'):
             results_list = self.request.session.get('results_list')
-            paginator = Paginator(results_list, 100)
+            paginator = Paginator(results_list, 50)
             page = request.GET.get('page')
             results = paginator.get_page(page)
+            results.total = len(results_list)
+            results.object_list = list(map(for_concordance_tag, results.object_list))
             return render(request, self.template_name, {'results': results})
 
         form = SearchForm(self.request.GET)
@@ -81,11 +83,10 @@ class ResultsView(View):
             for corpus, path in results_dict.items():
                 results_list.extend(utils.read_results(path))
 
-            paginator = Paginator(results_list, 20)
+            paginator = Paginator(results_list, 50)
             page = request.GET.get('page')
             results = paginator.get_page(page)
-            print(',,,,,,,,,')
-
+            results.total = len(results_list)
             results.object_list = list(map(for_concordance_tag, results.object_list))
             self.request.session['results_list'] = results_list
             print(results_list)
@@ -114,7 +115,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     login_url = 'account_login'
     template_name = 'createcorpora/index.html'
     form_class = UploadCorpusForm
-    success_url = reverse_lazy('create:upload')
+    success_url = reverse_lazy('create:home')
 
     def form_valid(self, form):
         print(list(form.cleaned_data.items()))
@@ -133,8 +134,8 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
 
         print(raw_dir.joinpath(file.name))
         if raw_dir.joinpath(file.name).exists():
-            messages.warning(self.request, 'This corpus already exists.')
-            return redirect('create:upload')
+            messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
+            return redirect('create:home')
 
         utils.save_file_to_drive(file, raw_dir)
         utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
@@ -151,6 +152,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             os.link(registry_dir.joinpath(file.name.split('.')[0]),
                     Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0]),
                     )
+        messages.warning(self.request, '語料上傳成功！')
         return super().form_valid(form)
 
 
@@ -169,52 +171,13 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     }
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        print('xxxxxxxxxxxxxxxxxxxxxxxxx')
         context = super().get_context_data(**kwargs)
         copens_user = CopensUser.objects.get(user=self.request.user)
-        corpora = [c for c in Corpus.objects.filter(Q(owner=copens_user))]
-        context['no_corpus'] = True if len(corpora) == 0 else False
-        print('xxxxxxxxxxxxxx')
-        print(context)
+        private_corpora = [c for c in Corpus.objects.filter(owner=copens_user)]
+        public_corpora = [c for c in Corpus.objects.filter(is_public=True)]
+        context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
+        context['private_corpora'] = private_corpora
         return context
-
-    def upload_form_valid(self, form):
-        import pdb; pdb.set_trace()
-        print(list(form.cleaned_data.items()))
-        file = form.cleaned_data['file']
-        p_attrs = form.cleaned_data['positional_attrs']
-        s_attrs = form.cleaned_data['structural_attrs']
-        zh_name = form.cleaned_data['zh_name']
-        en_name = form.cleaned_data['en_name']
-        is_public = form.cleaned_data['is_public']
-
-        copens_user = get_object_or_404(CopensUser, user=self.request.user)
-        print(copens_user.user)
-        raw_dir = Path(copens_user.raw_dir)
-        data_dir = Path(copens_user.data_dir)
-        registry_dir = Path(copens_user.registry_dir)
-
-        print(raw_dir.joinpath(file.name))
-        if raw_dir.joinpath(file.name).exists():
-            messages.warning(self.request, '您上傳的語料庫已存在！')
-            return redirect('create:home')
-
-        utils.save_file_to_drive(file, raw_dir)
-        utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
-                         registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
-        utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
-
-        Corpus.objects.create(
-            owner=copens_user,
-            zh_name=zh_name,
-            en_name=en_name,
-            is_public=is_public,
-        )
-        if is_public:
-            os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0]),
-                    )
-        return super().upload_form_valid(form)
 
     def search_form_valid(self, form):
         print(form.cleaned_data.items())

@@ -664,7 +664,7 @@ header
     color: #C7E5FF;
 }
 
-.header-area .main-nav .nav li .btn-nav {
+.header-area .main-nav .nav li a.btn-nav {
     border: 1px solid #fff;
     padding-left: 30px;
     padding-right: 30px;
@@ -679,7 +679,7 @@ header
     color: white;
 }
 
-.header-area .main-nav .nav li .btn-nav:hover {
+.header-area .main-nav .nav li a.btn-nav:hover {
     background: #fff;
     color: #506CEA;
 }
@@ -701,7 +701,7 @@ header
 
 .header-area .main-nav .nav li.submenu ul {
     position: absolute;
-    width: 200px;
+    width: 150px;
     box-shadow: 0 2px 28px 0 rgba(0, 0, 0, 0.06);
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -3630,3 +3630,4 @@ section h2, section h3, section h4 {
 .header-section h2 {
     font-size: 1.3rem;
 }
+

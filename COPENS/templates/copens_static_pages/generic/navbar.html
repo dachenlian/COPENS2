@@ -36,9 +36,15 @@
                             </ul>
                         </li>
                         {% if user.is_authenticated %}
-                            <li><a href="{% url 'create:home' %}" class="btn-nav">使用者後台</a></li>
-                            <li>
-                                <form class="login form-horizontal" method="POST" action="{% url 'account_logout' %}"><button type="submit" class="btn-nav">登出</button> {% csrf_token %}</form></li>
+                            <li id="user_submenu" class="submenu">
+                                <a class="btn-nav" href="">歡迎 {{ user.user_name }}</a>
+                                <ul>
+                                    <li><a href="{% url 'create:home' %}">使用者後台</a></li>
+                                    <li><form class="" method="POST" action="{% url 'account_logout' %}"><a href="#" onclick="$(this).closest('form').submit()">登出</a> {% csrf_token %}</form></li>
+                                </ul>
+                            </li>
+                            
+                                
                         {% else %}
                             <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li>
                         {% endif %}
