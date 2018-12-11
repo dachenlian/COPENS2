@@ -138,7 +138,7 @@ hgroup {
 
 html,
 body {
-    font-family: "Nunito", sans-serif;
+    font-family: sans-serif;
     font-weight: 400;
     background-color: #fff;
     font-size: 16px;
@@ -172,9 +172,9 @@ global styles
 */
 html,
 body {
-    background: #F9FAFF;
-    color: #6F8BA4;
-    font-family: "Nunito", sans-serif;
+    background: #F4F5F8;
+    color: #4C6072;
+    font-family: sans-serif;
 }
 
 ::selection {
@@ -780,6 +780,7 @@ header
     z-index: 99;
     right: 40px;
     display: none;
+    color: white;
 }
 
 .header-area .main-nav .menu-trigger span,
@@ -3630,4 +3631,14 @@ section h2, section h3, section h4 {
 .header-section h2 {
     font-size: 1.3rem;
 }
+
+@media (max-width: 991px) {
+
+    .header-area .logo {
+        margin-top: 10px !important;
+        margin-left: 30px;
+    }
+}
+
+
 
