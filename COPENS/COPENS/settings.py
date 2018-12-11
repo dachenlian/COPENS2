@@ -16,7 +16,6 @@ from django.urls import reverse_lazy
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ SECRET_KEY = '_a#_eig*^mlb72q6!j2(mp06mkxg34n155&m=nigk&32nie!iw'
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
-
 
 # Application definition
 
@@ -54,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,7 +99,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 WSGI_APPLICATION = 'COPENS.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -157,7 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -171,7 +168,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
@@ -180,6 +176,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -194,7 +192,5 @@ SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 
-
 LOGIN_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
-

@@ -18,6 +18,7 @@ pexpect = "*"
 django-extensions = "*"
 python-memcached = "*"
 uwsgi = "*"
+whitenoise = "*"
 
 [dev-packages]
 ipython = "*"
