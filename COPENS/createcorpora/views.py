@@ -82,9 +82,9 @@ class ResultsView(View):
         if form.is_valid():
             results_list = []
             user_registry = utils.get_user_registry(self.request)
-            print(list(form.cleaned_data.items()))
+            # print(list(form.cleaned_data.items()))
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
-            print(results_dict)
+            # print(results_dict)
             for corpus, path in results_dict.items():
                 results_list.extend(utils.read_results(path))
 
@@ -132,6 +132,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         zh_name = form.cleaned_data['zh_name']
         en_name = form.cleaned_data['en_name']
         is_public = form.cleaned_data['is_public']
+
+        filename = file.name.split('.')[0].lower()
+        if filename != en_name.lower():
+            messages.warning(self.request, '上傳失敗：您檔名與語料庫英文名字不同！')
+            return redirect('create:home')
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
         print(copens_user.user)
@@ -206,3 +211,5 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
 
     def search_form_valid(self, form):
         print(form.cleaned_data.items())
+
+
