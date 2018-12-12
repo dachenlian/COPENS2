@@ -9,6 +9,7 @@ import sys
 import os
 import shutil
 import re
+from typing import Generator
 
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
@@ -213,16 +214,21 @@ def segment_and_tag(text):
         yield j.seg(t, pos=True)
 
 
-def verticalize_and_save_to_file(text, output_file):
-    with open(output_file, 'w') as fp:
+def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Path):
+    print('Tagging and verticalizing.')
+    output_file = f'{input_file.stem}.vrt'
+    with open(f'{raw_dir.joinpath(output_file)}', 'w') as fp:
         for sent in text:
             print('<s>', file=fp)
             for token, pos in sent:
                 print(f'{token}\t{pos}', file=fp)
             print('</s>', file=fp)
+    print('Save complete.')
+    os.remove(input_file)
+    print('Deleted old file.')
 
 
-def preprocess(input_file, output_file):
+def preprocess(input_file: Path, raw_dir: Path):
     """Takes raw text file, preprocesses it, and saves a verticalized version to disk."""
     whitespace_regex = re.compile(r'\s')
     sentence_regex = re.compile(r'[！？，。．?!]+')
@@ -232,4 +238,4 @@ def preprocess(input_file, output_file):
     text = (sentence_regex.split(n) for n in text)
     text = filter(bool, flatten_list(text))
     text = segment_and_tag(text)
-    verticalize_and_save_to_file(text, output_file)
+    verticalize_and_save_to_file(text, input_file, raw_dir=raw_dir)

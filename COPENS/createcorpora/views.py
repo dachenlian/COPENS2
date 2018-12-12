@@ -131,6 +131,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         zh_name = form.cleaned_data['zh_name']
         en_name = form.cleaned_data['en_name']
         is_public = form.cleaned_data['is_public']
+        needs_preprocessing = form.cleaned_data['needs_preprocessing']
 
         filename = file.name.split('.')[0].lower()
         if filename != en_name.lower():
@@ -149,6 +150,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             return redirect('create:home')
 
         utils.save_file_to_drive(file, raw_dir)
+        if needs_preprocessing:
+            s_attrs = ""
+            utils.preprocess(raw_dir / file.name, raw_dir=raw_dir)
+            file.name = f"{file.name.split('.')[0]}.vrt"
+
         utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
                          registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
         utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
