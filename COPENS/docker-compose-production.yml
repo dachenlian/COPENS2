@@ -1,7 +1,0 @@
-web:
-  command: >
-    bash -c "python manage.py makemigrations --noinput
-         && python manage.py migrate --noinput
-         && python manage.py collectstatic --noinput
-         && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi
-         --process 4 --manage-script-name --mount=/copens2=COPENS/wsgi.py"

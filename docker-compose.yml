@@ -34,20 +34,19 @@ services:
     build: .
     volumes:
       - cwb-volume:/app/COPENS/cwb/
-      - ./COPENS/:/app/COPENS/
     environment:
-          - PYTHONUNBUFFERED=0
+          - PYTHONUNBUFFERED=1
     tty: true
     container_name: copens_web
     depends_on:
       - copens_db
       - memcached
-    command: >
-      bash -c "python manage.py makemigrations --noinput
-      && python manage.py migrate --noinput
-      && python manage.py collectstatic --noinput
-      && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi
-      --process 4 --manage-script-name --mount=/copens2=COPENS/wsgi.py"
+#    command: >
+#      bash -c "python manage.py makemigrations --noinput
+#      && python manage.py migrate --noinput
+#      && python manage.py collectstatic --noinput
+#      && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi
+#      --process 4 --manage-script-name --mount=/copens2=COPENS/wsgi.py"
 #    #      && python -u manage.py runserver 0.0.0.0:8000"
     restart: always
     ports:
