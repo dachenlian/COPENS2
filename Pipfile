@@ -19,6 +19,7 @@ django-extensions = "*"
 python-memcached = "*"
 uwsgi = "*"
 whitenoise = "*"
+chardet = "*"
 
 [dev-packages]
 ipython = "*"

@@ -8,11 +8,14 @@ import random
 import sys
 import os
 import shutil
+import re
 
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
 from django.http import request
 import pexpect
+import jseg
+from chardet.universaldetector import UniversalDetector
 
 from .models import CopensUser, Corpus
 
@@ -167,3 +170,66 @@ def get_user_registry(http_request: request):
     if user.is_authenticated:
         registry_dir = CopensUser.objects.get(user=user).registry_dir
         return registry_dir
+
+
+def detect_encoding(file):
+    """Detects a file's encoding and returns it."""
+
+    detector = UniversalDetector()
+
+    with open(file, 'rb') as fp:
+        for line in fp:
+            detector.feed(line)
+            if detector.done:
+                break
+    detector.close()
+    return detector.result.get('encoding')
+
+
+def read_file_gen(file, encoding):
+    """A generator to read a large file lazily."""
+    with open(file, encoding=encoding) as fp:
+        while True:
+            data = fp.readline()
+            if not data:
+                break
+            else:
+                yield data
+
+
+def flatten_list(lst):
+    """A generator to flatten nested lists."""
+    for item in lst:
+        if isinstance(item, list):
+            for i in item:
+                yield i
+        else:
+            yield item
+
+
+def segment_and_tag(text):
+    j = jseg.Jieba()
+    for t in text:
+        yield j.seg(t, pos=True)
+
+
+def verticalize_and_save_to_file(text, output_file):
+    with open(output_file, 'w') as fp:
+        for sent in text:
+            print('<s>', file=fp)
+            for token, pos in sent:
+                print(f'{token}\t{pos}', file=fp)
+            print('</s>', file=fp)
+
+
+def preprocess(input_file, output_file):
+    """Takes raw text file, preprocesses it, and saves a verticalized version to disk."""
+    whitespace_regex = re.compile(r'\s')
+    sentence_regex = re.compile(r'[！？，。．?!]+')
+    encoding = detect_encoding(input_file)
+    text = read_file_gen(input_file, encoding=encoding)
+    text = filter(bool, (whitespace_regex.sub('', t) for t in text))
+    text = (sentence_regex.split(n) for n in text)
+    text = filter(bool, flatten_list(text))
+    text = segment_and_tag(text)
+    verticalize_and_save_to_file(text, output_file)
