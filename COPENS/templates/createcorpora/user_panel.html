@@ -1,28 +1,28 @@
 {% extends 'copens_static_pages/generic/base.html' %}
 {% block content %}
-{% load crispy_forms_tags %}
+    {% load crispy_forms_tags %}
     <!-- Confirm delete modal -->
     <div class="modal" tabindex="-1" role="dialog" id="confirm_delete_modal">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">刪除語料庫</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>確定要刪除語料庫？按下確認後，刪除動作將無法復原。</p>
-          </div>
-          <div class="modal-footer">
-            <form id="delete_form" method="post" action="">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">確認</button>
-            </form>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-          </div>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">刪除語料庫</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>確定要刪除語料庫？按下確認後，刪除動作將無法復原。</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="delete_form" method="post" action="">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">確認</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
     <section class="header-section">
         <div class="container">
@@ -34,80 +34,85 @@
         </div>
     </section>
     <section class="section content-section" id="user-panel-section">
-        
+
         <div class="container">
             {% if messages %}
-            <div class="alert alert-warning" role="alert">
-                {% for m in messages %}
-            <p>{{ m }}</p>
-            {% endfor %}
-            </div>
-            
-        {% endif %}
+                <div class="alert alert-warning" role="alert">
+                    {% for m in messages %}
+                        <p>{{ m }}</p>
+                    {% endfor %}
+                </div>
+
+            {% endif %}
             <div class="row">
                 <div class="col-12">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">使用自訂語料庫查詢</a>
+                            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
+                               aria-controls="profile" aria-selected="false">使用自訂語料庫查詢</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">上傳語料</a>
+                            <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab"
+                               aria-controls="home" aria-selected="true">上傳語料</a>
                         </li>
-                        
+
                         <!-- <li class="nav-item">
                             <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">其他</a>
                         </li> -->
                     </ul>
                     <div class="tab-content" id="myTabContent">
-                        
-                        <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+                        <div class="tab-pane fade show active" id="profile" role="tabpanel"
+                             aria-labelledby="profile-tab">
 
                             <section>
 
-                            {% if no_corpus %}
-                                <div class="alert alert-warning" role="alert">
+                                {% if no_corpus %}
+                                    <div class="alert alert-warning" role="alert">
 
-                                <p>尚無可用語料庫</p>
+                                        <p>尚無可用語料庫</p>
 
-                                </div>
-                            {% else %}
-                            <form action="{% url 'create:results' %}" method="get">
-                            {{ forms.search|crispy }}
-                            <button class="btn btn-primary" type="submit">Search</button>
-                            </form>
-                            {% endif %}
+                                    </div>
+                                {% else %}
+                                    <form action="{% url 'create:results' %}" method="get">
+                                        {{ forms.search|crispy }}
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </form>
+                                {% endif %}
                             </section>
                         </div>
-                        
+
                         <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <div class="row">
                                 <div class="col-lg-12">
                                     <section>
-                                        <form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
+                                        <form action="{% url 'create:upload' %}" method="post"
+                                              enctype="multipart/form-data">
                                             {% csrf_token %}
                                             {{ forms.upload|crispy }}
 
-                                                    <button class="btn btn-outline-primary btn-block" type="submit">Upload</button>
+                                            <button class="btn btn-outline-primary btn-block" type="submit">Upload
+                                            </button>
 
-                                            
+
                                         </form>
                                     </section>
                                     <section>
                                         <h4>目前已上傳語料</h4>
                                         <table class="table table-hover table-sm">
                                             <thead class="thead-light">
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">上傳日期時間</th>
-                                                    <th scope="col">英文名稱</th>
-                                                    <th scope="col">中文名稱</th>
-                                                    <th scope="col">是否公開</th>
-                                                    <th scope="col">刪除</th>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">上傳日期時間</th>
+                                                <th scope="col">英文名稱</th>
+                                                <th scope="col">中文名稱</th>
+                                                <th scope="col">是否公開</th>
+                                                <th scope="col">刪除</th>
 
-                                                </tr>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                
+
                                             {% for corpus in private_corpora %}
                                                 <tr>
                                                     <th scope="row">{{ forloop.counter }}</th>
@@ -115,7 +120,8 @@
                                                     <td>{{ corpus.en_name }}</td>
                                                     <td>{{ corpus.zh_name }}</td>
                                                     <td>{{ corpus.is_public }}</td>
-                                                    <td><a class="delete_button" href="#" id="{{ corpus.id}}"><i class="fa fa-trash-alt"></i></a></td>
+                                                    <td><a class="delete_button" href="#" id="{{ corpus.id }}"><i
+                                                            class="fa fa-trash-alt"></i></a></td>
                                                     <!-- <td><a class="btn btn-primary btn-sm" href="{% url 'create:delete' pk=corpus.id %}">刪掉</a></td> -->
                                                 </tr>
                                             {% endfor %}
@@ -123,7 +129,7 @@
                                         </table>
                                     </section>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -134,13 +140,26 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script>
-    $('.delete_button').on('click', function(e){
-        var clicked_corpus_id = $(this).attr('id');
-        var url = '{% url "create:delete" pk=0 %}';
-        var url = url.replace('/0', '/' + clicked_corpus_id);
-        $('#delete_form').attr('action', url);
-        $('#confirm_delete_modal').modal('show');
+    <script>
+        $('.delete_button').on('click', function (e) {
+            var clicked_corpus_id = $(this).attr('id');
+            var url = '{% url "create:delete" pk=0 %}';
+            var url = url.replace('/0', '/' + clicked_corpus_id);
+            $('#delete_form').attr('action', url);
+            $('#confirm_delete_modal').modal('show');
+        });
+    </script>
+    <script>
+    $("#id_needs_preprocessing").change(function() {
+        if($(this).prop('checked')) {
+            $('#id_positional_attrs').attr("disabled", true);
+            $('#id_structural_attrs').attr("disabled", true);
+        } else{
+            $('#id_positional_attrs').attr("disabled", false);
+            $('#id_structural_attrs').attr("disabled", false);
+        }
     })
-</script>
+
+
+    </script>
 {% endblock extra_js %}  
