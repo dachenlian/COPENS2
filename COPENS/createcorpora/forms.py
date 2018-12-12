@@ -14,6 +14,8 @@ class UploadCorpusForm(forms.Form):
     zh_name = forms.CharField(max_length=255, initial='噗浪', label='語料庫名稱(中文)')
     en_name = forms.CharField(max_length=255, initial='Plurk', label='語料庫名稱(英文)')
     file = forms.FileField(label='檔案', help_text='檔案名稱必須與語料庫名稱(英文)相同')
+    needs_preprocessing = forms.BooleanField(required=False, help_text='我們可以幫您做前處理的部份',
+                                             label='自動處理')
     positional_attrs = forms.CharField(max_length=255, help_text="Please prepend each attribute with a '-P'.",
                                        required=False, initial='-P pos',
                                        label='位置屬性(Positional attributes)')
@@ -77,7 +79,7 @@ class SearchForm(forms.Form):
             self.fields['corpora'] = forms.MultipleChoiceField()
 
     query = forms.CharField(max_length=255, initial='台北',
-                            help_text="""若要使用CQL，請在開頭輸入"cql:"，例：cql:[word="台大"]""")
+                            help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V*"][word="台大"]""")
     context = forms.IntegerField(label="Window size", initial=10,
                                  widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30}))
     show_pos = forms.BooleanField(label="顯示詞性(POS)", required=False)

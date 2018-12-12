@@ -129,6 +129,10 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     cqp.logfile_read = sys.stdout
     if context:
         cqp.write(f'set CONTEXT {context};')
+    if '[' not in query:
+        query_command = f"'{query}';"
+    else:
+        query_command = f"""{query};"""  # cqp search
     logging.info(f'Query received: {query}')
 
     for corpus in corpora:
@@ -140,7 +144,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
             'set PrintMode html;'
             f'{corpus.upper()};',
             f'show -cpos;',  # corpus position
-            f"'{query}';",
+            query_command,
             f"cat > '{path}';",
         ]
         if show_pos:

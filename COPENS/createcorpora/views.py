@@ -64,7 +64,7 @@ class ResultsView(View):
     template_name = 'createcorpora/results.html'
 
     def get(self, request):
-        if not self.request.GET.get('corpora'):
+        if not self.request.GET.getlist('corpora'):
             messages.warning(self.request, '請至少選擇一個語料庫')
             return redirect('create:home')
 
@@ -94,7 +94,6 @@ class ResultsView(View):
             results.total = len(results_list)
             results.object_list = list(map(for_concordance_tag, results.object_list))
             self.request.session['results_list'] = results_list
-            print(results_list)
 
             return render(request, self.template_name, {'results': results})
 
