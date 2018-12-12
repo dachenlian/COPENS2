@@ -26,7 +26,10 @@
                                 <p>上下文: <span class="badge badge-dark badge-pill">{{ request.GET.context }}</span></p>
                             </div>
                             <div class="col">
-                                <p>語料庫: <span class="badge badge-dark badge-pill">{{ request.GET.corpora }}</span></p>
+                                <p>語料庫: {% for c in request.GET|get_list:'corpora' %}
+                                    <span class="badge badge-dark badge-pill">{{ c }}</span>
+                                {% endfor %}
+                                    </p>
                             </div>
                             <div class="col">
                                 <p>顯示詞性: <span class="badge badge-dark badge-pill">
