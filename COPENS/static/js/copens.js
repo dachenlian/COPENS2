@@ -61,23 +61,25 @@
             }) 
         };
         
-        _jq("#preloader")["animate"]({ "opacity": "0" }, 600, function() { 
-            setTimeout(function() { 
-                if (_jq("#parallax-text")["length"]) { 
-                    _jq("#parallax-text")["parallax"]({ 
-                        imageSrc: "assets/images/photos/parallax-counter.jpg", 
-                        zIndex: "1" 
-                    }) 
-                }; 
+        // _jq("#preloader")["animate"]({ "opacity": "0" }, 600, function() { 
+        //     setTimeout(function() { 
+        //         if (_jq("#parallax-text")["length"]) { 
+        //             _jq("#parallax-text")["parallax"]({ 
+        //                 imageSrc: "assets/images/photos/parallax-counter.jpg", 
+        //                 zIndex: "1" 
+        //             }) 
+        //         }; 
 
-                if (_jq("#counter")["length"]) { 
-                    _jq("#counter")["parallax"]({ 
-                        imageSrc: "assets/images/photos/parallax-counter.jpg", 
-                        zIndex: "1" 
-                    }) 
-                };
+        //         if (_jq("#counter")["length"]) { 
+        //             _jq("#counter")["parallax"]({ 
+        //                 imageSrc: "assets/images/photos/parallax-counter.jpg", 
+        //                 zIndex: "1" 
+        //             }) 
+        //         };
                 
-                _jq("#preloader")["css"]("visibility", "hidden")["fadeOut"]() }, 300) }) });
+        //         _jq("#preloader")["css"]("visibility", "hidden")["fadeOut"]() }, 300) })
+
+         });
     
     _jq(window)["on"]("scroll", function() { _0xc6e8x7() });
     _jq(window)["on"]("resize", function() { _0xc6e8x6() });

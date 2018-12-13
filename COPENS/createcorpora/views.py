@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings
 
-from .forms import UploadCorpusForm, SearchForm
+from .forms import UploadCorpusForm, SearchForm, KeynessForm
 from . import utils
 from .models import Corpus, CopensUser
 from .mixins import MultiFormMixin, MultiFormsView
@@ -217,7 +217,8 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
 
     form_classes = {
         'upload': UploadCorpusForm,
-        'search': SearchForm
+        'search': SearchForm,
+        'keyness': KeynessForm
     }
 
     success_urls = {
@@ -243,3 +244,44 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
         print(form.cleaned_data.items())
 
 
+class KeynessResultView(View):
+    """
+    Results for keyness.
+    """
+    template_name = 'createcorpora/results.html'
+
+    def get(self, request):
+        if not self.request.GET.getlist('corpora'):
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('create:home')
+
+        if self.request.GET.get('page'):
+            results_list = self.request.session.get('results_list')
+            paginator = Paginator(results_list, 20)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            results.total = len(results_list)
+            results.object_list = list(map(for_concordance_tag, results.object_list))
+            return render(request, self.template_name, {'results': results})
+
+        form = SearchForm(self.request.GET)
+
+        if form.is_valid():
+            results_list = []
+            user_registry = utils.get_user_registry(self.request)
+            # print(list(form.cleaned_data.items()))
+            results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            # print(results_dict)
+            for corpus, path in results_dict.items():
+                results_list.extend(utils.read_results(path))
+
+            paginator = Paginator(results_list, 50)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            results.total = len(results_list)
+            results.object_list = list(map(for_concordance_tag, results.object_list))
+            self.request.session['results_list'] = results_list
+
+            return render(request, self.template_name, {'results': results})
+
+        return redirect('create:home')
