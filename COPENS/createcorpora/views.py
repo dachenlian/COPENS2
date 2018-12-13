@@ -1,8 +1,8 @@
-import os
 import logging
+import os
+import sys
 
 from pathlib import Path
-from django.db.models import Q
 from django.views.generic.edit import FormView
 from django.views.generic import DeleteView
 from django.urls import reverse_lazy
@@ -13,6 +13,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings
+from rq import Queue
+from redis import Redis
+from rq.decorators import job
 
 from .forms import UploadCorpusForm, SearchForm
 from . import utils
@@ -20,6 +23,24 @@ from .models import Corpus, CopensUser
 from .mixins import MultiFormMixin, MultiFormsView
 
 logger = logging.getLogger('django')
+
+redis_conn = Redis(host='redis')
+q = Queue(connection=redis_conn)
+
+sys.path.insert(0, '.')
+
+def create_corpus(copens_user, zh_name, en_name, is_public, file, registry_dir):
+    Corpus.objects.create(
+        owner=copens_user,
+        zh_name=zh_name,
+        en_name=en_name,
+        is_public=is_public,
+        file_name=file.name,
+    )
+    if is_public:
+        os.link(registry_dir.joinpath(file.name.split('.')[0]),
+                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+                )
 
 
 class Home(ListView):
@@ -52,6 +73,9 @@ class SearchView(FormView):
 
         kwargs['user'] = self.request.user
         return kwargs
+
+    def form_invalid(self, form):
+        print(form.errors)
 
 
 class ResultsView(View):
@@ -147,15 +171,21 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             return redirect('create:home')
 
         utils.save_file_to_drive(file, raw_dir)
+
         if needs_preprocessing:
             s_attrs = ""
             p_attrs = "-P pos"
-            utils.preprocess(raw_dir / file.name, raw_dir=raw_dir)
+            preprocess_job = q.enqueue(utils.preprocess, raw_dir / file.name, raw_dir=raw_dir)
             file.name = f"{file.name.split('.')[0]}.vrt"
+            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / file.name, data_dir=data_dir,
+                               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs, depends_on=preprocess_job)
+            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir, depends_on=encode_job)
+        else:
+            utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
+                               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
+            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir)
 
-        utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
-                         registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
-        utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
+        # q.enqueue(utils.create_corpus, copens_user, zh_name, en_name, is_public, file.name, registry_dir, depends_on=make_job)
 
         Corpus.objects.create(
             owner=copens_user,
@@ -165,9 +195,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             file_name=file.name,
         )
         if is_public:
-            os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                    Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
-                    )
+            q.enqueue(utils.make_public, registry_dir, file.name, depends_on=make_job)
+
+            # os.link(registry_dir.joinpath(file.name.split('.')[0]),
+            #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+            #         )
         messages.warning(self.request, '語料上傳成功！')
         return super().form_valid(form)
 
@@ -220,4 +252,6 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     def search_form_valid(self, form):
         print(form.cleaned_data.items())
 
-
+    def search_form_invalid(self, form):
+        print("INVALID")
+        print(form.errors)

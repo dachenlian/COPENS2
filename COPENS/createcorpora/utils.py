@@ -14,12 +14,14 @@ from typing import Generator
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
 from django.http import request
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
 import pexpect
 import jseg
 from chardet.universaldetector import UniversalDetector
+from django_rq import job
 
 from .models import CopensUser, Corpus
-
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
@@ -35,6 +37,7 @@ console.setFormatter(formatter)
 logging.getLogger(__name__).addHandler(console)
 
 
+@job
 def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
     """
     :param file: A Django UploadedFile file
@@ -70,6 +73,7 @@ def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
         logging.warning(f'Cannot find files: {e}')
 
 
+@job
 def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str, s_attrs: str) -> None:
     """
     Encode a verticalized XML file as a CWB corpus.
@@ -97,6 +101,7 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
         logging.info('Successfully encoded .vrt file.')
 
 
+@job
 def cwb_make(vrt_file: str, registry_dir: Path) -> None:
     """
     Index and compress an encoded corpus.
@@ -115,6 +120,7 @@ def cwb_make(vrt_file: str, registry_dir: Path) -> None:
         logging.info('Successfully indexed and compressed corpus.')
 
 
+@job
 def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_registry=None) -> dict:
     """
     Use pexpect to send queries to cqp and write to file. Then, open and read said file and return contents.
@@ -236,6 +242,7 @@ def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Pat
     print('Deleted old file.')
 
 
+@job
 def preprocess(input_file: Path, raw_dir: Path) -> None:
     """Takes raw text file, preprocesses it, and saves a verticalized version to disk.
     :param input_file: A raw text file
@@ -250,3 +257,70 @@ def preprocess(input_file: Path, raw_dir: Path) -> None:
     text = filter(bool, flatten_list(text))
     text = segment_and_tag(text)
     verticalize_and_save_to_file(text, input_file, raw_dir=raw_dir)
+
+
+@job
+def upload_corpus_async(http_request, form_data):
+    print('entered function')
+    print(form_data)
+    file = form_data.cleaned_data['file']
+    p_attrs = form_data.cleaned_data['positional_attrs']
+    s_attrs = form_data.cleaned_data['structural_attrs']
+    zh_name = form_data.cleaned_data['zh_name']
+    en_name = form_data.cleaned_data['en_name']
+    is_public = form_data.cleaned_data['is_public']
+    needs_preprocessing = form_data.cleaned_data['needs_preprocessing']
+
+    filename = file.name.split('.')[0].lower()
+    if filename != en_name.lower():
+        messages.warning(http_request, '上傳失敗：您檔名與語料庫英文名字不同！')
+        return redirect('create:home')
+
+    copens_user = get_object_or_404(CopensUser, user=http_request.user)
+    print(copens_user.user)
+    raw_dir = Path(copens_user.raw_dir)
+    data_dir = Path(copens_user.data_dir)
+    registry_dir = Path(copens_user.registry_dir)
+
+    if needs_preprocessing:
+        s_attrs = ""
+        p_attrs = "-P pos"
+        preprocess(raw_dir / file.name, raw_dir=raw_dir)
+        file.name = f"{file.name.split('.')[0]}.vrt"
+
+    cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
+               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
+    cwb_make(Path(file.name).stem, registry_dir=registry_dir)
+
+    Corpus.objects.create(
+        owner=copens_user,
+        zh_name=zh_name,
+        en_name=en_name,
+        is_public=is_public,
+        file_name=file.name,
+    )
+    if is_public:
+        os.link(registry_dir.joinpath(file.name.split('.')[0]),
+                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+                )
+    messages.warning(http_request, '語料上傳成功！')
+
+
+def create_corpus(copens_user, zh_name, en_name, is_public, file, registry_dir):
+    Corpus.objects.create(
+        owner=copens_user,
+        zh_name=zh_name,
+        en_name=en_name,
+        is_public=is_public,
+        file_name=file.name,
+    )
+    if is_public:
+        os.link(registry_dir.joinpath(file.name.split('.')[0]),
+                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+                )
+
+
+def make_public(registry_dir, filename):
+    print('Making public...')
+    os.link(registry_dir.joinpath(filename.split('.')[0]),
+            Path(settings.CWB_PUBLIC_REG_DIR).joinpath(filename.split('.')[0].lower()))

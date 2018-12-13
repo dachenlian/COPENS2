@@ -11,8 +11,8 @@ from .models import Corpus, CopensUser
 
 
 class UploadCorpusForm(forms.Form):
-    zh_name = forms.CharField(max_length=255, initial='噗浪', label='語料庫名稱(中文)')
-    en_name = forms.CharField(max_length=255, initial='Plurk', label='語料庫名稱(英文)')
+    zh_name = forms.CharField(max_length=255, initial='ASBC', label='語料庫名稱(中文)')
+    en_name = forms.CharField(max_length=255, initial='ASBC', label='語料庫名稱(英文)')
     file = forms.FileField(label='檔案', help_text='檔案名稱必須與語料庫名稱(英文)相同')
     needs_preprocessing = forms.BooleanField(required=False, help_text='我們可以幫您做前處理的部份',
                                              label='自動處理')

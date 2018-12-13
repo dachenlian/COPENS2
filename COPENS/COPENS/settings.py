@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'copens_static_pages.apps.CopensStaticPagesConfig',
     'createcorpora.apps.CreatecorporaConfig',
     'crispy_forms',
-    'django_extensions'
+    'django_extensions',
+    'django_rq',
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,24 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'redis',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': 360,
+    },
+    'with-sentinel': {
+        'SENTINELS': [('redis', 26736), ('redis', 26737)],
+        'MASTER_NAME': 'redismaster',
+        'DB': 0,
+        # 'PASSWORD': 'secret',
+        'SOCKET_TIMEOUT': None,
+        'CONNECTION_KWARGS': {
+            'socket_connect_timeout': 0.3
+        },
+    },
+}
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ROOT_URLCONF = 'COPENS.urls'
@@ -69,7 +88,7 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': 'memcached:11211',
-    }
+    },
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"

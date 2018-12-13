@@ -23,6 +23,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('user/', include('createcorpora.urls', namespace='create')),
     path('', include('copens_static_pages.urls', namespace='static_pages')),
+    path('django-rq/', include('django_rq.urls'))
 ]
 
 urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
