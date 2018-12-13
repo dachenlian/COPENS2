@@ -152,6 +152,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         utils.save_file_to_drive(file, raw_dir)
         if needs_preprocessing:
             s_attrs = ""
+            p_attrs = "-P pos"
             utils.preprocess(raw_dir / file.name, raw_dir=raw_dir)
             file.name = f"{file.name.split('.')[0]}.vrt"
 
