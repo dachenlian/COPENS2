@@ -63,12 +63,12 @@ class SearchForm(forms.Form):
         print(self.user.is_authenticated)
         print(self.user)
         if self.user.is_authenticated:
-
-            print('authenticate!!!!!!!')
+            print('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
-                               for c in Corpus.objects.filter(Q(is_public=True) | Q(owner=self.copens_user))]
+                               for c in Corpus.objects.filter(Q(owner=self.copens_user))]
         else:
+            print('Not authenticated!')
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields

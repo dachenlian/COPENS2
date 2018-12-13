@@ -1,6 +1,8 @@
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.edit import ProcessFormView
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden
+from django.contrib.auth.models import AnonymousUser
+from .forms import SearchForm
 
 
 class MultiFormMixin(ContextMixin):
@@ -60,7 +62,11 @@ class MultiFormMixin(ContextMixin):
         if hasattr(self, form_create_method):
             form = getattr(self, form_create_method)(**form_kwargs)
         else:
-            form = klass(**form_kwargs)
+            if form_name == 'search':
+                form = SearchForm(**form_kwargs)
+            else:
+                form_kwargs.pop('user')
+                form = klass(**form_kwargs)
         return form
            
     def _bind_form_data(self):

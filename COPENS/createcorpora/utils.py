@@ -201,7 +201,7 @@ def read_file_gen(file, encoding):
                 yield data
 
 
-def flatten_list(lst):
+def flatten_list(lst: Generator) -> str:
     """A generator to flatten nested lists."""
     for item in lst:
         if isinstance(item, list):
@@ -211,13 +211,21 @@ def flatten_list(lst):
             yield item
 
 
-def segment_and_tag(text):
+def segment_and_tag(text: Generator) -> tuple:
     j = jseg.Jieba()
     for t in text:
         yield j.seg(t, pos=True)
 
 
-def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Path):
+def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Path) -> None:
+    """
+    Takes a tokenized list of sentences and outputs to a file in a vertical format.
+    This deletes the original raw text and saves a .vrt formatted version in its place.
+    :param text: A generator containing a list of tokenized sentences
+    :param input_file: A path to the original raw text file
+    :param raw_dir: A path to the user's raw directory
+    :return:
+    """
     print('Tagging and verticalizing.')
     output_file = f'{input_file.stem}.vrt'
     with open(f'{raw_dir.joinpath(output_file)}', 'w') as fp:
@@ -231,8 +239,11 @@ def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Pat
     print('Deleted old file.')
 
 
-def preprocess(input_file: Path, raw_dir: Path):
-    """Takes raw text file, preprocesses it, and saves a verticalized version to disk."""
+def preprocess(input_file: Path, raw_dir: Path) -> None:
+    """Takes raw text file, preprocesses it, and saves a verticalized version to disk.
+    :param input_file: A raw text file
+    :param raw_dir: The path to the user's raw files
+    """
     whitespace_regex = re.compile(r'\s')
     sentence_regex = re.compile(r'[！？，。．?!]+')
     encoding = detect_encoding(input_file)

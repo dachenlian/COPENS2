@@ -53,9 +53,6 @@ class SearchView(FormView):
         kwargs['user'] = self.request.user
         return kwargs
 
-    def form_valid(self, form):
-        print(form.cleaned_data.items())
-
 
 class ResultsView(View):
     """
@@ -157,6 +154,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         utils.save_file_to_drive(file, raw_dir)
         if needs_preprocessing:
             s_attrs = ""
+            p_attrs = "-P pos"
             utils.preprocess(raw_dir / file.name, raw_dir=raw_dir)
             file.name = f"{file.name.split('.')[0]}.vrt"
 
@@ -235,6 +233,11 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
         context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
         context['private_corpora'] = private_corpora
         return context
+
+    def get_form_kwargs(self, form_name, bind_form=False):
+        kwargs = super().get_form_kwargs(form_name, bind_form)
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def search_form_valid(self, form):
         print(form.cleaned_data.items())
