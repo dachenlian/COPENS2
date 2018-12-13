@@ -306,17 +306,19 @@ def upload_corpus_async(http_request, form_data):
     messages.warning(http_request, '語料上傳成功！')
 
 
-def create_corpus(copens_user, zh_name, en_name, is_public, file, registry_dir):
+def create_corpus(copens_user, zh_name, en_name, is_public, file_name: str, registry_dir):
+    print('Creating corpus entry...')
     Corpus.objects.create(
         owner=copens_user,
         zh_name=zh_name,
         en_name=en_name,
         is_public=is_public,
-        file_name=file.name,
+        file_name=file_name,
     )
     if is_public:
-        os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+        print('Making public...')
+        os.link(registry_dir.joinpath(file_name.split('.')[0]),
+                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file_name.split('.')[0].lower()),
                 )
 
 

@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import importlib
 
 from pathlib import Path
 from django.views.generic.edit import FormView
@@ -187,15 +188,22 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
 
         # q.enqueue(utils.create_corpus, copens_user, zh_name, en_name, is_public, file.name, registry_dir, depends_on=make_job)
 
-        Corpus.objects.create(
-            owner=copens_user,
-            zh_name=zh_name,
-            en_name=en_name,
-            is_public=is_public,
-            file_name=file.name,
-        )
-        if is_public:
-            q.enqueue(utils.make_public, registry_dir, file.name, depends_on=make_job)
+        create_corpus_job = q.enqueue(
+            utils.create_corpus,
+            copens_user=copens_user,
+            zh_name=zh_name, en_name=en_name,
+            is_public=is_public, file_name=filename,
+            registry_dir=registry_dir,
+            depends_on=make_job)
+        # Corpus.objects.create(
+        #     owner=copens_user,
+        #     zh_name=zh_name,
+        #     en_name=en_name,
+        #     is_public=is_public,
+        #     file_name=file.name,
+        # )
+        # if is_public:
+        #     q.enqueue(utils.make_public, registry_dir, file.name, depends_on=make_job)
 
             # os.link(registry_dir.joinpath(file.name.split('.')[0]),
             #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
@@ -255,3 +263,4 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     def search_form_invalid(self, form):
         print("INVALID")
         print(form.errors)
+        return super().search_form_valid(form)
