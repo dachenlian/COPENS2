@@ -58,9 +58,13 @@ class SearchForm(forms.Form):
     """
 
     def __init__(self, *args, **kwargs):
+        print(kwargs)
         self.user = kwargs.pop('user', AnonymousUser())
-
+        print(self.user.is_authenticated)
+        print(self.user)
         if self.user.is_authenticated:
+
+            print('authenticate!!!!!!!')
             self.copens_user = CopensUser.objects.get(user=self.user)
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
                                for c in Corpus.objects.filter(Q(is_public=True) | Q(owner=self.copens_user))]
@@ -68,6 +72,8 @@ class SearchForm(forms.Form):
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
+
+
         try:
             self.fields['corpora'] = forms.MultipleChoiceField(
                 label="選擇語料庫",

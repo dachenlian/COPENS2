@@ -23,8 +23,10 @@ class Corpus(models.Model):
     file_name = models.CharField(max_length=255, default="")
     is_public = models.BooleanField(default=False)
     date_uploaded = models.DateTimeField(auto_now_add=True)
+    tcsl_doc_id = models.CharField(max_length=255, default="")
+    tcsl_corpus_name = models.CharField(max_length=255, default="")
+
 
     def __str__(self):
         return f'{self.en_name} / {self.zh_name} / {self.owner.user.username}'
-
 

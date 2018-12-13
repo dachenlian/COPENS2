@@ -194,3 +194,9 @@ ACCOUNT_USERNAME_REQUIRED = False
 
 LOGIN_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
+
+
+TCSL_ENDPOINT = 'http://140.112.147.125:8188/tcsl/'
+TCSL_USERNAME = 'copens'
+TCSL_PASSWORD = 'ntulopecopens2018'
+

@@ -149,6 +149,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
             return redirect('create:home')
 
+        # Upload a copy to TCSL
+        # if success: save `tcsl.tcsl_doc_id` and `tcsl.tcsl_corpus_name` into Corpus model
+        tcsl = utils.TCSL()
+        tcsl_upload_success = tcsl.upload(file)
+
         utils.save_file_to_drive(file, raw_dir)
         if needs_preprocessing:
             s_attrs = ""
@@ -159,13 +164,30 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
                          registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
         utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
 
-        Corpus.objects.create(
-            owner=copens_user,
-            zh_name=zh_name,
-            en_name=en_name,
-            is_public=is_public,
-            file_name=file.name,
-        )
+        # if the file is plain text (which means it's "needs_preprocessing" is True)
+        # should upload to TSCL as well, in order to get more functions
+
+
+        if tcsl_upload_success:
+            Corpus.objects.create(
+                owner=copens_user,
+                zh_name=zh_name,
+                en_name=en_name,
+                is_public=is_public,
+                file_name=file.name,
+                tcsl_doc_id=tcsl.tcsl_doc_id,
+                tcsl_corpus_name=tcsl.tcsl_corpus_name
+            )
+
+        else:
+            Corpus.objects.create(
+                owner=copens_user,
+                zh_name=zh_name,
+                en_name=en_name,
+                is_public=is_public,
+                file_name=file.name,
+            )
+
         if is_public:
             os.link(registry_dir.joinpath(file.name.split('.')[0]),
                     Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),

@@ -9,6 +9,9 @@ import sys
 import os
 import shutil
 import re
+import requests
+import json
+import time
 from typing import Generator
 
 from django.core.files.uploadedfile import UploadedFile
@@ -239,3 +242,69 @@ def preprocess(input_file: Path, raw_dir: Path):
     text = filter(bool, flatten_list(text))
     text = segment_and_tag(text)
     verticalize_and_save_to_file(text, input_file, raw_dir=raw_dir)
+
+
+class TCSL(object):
+
+    LOGIN_PATH = 'user/login'
+    UPLOAD_PATH = 'document'
+    CREATE_CORPUS_PATH = 'corpus'
+
+    def __init__(self):
+        # Login at initial step
+        self.session = requests.Session()
+        self.tcsl_doc_id = ''
+        self.tcsl_corpus_name = ''
+        headers = {'Content-Type': 'application/json'}
+        request_body_for_login = {
+            'uname': settings.TCSL_USERNAME,
+            'passwd': settings.TCSL_PASSWORD
+        }
+        res = self.session.post(settings.TCSL_ENDPOINT + TCSL.LOGIN_PATH, headers=headers, data=json.dumps(request_body_for_login))
+
+    def upload(self, file):
+
+        data = {
+            'text': file.read().decode('utf-8'),
+            'metadata': {
+                'hashtags': ''
+            }
+        }
+
+        file.seek(0)
+        headers = {'Content-Type': 'application/json'}
+
+        try:
+            logging.info('Start uploading to TCSL ...')
+            r = self.session.post(settings.TCSL_ENDPOINT + TCSL.UPLOAD_PATH, headers=headers, data=json.dumps(data))
+            json_result = r.json()
+
+            if json_result['status'] == 'ok' and json_result['textid'] is not None:
+                self.tcsl_doc_id = json_result['textid']['json']
+                self.tcsl_corpus_name = f'{file.name}_{str(int(time.time()))}'
+                create_corpus_success = self._create_corpus(self.tcsl_doc_id, self.tcsl_corpus_name)
+                if not create_corpus_success:
+                    logging.info('Failed to create a corpus in TCSL')
+
+                    return False
+        except Exception as e:
+            logging.info(f'An Exception is raised during uploading to TCSL: {e}')
+            return False
+
+        return True
+
+
+    def _create_corpus(self, doc_id, corpus_name):
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "corpusname": corpus_name,
+            "documents": [doc_id]
+        }
+        r = self.session.post(settings.TCSL_ENDPOINT + TCSL.CREATE_CORPUS_PATH, headers=headers, data=json.dumps(data))
+        json_result = r.json()
+        if json_result['status'] == 'ok':
+            return True
+        else:
+            return False
+
+
