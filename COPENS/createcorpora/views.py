@@ -75,7 +75,6 @@ class ResultsView(View):
             return render(request, self.template_name, {'results': results})
 
         form = SearchForm(self.request.GET)
-
         if form.is_valid():
             results_list = []
             if self.request.user.is_authenticated:
@@ -100,7 +99,6 @@ class ResultsView(View):
             self.request.session['results_list'] = results_list
 
             return render(request, self.template_name, {'results': results})
-
         return redirect('create:home')
 
 
