@@ -20,6 +20,7 @@ python-memcached = "*"
 uwsgi = "*"
 whitenoise = "*"
 chardet = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 ipython = "*"
