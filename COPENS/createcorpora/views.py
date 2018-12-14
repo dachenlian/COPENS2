@@ -83,7 +83,11 @@ class ResultsView(View):
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             # print(results_dict)
             for corpus, path in results_dict.items():
-                results_list.extend(utils.read_results(path))
+                try:
+                    results_list.extend(utils.read_results(path))
+                except FileNotFoundError:
+                    messages.error(request, '查詢語法有誤！')
+                    redirect('create:home')
 
             paginator = Paginator(results_list, 50)
             page = request.GET.get('page')
