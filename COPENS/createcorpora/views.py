@@ -78,8 +78,11 @@ class ResultsView(View):
 
         if form.is_valid():
             results_list = []
-            user_registry = utils.get_user_registry(self.request)
+            if self.request.user.is_authenticated:
+                user_registry = utils.get_user_registry(self.request)
             # print(list(form.cleaned_data.items()))
+            else:
+                user_registry = None
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             # print(results_dict)
             for corpus, path in results_dict.items():
