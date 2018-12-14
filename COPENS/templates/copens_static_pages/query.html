@@ -51,13 +51,13 @@
                                                  </small>
                                             </div>
                                             <div class="form-group">
-                                                <label for="window_size">Window size</label>
+                                                <label for="window_size">Window size:&nbsp;<span class="badge badge-pill badge-info" id="window_size_value"></label>
                                                 <input type="range" name="context" value="10" min="5" max="30" class="numberinput form-control" required="" id="id_context">
                                             </div>
                                             <div>
                                                 <label for="select_corpora">選擇語料庫</label>
                                             </div>
-                                            <div class="card form-group">
+                                            <div class="card form-group ">
                                                 <div class="card-body">
                                                     <div class="form-row form-group">
                                                         <div class="col">
@@ -151,3 +151,15 @@
     </div>
 </section>
 {% endblock %}
+
+{% block extra_js %}
+    <script>
+        $('#window_size_value').text($('#id_context').val());
+        $(document).on('input change', '#id_context', function() {
+            $('#window_size_value').html( $(this).val() );
+        });
+        // $('#id_context').change(function (){
+        //     $('#window_size_value').text($('#id_context').val());
+        // })
+    </script>
+{% endblock extra_js %}
