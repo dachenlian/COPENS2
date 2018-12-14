@@ -66,7 +66,7 @@ class SearchForm(forms.Form):
             print('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
-                               for c in Corpus.objects.filter(Q(owner=self.copens_user))]
+                               for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
         else:
             print('Not authenticated!')
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
@@ -85,7 +85,7 @@ class SearchForm(forms.Form):
             self.fields['corpora'] = forms.MultipleChoiceField()
 
     query = forms.CharField(max_length=255, initial='台北',
-                            help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V*"][word="台大"]""")
+                            help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]""")
     # context = forms.IntegerField(label="Window size", initial=10,
                                  # widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30, 'class':'slider'}))
     CHOICES = ((5,5), (10,10), (15,15), (20,20))
