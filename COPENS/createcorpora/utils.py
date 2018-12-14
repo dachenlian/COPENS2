@@ -165,7 +165,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
 
 
 def read_results(path: str):
-    with open(path) as fp:
+    with open(path, errors='ignore') as fp:
         return fp.readlines()[1:-2]  # remove <ul> tags
 
 
