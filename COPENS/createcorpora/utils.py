@@ -13,6 +13,7 @@ import requests
 import json
 import time
 from typing import Generator
+import io
 
 from django.core.files.uploadedfile import UploadedFile
 from django.conf import settings
@@ -310,26 +311,26 @@ def upload_corpus_async(http_request, form_data):
 
 
 def create_corpus(copens_user, zh_name, en_name, is_public,
-                  file_name: str, registry_dir, tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
+                  file_name: str, registry_dir): # , tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
     print('Creating corpus entry...')
-    if tcsl_upload_success:
-        Corpus.objects.create(
-            owner=copens_user,
-            zh_name=zh_name,
-            en_name=en_name,
-            is_public=is_public,
-            file_name=file_name,
-            tcsl_doc_id=tcsl_doc_id,
-            tcsl_corpus_name=tcsl_corpus_name
-        )
-    else:
-        Corpus.objects.create(
-            owner=copens_user,
-            zh_name=zh_name,
-            en_name=en_name,
-            is_public=is_public,
-            file_name=file_name,
-        )
+    # if tcsl_upload_success:
+    Corpus.objects.create(
+        owner=copens_user,
+        zh_name=zh_name,
+        en_name=en_name,
+        is_public=is_public,
+        file_name=file_name,
+        # tcsl_doc_id=tcsl_doc_id,
+        # tcsl_corpus_name=tcsl_corpus_name
+    )
+    # else:
+    #     Corpus.objects.create(
+    #         owner=copens_user,
+    #         zh_name=zh_name,
+    #         en_name=en_name,
+    #         is_public=is_public,
+    #         file_name=file_name,
+    #     )
     if is_public:
         print('Making public...')
         os.link(registry_dir.joinpath(file_name.split('.')[0]),
@@ -361,10 +362,11 @@ class TCSL(object):
         }
         res = self.session.post(settings.TCSL_ENDPOINT + TCSL.LOGIN_PATH, headers=headers, data=json.dumps(request_body_for_login))
 
-    def upload(self, file):
+    def upload(self, file, file_path):
+        encoding = detect_encoding(file_path)
 
         data = {
-            'text': file.read().decode('utf-8'),
+            'text': file.read().decode(encoding),
             'metadata': {
                 'hashtags': ''
             }

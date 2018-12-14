@@ -30,6 +30,7 @@ q = Queue(connection=redis_conn)
 
 sys.path.insert(0, '.')
 
+
 def create_corpus(copens_user, zh_name, en_name, is_public, file, registry_dir):
     Corpus.objects.create(
         owner=copens_user,
@@ -179,10 +180,13 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
 
         # Upload a copy to TCSL
         # if success: save `tcsl.tcsl_doc_id` and `tcsl.tcsl_corpus_name` into Corpus model
-        tcsl = utils.TCSL()
-        tcsl_upload_success = tcsl.upload(file)
-
         utils.save_file_to_drive(file, raw_dir)
+
+        # tcsl = utils.TCSL()
+        # tcsl_upload_success = tcsl.upload(file, raw_dir / file.name)
+        # print("TCSL", tcsl_upload_success)
+        # print('TCSL', tcsl.tcsl_doc_id)
+        # print('TCSL', tcsl.tcsl_corpus_name)
 
         if needs_preprocessing:
             s_attrs = ""
@@ -197,14 +201,15 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
                                registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
             make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir)
 
-        # q.enqueue(utils.create_corpus, copens_user, zh_name, en_name, is_public, file.name, registry_dir, depends_on=make_job)
-
         create_corpus_job = q.enqueue(
             utils.create_corpus,
             copens_user=copens_user,
             zh_name=zh_name, en_name=en_name,
             is_public=is_public, file_name=filename,
             registry_dir=registry_dir,
+            # tcsl_doc_id=tcsl.tcsl_doc_id,
+            # tcsl_corpus_name=tcsl.tcsl_corpus_name,
+            # tcsl_upload_success=tcsl_upload_success,
             depends_on=make_job)
         # Corpus.objects.create(
         #     owner=copens_user,
@@ -220,9 +225,9 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
             #         )
 
-        utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
-                         registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
-        utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
+        # utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
+        #                  registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
+        # utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
 
         # if the file is plain text (which means it's "needs_preprocessing" is True)
         # should upload to TSCL as well, in order to get more functions
