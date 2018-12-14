@@ -46,12 +46,57 @@
                                         <form method="get" action="{% url 'create:results' %}">
                                             <div class="form-group">
                                                 <label for="exampleFormControlInput1">輸入關鍵字</label>
-                                                <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1" placeholder="請直接輸入關鍵字，例如：台大">
+                                                <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1" placeholder="請直接輸入關鍵字，例如：台大" name="query" required>
                                                 <small id="" class="form-text text-muted">若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V*"][word="台大"]
                                                  </small>
                                             </div>
+                                            <div class="form-group">
+                                                <label for="window_size">Window size</label>
+                                                <input type="range" name="context" value="10" min="5" max="30" class="numberinput form-control" required="" id="id_context">
+                                            </div>
                                             <div>
                                                 <label for="select_corpora">選擇語料庫</label>
+                                            </div>
+                                            <div class="card form-group">
+                                                <div class="card-body">
+                                                    <div class="form-row form-group">
+                                                        <div class="col">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label" for="corpora">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora"  value="Plurk">噗浪
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="CNA">中央社
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="ASBC">中研院平衡語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="TCCM">台灣兒童語言語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="NTUSpeak">台大口語語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="Lyrics">歌詞語料庫
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label for="select_corpora">進階選項</label>
                                             </div>
                                             <div class="card">
                                                 <div class="card-body">
@@ -59,39 +104,16 @@
                                                         <div class="col">
                                                             <div class="form-check">
                                                                 <label class="form-check-label" for="corpora">
-                                                                    <input class="form-check-input" type="checkbox" value="cc">噗浪
+                                                                    <input class="form-check-input" type="checkbox" name="show_pos"  value="on">顯示詞性(POS)
                                                                 </label>
                                                             </div>
-                                                            <div class="form-check">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="checkbox">中央社
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="checkbox">中研院平衡語料庫
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="checkbox">台灣兒童語言語料庫
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="checkbox">台大口語語料庫
-                                                                </label>
-                                                            </div>
-                                                            <div class="form-check">
-                                                                <label class="form-check-label">
-                                                                    <input class="form-check-input" type="checkbox">歌詞語料庫
-                                                                </label>
-                                                            </div>
+                                                            
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button style="margin-top:20px" type="submit" class="btn btn-primary btn-block">Query</button>
+                                            
+                                            <button style="margin-top:20px" type="submit" class="btn btn-primary btn-block">查詢</button>
                                     </div>
                                     </form>
                                 </div>
