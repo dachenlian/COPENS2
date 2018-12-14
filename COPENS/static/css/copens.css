@@ -3641,4 +3641,8 @@ section h2, section h3, section h4 {
 }
 
 
-
+.errorlist {
+    background: #e6adad;
+    padding: 5px;
+    margin: 10px 0;
+}
