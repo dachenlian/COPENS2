@@ -14,7 +14,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.conf import settings
 
-from .forms import UploadCorpusForm, SearchForm, KeynessForm
+from .forms import UploadCorpusForm, SearchForm
 from . import utils
 from .models import Corpus, CopensUser
 from .mixins import MultiFormMixin, MultiFormsView
@@ -224,7 +224,7 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     form_classes = {
         'upload': UploadCorpusForm,
         'search': SearchForm,
-        'keyness': KeynessForm
+        # 'keyness': KeynessForm
     }
 
     success_urls = {
