@@ -74,7 +74,8 @@ class ResultsView(View):
             results.object_list = list(map(for_concordance_tag, results.object_list))
             return render(request, self.template_name, {'results': results})
 
-        form = SearchForm(self.request.GET)
+        form = SearchForm(self.request.GET, user=self.request.user)
+        print(form)
         if form.is_valid():
             results_list = []
             if self.request.user.is_authenticated:
