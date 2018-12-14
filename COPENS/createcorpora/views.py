@@ -89,7 +89,10 @@ class ResultsView(View):
     def get(self, request):
         if not self.request.GET.getlist('corpora'):
             messages.warning(self.request, '請至少選擇一個語料庫')
-            return redirect('create:home')
+            if self.request.user.is_authenticated:
+                return redirect('create:home')
+            else:
+                return redirect('static_pages:query')
 
         if self.request.GET.get('page'):
             results_list = self.request.session.get('results_list')
@@ -126,7 +129,11 @@ class ResultsView(View):
             self.request.session['results_list'] = results_list
 
             return render(request, self.template_name, {'results': results})
-        return redirect('create:home')
+        else:
+            if self.request.user.is_authenticated:
+                return redirect('create:home')
+            else:
+                return redirect('static_pages:query')
 
 
 def for_concordance_tag(elm):

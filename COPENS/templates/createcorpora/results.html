@@ -12,7 +12,11 @@
 </section>
 <section class="content-section">
     <div class="container">
+    {% if user.is_authenticated %}
         <a href="{% url 'create:home' %}">重新查詢</a>
+    {% else %}
+        <a href="{% url 'static_pages:query' %}">重新查詢</a>
+    {% endif %}
         <div class="row">
             <div class="col-12">
                 <div class="card" style="margin-bottom: 2em">
