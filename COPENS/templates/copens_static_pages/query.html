@@ -1,159 +1,165 @@
 {% extends 'copens_static_pages/generic/base.html' %}
 {% block content %}
+{% load crispy_forms_tags %}
 <section class="header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h2>語料庫查詢</h2>
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2>語料庫查詢</h2>
             </div>
         </div>
-    </section>
-    <section style="padding: 30px 0">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-body">
-                            <form>
-                                <div class="form-group">
-                                    <label for="exampleFormControlInput1">輸入關鍵字</label>
-                                    <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1" placeholder="請直接輸入關鍵字，例如：台大">
-                                    <small id="" class="form-text text-muted">
-                              若要使用CQL，請在開頭輸入"cql:"，例：cql:[word="台大"]
-                             </small>
-                                </div>
-                                <div>
-                                    <label for="exampleFormControlInput1">選擇語料庫</label>
-                                </div>
+    </div>
+</section>
+<section style="padding: 30px 0">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="concordance-tab" data-toggle="tab" href="#concordance" role="tab"
+                               aria-controls="profile" aria-selected="false">Concordance</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link" id="collocation-tab" data-toggle="tab" href="#collocation" role="tab"
+                               aria-controls="home" aria-selected="true">Collocation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="n-gram-tab" data-toggle="tab" href="#n-gram" role="tab"
+                               aria-controls="home" aria-selected="true">N-gram</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="similar-word-tab" data-toggle="tab" href="#similar-word" role="tab"
+                               aria-controls="home" aria-selected="true">Similar words</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="word-doctor-tab" data-toggle="tab" href="#word-doctor" role="tab"
+                               aria-controls="home" aria-selected="true">詞博士</a>
+                    </li> -->
+                </ul>
+                <div class="tab-content" id="myTabContent" style="margin-top: 20px">
+                    <!-- Concordance -->
+                    <div class="tab-pane fade show active" id="concordance" role="tabpanel" aria-labelledby="concordance-tab">
+                        <div class="row">
+                            <div class="col-lg-8">
                                 <div class="card">
                                     <div class="card-body">
-                                        <div class="form-row form-group">
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">新聞
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">中央通訊社
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">中研院平衡語料庫
-                                                    </label>
+                                        <form method="get" action="{% url 'create:results' %}">
+                                            <div class="form-group">
+                                                <label for="exampleFormControlInput1">輸入關鍵字</label>
+                                                <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1" placeholder="請直接輸入關鍵字，例如：台大" name="query" required>
+                                                <small id="" class="form-text text-muted">若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V*"][word="台大"]
+                                                 </small>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="window_size">Window size:&nbsp;<span class="badge badge-pill badge-info" id="window_size_value"></label>
+                                                <input type="range" name="context" value="10" min="5" max="30" class="numberinput form-control" required="" id="id_context">
+                                            </div>
+                                            <div>
+                                                <label for="select_corpora">選擇語料庫</label>
+                                            </div>
+                                            <div class="card form-group" >
+                                                <div class="card-body">
+                                                    <div class="form-row form-group" style="margin-bottom: 0">
+                                                        <div class="col">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label" for="corpora">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora"  value="Plurk">噗浪
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="CNA">中央社
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="ASBC">中研院平衡語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="TCCM">台灣兒童語言語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="NTUSpeak">台大口語語料庫
+                                                                </label>
+                                                            </div>
+                                                            <div class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox" name="corpora" value="Lyrics">歌詞語料庫
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">社會網絡
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">PTT
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">噗浪
-                                                    </label>
+                                            <div>
+                                                <label for="select_corpora">進階選項</label>
+                                            </div>
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <div class="form-row form-group" style="margin-bottom: 0">
+                                                        <div class="col">
+                                                            <div class="form-check">
+                                                                <label class="form-check-label" for="corpora">
+                                                                    <input class="form-check-input" type="checkbox" name="show_pos"  value="on">顯示詞性(POS)
+                                                                </label>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">政治法律
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">總統文告
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">太陽花學運
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">立法院公報
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row form-group">
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">兒童習得
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">台灣兒童語言語料庫
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">國小教科書
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">口語言談
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">台大口語語料庫
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">成語語料
-                                                    </label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <label class="form-check-label">
-                                                        <input class="form-check-input" type="checkbox">網路新聞語料
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            
+                                            <button style="margin-top:20px" type="submit" class="btn btn-primary btn-block">查詢</button>
+                                    </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        CQL說明
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="card-text">COPENS語料庫儲存與搜尋引擎係根據<a href="http://cwb.sourceforge.net/">CWB (The IMS Open Corpus Workbench)</a>建置而成
+                                        </p>
+                                        <br>
+                                        <p class="card-text">有關CQL (Corpus Query Language)之使用可參閱<a href="http://www.inf.ed.ac.uk/teaching/courses/inf1/da/2012-2013/tutorials/cqp-tutorial.pdf">CQP Query Language Tutorial</a></p>
                                     </div>
                                 </div>
-                                <button style="margin-top:20px" type="button" class="btn btn-primary btn-block">Query</button>
-
-                                
+                            </div>
                         </div>
-                        </form>
                     </div>
-                </div>
-            
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-header">
-                        CQL說明
+                    <!-- Collocation -->
+                    <div class="tab-pane fade" id="collocation" role="tabpanel" aria-labelledby="collocation-tab">
                     </div>
-                    <div class="card-body">
-                        <p class="card-text">COPENS語料庫儲存與搜尋引擎係根據<a href="http://cwb.sourceforge.net/">CWB (The IMS Open Corpus Workbench)</a>建置而成
-                        </p>
-                        <br>
-                        <p class="card-text">有關CQL (Corpus Query Language)之使用可參閱<a href="http://www.inf.ed.ac.uk/teaching/courses/inf1/da/2012-2013/tutorials/cqp-tutorial.pdf">CQP Query Language Tutorial</a></p>
-
+                    <!-- N-gram -->
+                    <div class="tab-pane fade" id="n-gram" role="tabpanel" aria-labelledby="n-gram-tab">
+                    </div>
+                    <!-- Similar word -->
+                    <div class="tab-pane fade" id="similar-word" role="tabpanel" aria-labelledby="similar-word-tab">
+                    </div>
+                    <!-- Word doctor -->
+                    <div class="tab-pane fade" id="word-doctor" role="tabpanel" aria-labelledby="word-doctor-tab">
                     </div>
                 </div>
             </div>
         </div>
-        </div>
-    </section>
-    {% endblock %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $('#window_size_value').text($('#id_context').val());
+        $(document).on('input change', '#id_context', function() {
+            $('#window_size_value').html( $(this).val() );
+        });
+        // $('#id_context').change(function (){
+        //     $('#window_size_value').text($('#id_context').val());
+        // })
+    </script>
+{% endblock extra_js %}

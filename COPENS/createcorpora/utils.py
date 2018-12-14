@@ -9,6 +9,9 @@ import sys
 import os
 import shutil
 import re
+import requests
+import json
+import time
 from typing import Generator
 
 from django.core.files.uploadedfile import UploadedFile
@@ -168,7 +171,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
 
 
 def read_results(path: str):
-    with open(path) as fp:
+    with open(path, errors='ignore') as fp:
         return fp.readlines()[1:-2]  # remove <ul> tags
 
 
@@ -306,15 +309,27 @@ def upload_corpus_async(http_request, form_data):
     messages.warning(http_request, '語料上傳成功！')
 
 
-def create_corpus(copens_user, zh_name, en_name, is_public, file_name: str, registry_dir):
+def create_corpus(copens_user, zh_name, en_name, is_public,
+                  file_name: str, registry_dir, tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
     print('Creating corpus entry...')
-    Corpus.objects.create(
-        owner=copens_user,
-        zh_name=zh_name,
-        en_name=en_name,
-        is_public=is_public,
-        file_name=file_name,
-    )
+    if tcsl_upload_success:
+        Corpus.objects.create(
+            owner=copens_user,
+            zh_name=zh_name,
+            en_name=en_name,
+            is_public=is_public,
+            file_name=file_name,
+            tcsl_doc_id=tcsl_doc_id,
+            tcsl_corpus_name=tcsl_corpus_name
+        )
+    else:
+        Corpus.objects.create(
+            owner=copens_user,
+            zh_name=zh_name,
+            en_name=en_name,
+            is_public=is_public,
+            file_name=file_name,
+        )
     if is_public:
         print('Making public...')
         os.link(registry_dir.joinpath(file_name.split('.')[0]),
@@ -326,3 +341,66 @@ def make_public(registry_dir, filename):
     print('Making public...')
     os.link(registry_dir.joinpath(filename.split('.')[0]),
             Path(settings.CWB_PUBLIC_REG_DIR).joinpath(filename.split('.')[0].lower()))
+
+
+class TCSL(object):
+
+    LOGIN_PATH = 'user/login'
+    UPLOAD_PATH = 'document'
+    CREATE_CORPUS_PATH = 'corpus'
+
+    def __init__(self):
+        # Login at initial step
+        self.session = requests.Session()
+        self.tcsl_doc_id = ''
+        self.tcsl_corpus_name = ''
+        headers = {'Content-Type': 'application/json'}
+        request_body_for_login = {
+            'uname': settings.TCSL_USERNAME,
+            'passwd': settings.TCSL_PASSWORD
+        }
+        res = self.session.post(settings.TCSL_ENDPOINT + TCSL.LOGIN_PATH, headers=headers, data=json.dumps(request_body_for_login))
+
+    def upload(self, file):
+
+        data = {
+            'text': file.read().decode('utf-8'),
+            'metadata': {
+                'hashtags': ''
+            }
+        }
+
+        file.seek(0)
+        headers = {'Content-Type': 'application/json'}
+
+        try:
+            logging.info('Start uploading to TCSL ...')
+            r = self.session.post(settings.TCSL_ENDPOINT + TCSL.UPLOAD_PATH, headers=headers, data=json.dumps(data))
+            json_result = r.json()
+
+            if json_result['status'] == 'ok' and json_result['textid'] is not None:
+                self.tcsl_doc_id = json_result['textid']['json']
+                self.tcsl_corpus_name = f'{file.name}_{str(int(time.time()))}'
+                create_corpus_success = self._create_corpus(self.tcsl_doc_id, self.tcsl_corpus_name)
+                if not create_corpus_success:
+                    logging.info('Failed to create a corpus in TCSL')
+
+                    return False
+        except Exception as e:
+            logging.info(f'An Exception is raised during uploading to TCSL: {e}')
+            return False
+
+        return True
+
+    def _create_corpus(self, doc_id, corpus_name):
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "corpusname": corpus_name,
+            "documents": [doc_id]
+        }
+        r = self.session.post(settings.TCSL_ENDPOINT + TCSL.CREATE_CORPUS_PATH, headers=headers, data=json.dumps(data))
+        json_result = r.json()
+        if json_result['status'] == 'ok':
+            return True
+        else:
+            return False

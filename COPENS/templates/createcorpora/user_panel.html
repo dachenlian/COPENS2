@@ -37,7 +37,7 @@
 
         <div class="container">
             {% if messages %}
-                <div class="alert alert-warning" role="alert">
+                <div class="alert alert-info" role="alert">
                     {% for m in messages %}
                         <p>{{ m }}</p>
                     {% endfor %}
@@ -47,42 +47,35 @@
             <div class="row">
                 <div class="col-12">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        
                         <li class="nav-item">
-                            <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab"
-                               aria-controls="profile" aria-selected="false">使用自訂語料庫查詢</a>
+                            <a class="nav-link active" id="upload-corpus-tab" data-toggle="tab" href="#upload-corpus" role="tab"
+                               aria-controls="upload-corpus" aria-selected="true">上傳語料</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="home-tab" data-toggle="tab" href="#home" role="tab"
-                               aria-controls="home" aria-selected="true">上傳語料</a>
+                            <a class="nav-link" id="uploaded-corpus-tab" data-toggle="tab" href="#uploaded-corpus" role="tab"
+                               aria-controls="uploaded-corpus" aria-selected="true">已上傳語料</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="concordance-tab" data-toggle="tab" href="#concordance" role="tab"
+                               aria-controls="concordance" aria-selected="false">Concordance</a>
+                        </li>
+                        <!--
+                        <li class="nav-item">
+                            <a class="nav-link" id="keyness-tab" data-toggle="tab" href="#keyness" role="tab"
+                               aria-controls="keyness" aria-selected="false">Keyness</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="n-gram-tab" data-toggle="tab" href="#n-gram" role="tab"
+                               aria-controls="n-gram" aria-selected="false">N-gram</a>
+                        </li>
+                    -->
 
-                        <!-- <li class="nav-item">
-                            <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">其他</a>
-                        </li> -->
                     </ul>
                     <div class="tab-content" id="myTabContent">
-
-                        <div class="tab-pane fade show active" id="profile" role="tabpanel"
-                             aria-labelledby="profile-tab">
-
-                            <section>
-
-                                {% if no_corpus %}
-                                    <div class="alert alert-warning" role="alert">
-
-                                        <p>尚無可用語料庫</p>
-
-                                    </div>
-                                {% else %}
-                                    <form action="{% url 'create:results' %}" method="get">
-                                        {{ forms.search|crispy }}
-                                        <button class="btn btn-primary" type="submit">Search</button>
-                                    </form>
-                                {% endif %}
-                            </section>
-                        </div>
-
-                        <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        
+                        <!-- 上傳語料 -->
+                        <div class="tab-pane fade show active" id="upload-corpus" role="tabpanel" aria-labelledby="upload-corpus-tab">
                             <div class="row">
                                 <div class="col-lg-12">
                                     <section>
@@ -97,6 +90,16 @@
 
                                         </form>
                                     </section>
+                                    
+                                </div>
+
+                            </div>
+                        </div>
+                        
+                        <!-- 已上傳語料 -->
+                        <div class="tab-pane fade" id="uploaded-corpus" role="tabpanel" aria-labelledby="uploaded-corpus-tab">
+                            <div class="row">
+                                <div class="col-lg-12">
                                     <section>
                                         <h4>目前已上傳語料</h4>
                                         <table class="table table-hover table-sm">
@@ -132,6 +135,48 @@
 
                             </div>
                         </div>
+                        
+                        <!-- Concordance query -->
+                        <div class="tab-pane fade" id="concordance" role="tabpanel"
+                             aria-labelledby="concordance-tab">
+
+                            <section>
+
+                                {% if no_corpus %}
+                                    <div class="alert alert-info" role="alert">
+
+                                        <p>尚無可用語料庫</p>
+
+                                    </div>
+                                {% else %}
+                                    <form action="{% url 'create:results' %}" method="get">
+                                        {{ forms.search|crispy }}
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </form>
+                                {% endif %}
+                            </section>
+                        </div>
+
+                        <!-- Keyness query -->
+                        <div class="tab-pane fade" id="keyness" role="tabpanel"
+                             aria-labelledby="keyness-tab">
+
+                            <section>
+
+                                {% if no_corpus %}
+                                    <div class="alert alert-info" role="alert">
+
+                                        <p>請先上傳語料庫</p>
+
+                                    </div>
+                                {% else %}
+                                    <form action="{% url 'create:results' %}" method="get">
+                                        {{ forms.keyness|crispy }}
+                                        <button class="btn btn-primary" type="submit">Search</button>
+                                    </form>
+                                {% endif %}
+                            </section>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -148,6 +193,8 @@
             $('#delete_form').attr('action', url);
             $('#confirm_delete_modal').modal('show');
         });
+
+        // $('input.slider').slider();
     </script>
     <script>
     $("#id_needs_preprocessing").change(function() {

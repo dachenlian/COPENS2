@@ -58,8 +58,10 @@ class SearchForm(forms.Form):
     """
 
     def __init__(self, *args, **kwargs):
+        print(kwargs)
         self.user = kwargs.pop('user', AnonymousUser())
-
+        print(self.user.is_authenticated)
+        print(self.user)
         if self.user.is_authenticated:
             print('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
@@ -70,6 +72,8 @@ class SearchForm(forms.Form):
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
+
+
         try:
             self.fields['corpora'] = forms.MultipleChoiceField(
                 label="選擇語料庫",
@@ -82,6 +86,41 @@ class SearchForm(forms.Form):
 
     query = forms.CharField(max_length=255, initial='台北',
                             help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V*"][word="台大"]""")
-    context = forms.IntegerField(label="Window size", initial=10,
-                                 widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30}))
+    # context = forms.IntegerField(label="Window size", initial=10,
+                                 # widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30, 'class':'slider'}))
+    CHOICES = ((5,5), (10,10), (15,15), (20,20))
+ 
+    context = forms.ChoiceField(label="Window size", choices=CHOICES)
     show_pos = forms.BooleanField(label="顯示詞性(POS)", required=False)
+
+
+class KeynessForm(forms.Form):
+    """
+    Form to search Keyness
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', AnonymousUser())
+
+        if self.user.is_authenticated:
+            print('Authenticated!')
+            self.copens_user = CopensUser.objects.get(user=self.user)
+            self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
+                               for c in Corpus.objects.filter(Q(owner=self.copens_user))]
+        else:
+            print('Not authenticated!')
+            self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
+                               for c in Corpus.objects.filter(is_public=True)]
+
+        super().__init__(*args, **kwargs)  # must call super() to have access to fields
+
+        try:
+            self.fields['corpora'] = forms.MultipleChoiceField(
+                label="選擇語料庫",
+                choices=self.DB_CHOICES,
+                widget=forms.CheckboxSelectMultiple,
+                initial=self.DB_CHOICES[0]
+            )
+        except IndexError:
+            self.fields['corpora'] = forms.MultipleChoiceField()
+

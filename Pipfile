@@ -21,6 +21,7 @@ uwsgi = "*"
 whitenoise = "*"
 chardet = "*"
 django-rq = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 ipython = "*"

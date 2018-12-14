@@ -18,7 +18,7 @@ from rq import Queue
 from redis import Redis
 from rq.decorators import job
 
-from .forms import UploadCorpusForm, SearchForm
+from .forms import UploadCorpusForm, SearchForm, KeynessForm
 from . import utils
 from .models import Corpus, CopensUser
 from .mixins import MultiFormMixin, MultiFormsView
@@ -99,16 +99,23 @@ class ResultsView(View):
             results.object_list = list(map(for_concordance_tag, results.object_list))
             return render(request, self.template_name, {'results': results})
 
-        form = SearchForm(self.request.GET)
-
+        form = SearchForm(self.request.GET, user=self.request.user)
+        print(form)
         if form.is_valid():
             results_list = []
-            user_registry = utils.get_user_registry(self.request)
+            if self.request.user.is_authenticated:
+                user_registry = utils.get_user_registry(self.request)
             # print(list(form.cleaned_data.items()))
+            else:
+                user_registry = None
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             # print(results_dict)
             for corpus, path in results_dict.items():
-                results_list.extend(utils.read_results(path))
+                try:
+                    results_list.extend(utils.read_results(path))
+                except FileNotFoundError:
+                    messages.error(request, '查詢語法有誤！')
+                    redirect('create:home')
 
             paginator = Paginator(results_list, 50)
             page = request.GET.get('page')
@@ -118,7 +125,6 @@ class ResultsView(View):
             self.request.session['results_list'] = results_list
 
             return render(request, self.template_name, {'results': results})
-
         return redirect('create:home')
 
 
@@ -171,6 +177,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
             return redirect('create:home')
 
+        # Upload a copy to TCSL
+        # if success: save `tcsl.tcsl_doc_id` and `tcsl.tcsl_corpus_name` into Corpus model
+        tcsl = utils.TCSL()
+        tcsl_upload_success = tcsl.upload(file)
+
         utils.save_file_to_drive(file, raw_dir)
 
         if needs_preprocessing:
@@ -208,6 +219,39 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             # os.link(registry_dir.joinpath(file.name.split('.')[0]),
             #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
             #         )
+
+        utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
+                         registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
+        utils.cwb_make(Path(file.name).stem, registry_dir=registry_dir)
+
+        # if the file is plain text (which means it's "needs_preprocessing" is True)
+        # should upload to TSCL as well, in order to get more functions
+
+
+        # if tcsl_upload_success:
+        #     Corpus.objects.create(
+        #         owner=copens_user,
+        #         zh_name=zh_name,
+        #         en_name=en_name,
+        #         is_public=is_public,
+        #         file_name=file.name,
+        #         tcsl_doc_id=tcsl.tcsl_doc_id,
+        #         tcsl_corpus_name=tcsl.tcsl_corpus_name
+        #     )
+        #
+        # else:
+        #     Corpus.objects.create(
+        #         owner=copens_user,
+        #         zh_name=zh_name,
+        #         en_name=en_name,
+        #         is_public=is_public,
+        #         file_name=file.name,
+        #     )
+        #
+        # if is_public:
+        #     os.link(registry_dir.joinpath(file.name.split('.')[0]),
+        #             Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+        #             )
         messages.warning(self.request, '語料上傳成功！')
         return super().form_valid(form)
 
@@ -235,7 +279,8 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
 
     form_classes = {
         'upload': UploadCorpusForm,
-        'search': SearchForm
+        'search': SearchForm,
+        'keyness': KeynessForm
     }
 
     success_urls = {
@@ -260,7 +305,45 @@ class UserPanelView(LoginRequiredMixin, MultiFormsView):
     def search_form_valid(self, form):
         print(form.cleaned_data.items())
 
-    def search_form_invalid(self, form):
-        print("INVALID")
-        print(form.errors)
-        return super().search_form_valid(form)
+
+class KeynessResultView(View):
+    """
+    Results for keyness.
+    """
+    template_name = 'createcorpora/results.html'
+
+    def get(self, request):
+        if not self.request.GET.getlist('corpora'):
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('create:home')
+
+        if self.request.GET.get('page'):
+            results_list = self.request.session.get('results_list')
+            paginator = Paginator(results_list, 20)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            results.total = len(results_list)
+            results.object_list = list(map(for_concordance_tag, results.object_list))
+            return render(request, self.template_name, {'results': results})
+
+        form = SearchForm(self.request.GET)
+
+        if form.is_valid():
+            results_list = []
+            user_registry = utils.get_user_registry(self.request)
+            # print(list(form.cleaned_data.items()))
+            results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            # print(results_dict)
+            for corpus, path in results_dict.items():
+                results_list.extend(utils.read_results(path))
+
+            paginator = Paginator(results_list, 50)
+            page = request.GET.get('page')
+            results = paginator.get_page(page)
+            results.total = len(results_list)
+            results.object_list = list(map(for_concordance_tag, results.object_list))
+            self.request.session['results_list'] = results_list
+
+            return render(request, self.template_name, {'results': results})
+
+        return redirect('create:home')
