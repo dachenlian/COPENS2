@@ -88,7 +88,7 @@ class SearchForm(forms.Form):
                             help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]""")
     # context = forms.IntegerField(label="Window size", initial=10,
                                  # widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30, 'class':'slider'}))
-    CHOICES = ((5,5), (10,10), (15,15), (20,20))
+    CHOICES = [(n, n) for n in range(1, 31)]
  
     context = forms.ChoiceField(label="Window size", choices=CHOICES)
     show_pos = forms.BooleanField(label="顯示詞性(POS)", required=False)
