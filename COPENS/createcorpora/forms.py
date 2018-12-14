@@ -5,7 +5,6 @@ Forms to deal with creating corpora or searching within corpora.
 from django import forms
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
-from django.contrib import messages
 
 from .models import Corpus, CopensUser
 
@@ -37,19 +36,19 @@ class UploadCorpusForm(forms.Form):
             raise forms.ValidationError("Structural attributes must begin with -S", code='invalid')
         return cleaned_data
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     file = cleaned_data.get('file')
-    #     en_name = cleaned_data.get('en_name')
-    #
-    #     filename = file.name.split('.')[0].lower()
-    #     en_name = en_name.lower()
-    #
-    #     print(filename, en_name)
-    #     if filename != en_name:
-    #         raise forms.ValidationError(
-    #             'English corpus name and filename are not the same.'
-    #         )
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get('file')
+        en_name = cleaned_data.get('en_name')
+
+        filename = file.name.split('.')[0].lower()
+        en_name = en_name.lower()
+
+        print(filename, en_name)
+        if filename != en_name:
+            raise forms.ValidationError(
+                'English corpus name and filename are not the same.'
+            )
 
 
 class SearchForm(forms.Form):

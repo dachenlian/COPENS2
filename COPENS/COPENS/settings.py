@@ -211,7 +211,7 @@ SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 
-LOGIN_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
+LOGIN_REDIRECT_URL = reverse_lazy('create:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 
 
