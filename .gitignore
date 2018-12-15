@@ -286,5 +286,5 @@ staticfiles/
 mysql/
 cwb/
 migrations/
-
+*.env
 # End of https://www.gitignore.io/api/git,linux,python,sublimetext,pycharm+all,visualstudiocode

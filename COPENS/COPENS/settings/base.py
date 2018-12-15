@@ -11,19 +11,24 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from pathlib import Path
+
 from django.urls import reverse_lazy
+from dotenv import load_dotenv
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+env_path = Path(BASE_DIR).joinpath('web-variables.env')
+load_dotenv(dotenv_path=env_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_a#_eig*^mlb72q6!j2(mp06mkxg34n155&m=nigk&32nie!iw'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -73,7 +78,6 @@ RQ_QUEUES = {
         'SENTINELS': [('redis', 26736), ('redis', 26737)],
         'MASTER_NAME': 'redismaster',
         'DB': 0,
-        # 'PASSWORD': 'secret',
         'SOCKET_TIMEOUT': None,
         'CONNECTION_KWARGS': {
             'socket_connect_timeout': 0.3
@@ -215,7 +219,8 @@ LOGIN_REDIRECT_URL = reverse_lazy('create:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 
 
-TCSL_ENDPOINT = 'http://140.112.147.125:8188/tcsl/'
-TCSL_USERNAME = 'copens'
-TCSL_PASSWORD = 'ntulopecopens2018'
+TCSL_ENDPOINT = os.getenv('TCSL_ENDPOINT')
+TCSL_USERNAME = os.getenv('TCSL_USERNAME')
+TCSL_PASSWORD = os.getenv('TCSL_PASSWORD')
+
 
