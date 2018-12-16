@@ -10,7 +10,8 @@ from .models import Corpus, CopensUser
 
 
 class UploadCorpusForm(forms.Form):
-    zh_name = forms.CharField(max_length=255, initial='ASBC', label='語料庫名稱(中文)')
+    """Upload a corpus."""
+    zh_name = forms.CharField(max_length=255, initial='中研院平衡語料庫', label='語料庫名稱(中文)')
     en_name = forms.CharField(max_length=255, initial='ASBC', label='語料庫名稱(英文)')
     file = forms.FileField(label='檔案', help_text='檔案名稱必須與語料庫名稱(英文)相同')
     needs_preprocessing = forms.BooleanField(required=False, help_text='我們可以幫您做前處理的部份',
@@ -57,10 +58,7 @@ class SearchForm(forms.Form):
     """
 
     def __init__(self, *args, **kwargs):
-        print(kwargs)
         self.user = kwargs.pop('user', AnonymousUser())
-        print(self.user.is_authenticated)
-        print(self.user)
         if self.user.is_authenticated:
             print('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
@@ -71,7 +69,6 @@ class SearchForm(forms.Form):
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
-
 
         try:
             self.fields['corpora'] = forms.MultipleChoiceField(
@@ -85,8 +82,7 @@ class SearchForm(forms.Form):
 
     query = forms.CharField(max_length=255, initial='台北',
                             help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]""")
-    # context = forms.IntegerField(label="Window size", initial=10,
-                                 # widget=forms.NumberInput(attrs={'type': 'range', 'min': 5, 'max': 30, 'class':'slider'}))
+
     CHOICES = [(n, n) for n in range(1, 31)]
  
     context = forms.ChoiceField(label="Window size", choices=CHOICES)

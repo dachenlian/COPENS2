@@ -1,48 +1,30 @@
 import logging
 import os
 import sys
-import importlib
-
 from pathlib import Path
-from django.views.generic.edit import FormView
-from django.views.generic import DeleteView
-from django.urls import reverse_lazy
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic.list import ListView
-from django.views.generic import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib import messages
-from django.core.paginator import Paginator
-from django.conf import settings
-from rq import Queue
-from redis import Redis
-from rq.decorators import job
 
-from .forms import UploadCorpusForm, SearchForm
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import DeleteView
+from django.views.generic import View
+from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
+from redis import Redis
+from rq import Queue
+
 from . import utils
+from .forms import UploadCorpusForm, SearchForm
+from .mixins import MultiFormsView
 from .models import Corpus, CopensUser
-from .mixins import MultiFormMixin, MultiFormsView
 
 logger = logging.getLogger('django')
 
 redis_conn = Redis(host='redis')
 q = Queue(connection=redis_conn)
-
-sys.path.insert(0, '.')
-
-
-def create_corpus(copens_user, zh_name, en_name, is_public, file, registry_dir):
-    Corpus.objects.create(
-        owner=copens_user,
-        zh_name=zh_name,
-        en_name=en_name,
-        is_public=is_public,
-        file_name=file.name,
-    )
-    if is_public:
-        os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
-                )
 
 
 class Home(ListView):

@@ -35,4 +35,5 @@ def param_replace(context, **kwargs):
 
 @register.filter
 def get_list(dictionary, key):
+    """Get all values associated with the same key."""
     return dictionary.getlist(key)

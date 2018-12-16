@@ -1,28 +1,27 @@
 """
 Helper functions to use while uploading a corpus file or making queries.
 """
-from pathlib import Path
-import logging
-import subprocess
-import random
-import sys
-import os
-import shutil
-import re
-import requests
 import json
+import logging
+import os
+import random
+import re
+import shutil
+import subprocess
+import sys
 import time
+from pathlib import Path
 from typing import Generator
-import io
 
-from django.core.files.uploadedfile import UploadedFile
+import jseg
+import pexpect
+import requests
+from chardet.universaldetector import UniversalDetector
 from django.conf import settings
+from django.contrib import messages
+from django.core.files.uploadedfile import UploadedFile
 from django.http import request
 from django.shortcuts import redirect, get_object_or_404
-from django.contrib import messages
-import pexpect
-import jseg
-from chardet.universaldetector import UniversalDetector
 from django_rq import job
 
 from .models import CopensUser, Corpus
@@ -41,7 +40,6 @@ console.setFormatter(formatter)
 logging.getLogger(__name__).addHandler(console)
 
 
-@job
 def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
     """
     :param file: A Django UploadedFile file
@@ -77,7 +75,6 @@ def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
         logging.warning(f'Cannot find files: {e}')
 
 
-@job
 def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str, s_attrs: str) -> None:
     """
     Encode a verticalized XML file as a CWB corpus.
@@ -105,7 +102,6 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
         logging.info('Successfully encoded .vrt file.')
 
 
-@job
 def cwb_make(vrt_file: str, registry_dir: Path) -> None:
     """
     Index and compress an encoded corpus.
@@ -140,7 +136,6 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     if user_registry:
         registry += f":{user_registry}"
     cqp = pexpect.spawn(f'cqp -e -r {registry}', encoding='utf8')
-    cqp.logfile_read = sys.stdout
     if context:
         cqp.write(f'set CONTEXT {context};')
     if '[' not in query:
@@ -172,19 +167,21 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
 
 
 def read_results(path: str):
+    """Read CQP query results from a path"""
     with open(path, errors='ignore') as fp:
         return fp.readlines()[1:-2]  # remove <ul> tags
 
 
-def get_user_registry(http_request: request):
+def get_user_registry(http_request: request) -> str:
+    """Get a logged in user's registry directory."""
     user = http_request.user
     if user.is_authenticated:
         registry_dir = CopensUser.objects.get(user=user).registry_dir
         return registry_dir
 
 
-def detect_encoding(file):
-    """Detects a file's encoding and returns it."""
+def detect_encoding(file: Path) -> str:
+    """Detect a file's encoding and return it."""
 
     detector = UniversalDetector()
 
@@ -197,7 +194,7 @@ def detect_encoding(file):
     return detector.result.get('encoding')
 
 
-def read_file_gen(file, encoding):
+def read_file_gen(file: Path, encoding: str) -> str:
     """A generator to read a large file lazily."""
     with open(file, encoding=encoding) as fp:
         while True:
@@ -219,6 +216,7 @@ def flatten_list(lst: Generator) -> str:
 
 
 def segment_and_tag(text: Generator) -> tuple:
+    """Use Jieba to segment and tag a text."""
     j = jseg.Jieba()
     for t in text:
         yield j.seg(t, pos=True)
@@ -246,7 +244,6 @@ def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Pat
     print('Deleted old file.')
 
 
-@job
 def preprocess(input_file: Path, raw_dir: Path) -> None:
     """Takes raw text file, preprocesses it, and saves a verticalized version to disk.
     :param input_file: A raw text file
@@ -263,55 +260,9 @@ def preprocess(input_file: Path, raw_dir: Path) -> None:
     verticalize_and_save_to_file(text, input_file, raw_dir=raw_dir)
 
 
-@job
-def upload_corpus_async(http_request, form_data):
-    print('entered function')
-    print(form_data)
-    file = form_data.cleaned_data['file']
-    p_attrs = form_data.cleaned_data['positional_attrs']
-    s_attrs = form_data.cleaned_data['structural_attrs']
-    zh_name = form_data.cleaned_data['zh_name']
-    en_name = form_data.cleaned_data['en_name']
-    is_public = form_data.cleaned_data['is_public']
-    needs_preprocessing = form_data.cleaned_data['needs_preprocessing']
-
-    filename = file.name.split('.')[0].lower()
-    if filename != en_name.lower():
-        messages.warning(http_request, '上傳失敗：您檔名與語料庫英文名字不同！')
-        return redirect('create:home')
-
-    copens_user = get_object_or_404(CopensUser, user=http_request.user)
-    print(copens_user.user)
-    raw_dir = Path(copens_user.raw_dir)
-    data_dir = Path(copens_user.data_dir)
-    registry_dir = Path(copens_user.registry_dir)
-
-    if needs_preprocessing:
-        s_attrs = ""
-        p_attrs = "-P pos"
-        preprocess(raw_dir / file.name, raw_dir=raw_dir)
-        file.name = f"{file.name.split('.')[0]}.vrt"
-
-    cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
-               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
-    cwb_make(Path(file.name).stem, registry_dir=registry_dir)
-
-    Corpus.objects.create(
-        owner=copens_user,
-        zh_name=zh_name,
-        en_name=en_name,
-        is_public=is_public,
-        file_name=file.name,
-    )
-    if is_public:
-        os.link(registry_dir.joinpath(file.name.split('.')[0]),
-                Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
-                )
-    messages.warning(http_request, '語料上傳成功！')
-
-
 def create_corpus(copens_user, zh_name, en_name, is_public,
-                  file_name: str, registry_dir): # , tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
+                  file_name: str, registry_dir):  # , tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
+    """Create a corpus. To be used asynchronously."""
     print('Creating corpus entry...')
     # if tcsl_upload_success:
     Corpus.objects.create(
@@ -338,14 +289,7 @@ def create_corpus(copens_user, zh_name, en_name, is_public,
                 )
 
 
-def make_public(registry_dir, filename):
-    print('Making public...')
-    os.link(registry_dir.joinpath(filename.split('.')[0]),
-            Path(settings.CWB_PUBLIC_REG_DIR).joinpath(filename.split('.')[0].lower()))
-
-
 class TCSL(object):
-
     LOGIN_PATH = 'user/login'
     UPLOAD_PATH = 'document'
     CREATE_CORPUS_PATH = 'corpus'
@@ -360,7 +304,8 @@ class TCSL(object):
             'uname': settings.TCSL_USERNAME,
             'passwd': settings.TCSL_PASSWORD
         }
-        res = self.session.post(settings.TCSL_ENDPOINT + TCSL.LOGIN_PATH, headers=headers, data=json.dumps(request_body_for_login))
+        res = self.session.post(settings.TCSL_ENDPOINT + TCSL.LOGIN_PATH, headers=headers,
+                                data=json.dumps(request_body_for_login))
 
     def upload(self, file, file_path):
         encoding = detect_encoding(file_path)
