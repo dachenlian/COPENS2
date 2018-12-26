@@ -91,3 +91,4 @@ class SearchForm(forms.Form):
  
     context = forms.ChoiceField(label="Window size", choices=CHOICES)
     show_pos = forms.BooleanField(label="顯示詞性(POS)", required=False)
+

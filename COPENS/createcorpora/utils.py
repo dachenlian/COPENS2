@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import time
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Optional
 
 import jseg
 import pexpect
@@ -19,6 +19,7 @@ from chardet.universaldetector import UniversalDetector
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 from django.http import request
+from django.utils.text import slugify
 from django_rq import job
 
 from .models import CopensUser, Corpus
@@ -26,18 +27,24 @@ from .models import CopensUser, Corpus
 logger = logging.getLogger()
 
 
-def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
+def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[None, str]:
     """
     :param file: A Django UploadedFile file
     :param raw_dir: A path to user uploaded unprocessed corpora files.
     """
-    name = file.name
-    logging.info(f'Received: {name}, size: {file.size}')
-    path = raw_dir / name
+    filename = slugify(file.name)
+
+    if raw_dir.joinpath(filename).exists():
+        return None
+
+    logging.info(f'Received: {filename}, size: {file.size}')
+    path = raw_dir / filename
     with open(path, 'wb+') as fp:
         for chunk in file.chunks():
             fp.write(chunk)
     logging.info(f'Writing to disk complete.')
+
+    return filename
 
 
 def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
@@ -106,7 +113,6 @@ def cwb_make(vrt_file: str, registry_dir: Path) -> None:
         logging.info('Successfully indexed and compressed corpus.')
 
 
-@job
 def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_registry=None) -> dict:
     """
     Use pexpect to send queries to cqp and write to file. Then, open and read said file and return contents.
@@ -208,7 +214,7 @@ def segment_and_tag(text: Generator) -> tuple:
         yield j.seg(t, pos=True)
 
 
-def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Path) -> None:
+def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Path) -> str:
     """
     Takes a tokenized list of sentences and outputs to a file in a vertical format.
     This deletes the original raw text and saves a .vrt formatted version in its place.
@@ -217,7 +223,7 @@ def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Pat
     :param raw_dir: A path to the user's raw directory
     :return:
     """
-    print('Tagging and verticalizing.')
+    logging.debug('Tagging and verticalizing.')
     output_file = f'{input_file.stem}.vrt'
     with open(f'{raw_dir.joinpath(output_file)}', 'w') as fp:
         for sent in text:
@@ -225,9 +231,10 @@ def verticalize_and_save_to_file(text: Generator, input_file: Path, raw_dir: Pat
             for token, pos in sent:
                 print(f'{token}\t{pos}', file=fp)
             print('</s>', file=fp)
-    print('Save complete.')
+    logging.debug('Save complete.')
     os.remove(input_file)
-    print('Deleted old file.')
+    logging.debug('Deleted old file.')
+    return output_file
 
 
 def preprocess(input_file: Path, raw_dir: Path) -> None:
@@ -249,7 +256,7 @@ def preprocess(input_file: Path, raw_dir: Path) -> None:
 def create_corpus(copens_user, zh_name, en_name, is_public,
                   file_name: str, registry_dir):  # , tcsl_doc_id, tcsl_corpus_name, tcsl_upload_success):
     """Create a corpus. To be used asynchronously."""
-    print('Creating corpus entry...')
+    logging.debug('Creating corpus entry...')
     # if tcsl_upload_success:
     Corpus.objects.create(
         owner=copens_user,

@@ -1,9 +1,6 @@
 import logging
-import os
-import sys
 from pathlib import Path
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
@@ -86,16 +83,13 @@ class ResultsView(View):
             return render(request, self.template_name, {'results': results})
 
         form = SearchForm(self.request.GET, user=self.request.user)
-        print(form)
         if form.is_valid():
             results_list = []
             if self.request.user.is_authenticated:
                 user_registry = utils.get_user_registry(self.request)
-            # print(list(form.cleaned_data.items()))
             else:
                 user_registry = None
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
-            # print(results_dict)
             for corpus, path in results_dict.items():
                 try:
                     results_list.extend(utils.read_results(path))
@@ -142,7 +136,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     success_url = reverse_lazy('create:home')
 
     def form_valid(self, form):
-        print(list(form.cleaned_data.items()))
+        logger.debug(list(form.cleaned_data.items()))
         file = form.cleaned_data['file']
         p_attrs = form.cleaned_data['positional_attrs']
         s_attrs = form.cleaned_data['structural_attrs']
@@ -151,10 +145,9 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         is_public = form.cleaned_data['is_public']
         needs_preprocessing = form.cleaned_data['needs_preprocessing']
 
-        filename = file.name.split('.')[0].lower()
-        if filename != en_name.lower():
-            messages.warning(self.request, '上傳失敗：您檔名與語料庫英文名字不同！')
-            return redirect('create:home')
+        # if filename != en_name.lower():
+        #     messages.warning(self.request, '上傳失敗：您檔名與語料庫英文名字不同！')
+        #     return redirect('create:home')
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
         logger.debug(copens_user.user)
@@ -162,14 +155,13 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
 
-        logger.debug(raw_dir.joinpath(file.name))
-        if raw_dir.joinpath(file.name).exists():
+        filename = utils.save_file_to_drive(file, raw_dir)
+        if not filename:
             messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
             return redirect('create:home')
 
         # Upload a copy to TCSL
         # if success: save `tcsl.tcsl_doc_id` and `tcsl.tcsl_corpus_name` into Corpus model
-        utils.save_file_to_drive(file, raw_dir)
 
         # tcsl = utils.TCSL()
         # tcsl_upload_success = tcsl.upload(file, raw_dir / file.name)
@@ -180,15 +172,16 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         if needs_preprocessing:
             s_attrs = ""
             p_attrs = "-P pos"
-            preprocess_job = q.enqueue(utils.preprocess, raw_dir / file.name, raw_dir=raw_dir)
-            file.name = f"{file.name.split('.')[0]}.vrt"
-            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / file.name, data_dir=data_dir,
-                               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs, depends_on=preprocess_job)
-            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir, depends_on=encode_job)
+            preprocess_job = q.enqueue(utils.preprocess, raw_dir / filename, raw_dir=raw_dir)
+            filename = f"{filename.split('.')[0]}.vrt"
+            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
+                                   registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,
+                                   depends_on=preprocess_job)
+            make_job = q.enqueue(utils.cwb_make, Path(filename).stem, registry_dir, depends_on=encode_job)
         else:
-            utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
-                               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
-            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir)
+            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
+                                   registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,)
+            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir, depends_on=encode_job)
 
         create_corpus_job = q.enqueue(
             utils.create_corpus,
@@ -210,9 +203,9 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         # if is_public:
         #     q.enqueue(utils.make_public, registry_dir, file.name, depends_on=make_job)
 
-            # os.link(registry_dir.joinpath(file.name.split('.')[0]),
-            #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
-            #         )
+        # os.link(registry_dir.joinpath(file.name.split('.')[0]),
+        #         Path(settings.CWB_PUBLIC_REG_DIR).joinpath(file.name.split('.')[0].lower()),
+        #         )
 
         # utils.cwb_encode(vrt_file=raw_dir / file.name, data_dir=data_dir,
         #                  registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs)
@@ -220,7 +213,6 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
 
         # if the file is plain text (which means it's "needs_preprocessing" is True)
         # should upload to TSCL as well, in order to get more functions
-
 
         # if tcsl_upload_success:
         #     Corpus.objects.create(
