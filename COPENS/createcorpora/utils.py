@@ -17,10 +17,8 @@ import pexpect
 import requests
 from chardet.universaldetector import UniversalDetector
 from django.conf import settings
-from django.contrib import messages
 from django.core.files.uploadedfile import UploadedFile
 from django.http import request
-from django.shortcuts import redirect, get_object_or_404
 from django_rq import job
 
 from .models import CopensUser, Corpus

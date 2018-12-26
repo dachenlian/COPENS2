@@ -157,12 +157,12 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             return redirect('create:home')
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
-        print(copens_user.user)
+        logger.debug(copens_user.user)
         raw_dir = Path(copens_user.raw_dir)
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
 
-        print(raw_dir.joinpath(file.name))
+        logger.debug(raw_dir.joinpath(file.name))
         if raw_dir.joinpath(file.name).exists():
             messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
             return redirect('create:home')

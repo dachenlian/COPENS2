@@ -16,6 +16,17 @@ from pathlib import Path
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
+
+def show_toolbar(request):
+    if request.is_ajax():
+        return False
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'COPENS.settings.base.show_toolbar'
+}
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env_path = Path(BASE_DIR).joinpath('web-variables.env')
@@ -53,9 +64,11 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_extensions',
     'django_rq',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -208,6 +221,8 @@ STATICFILES_DIRS = [
 ]
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+INTERNAL_IPS = ['*']
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

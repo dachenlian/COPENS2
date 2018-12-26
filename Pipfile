@@ -23,6 +23,7 @@ chardet = "*"
 django-rq = "*"
 django-debug-toolbar = "*"
 python-dotenv = "*"
+ipython = "*"
 
 [dev-packages]
 ipython = "*"
