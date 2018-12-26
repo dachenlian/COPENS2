@@ -8,7 +8,6 @@ import random
 import re
 import shutil
 import subprocess
-import sys
 import time
 from pathlib import Path
 from typing import Generator
@@ -26,18 +25,7 @@ from django_rq import job
 
 from .models import CopensUser, Corpus
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename=Path(settings.BASE_DIR).joinpath('debug.log'),
-                    filemode='w'
-                    )
-
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
-console.setFormatter(formatter)
-logging.getLogger(__name__).addHandler(console)
+logger = logging.getLogger()
 
 
 def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> None:
@@ -289,7 +277,7 @@ def create_corpus(copens_user, zh_name, en_name, is_public,
                 )
 
 
-class TCSL(object):
+class TCSL:
     LOGIN_PATH = 'user/login'
     UPLOAD_PATH = 'document'
     CREATE_CORPUS_PATH = 'corpus'

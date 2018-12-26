@@ -21,7 +21,7 @@ from .forms import UploadCorpusForm, SearchForm
 from .mixins import MultiFormsView
 from .models import Corpus, CopensUser
 
-logger = logging.getLogger('django')
+logger = logging.getLogger('')
 
 redis_conn = Redis(host='redis')
 q = Queue(connection=redis_conn)

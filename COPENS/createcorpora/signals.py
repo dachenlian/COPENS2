@@ -12,7 +12,7 @@ from django.dispatch import receiver
 
 from .models import CopensUser
 
-logger = logging.getLogger('django')
+logger = logging.getLogger('')
 
 
 def make_dir(path: Path) -> Path:
@@ -26,7 +26,7 @@ def make_dir(path: Path) -> Path:
         directory.mkdir()
         return directory
     else:
-        print('Directory already exists')
+        logger.debug('Directory already exists')
         return directory
 
 
@@ -41,7 +41,7 @@ def create_copens_user(sender, instance, created: bool, **kwargs) -> None:
     :return: None
     """
 
-    logging.info('User created signal received.')
+    logging.debug('User created signal received.')
 
     if created:
         raw_dir = make_dir(Path(settings.CWB_RAW_DIR) / instance.username)

@@ -2,11 +2,15 @@
 Forms to deal with creating corpora or searching within corpora.
 """
 
+import logging
+
 from django import forms
 from django.db.models import Q
 from django.contrib.auth.models import AnonymousUser
 
 from .models import Corpus, CopensUser
+
+logger = logging.getLogger()
 
 
 class UploadCorpusForm(forms.Form):
@@ -60,12 +64,12 @@ class SearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', AnonymousUser())
         if self.user.is_authenticated:
-            print('Authenticated!')
+            logging.debug('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
                                for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
         else:
-            print('Not authenticated!')
+            logging.debug('Not authenticated!')
             self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields

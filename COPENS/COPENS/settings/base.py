@@ -16,7 +16,6 @@ from pathlib import Path
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 env_path = Path(BASE_DIR).joinpath('web-variables.env')
@@ -140,22 +139,32 @@ DATABASES = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} - {levelname} - {name}:{lineno} - {funcName}(): {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
-            'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
         },
         'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler'
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         }
     },
     'loggers': {
-        'django': {
+        '': {
             'handlers': ['file', 'console'],
-            'level': 'INFO',
-            'propagate': True,
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
     },
 }
@@ -218,9 +227,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 LOGIN_REDIRECT_URL = reverse_lazy('create:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 
-
 TCSL_ENDPOINT = os.getenv('TCSL_ENDPOINT')
 TCSL_USERNAME = os.getenv('TCSL_USERNAME')
 TCSL_PASSWORD = os.getenv('TCSL_PASSWORD')
-
-
