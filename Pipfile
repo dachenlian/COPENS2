@@ -24,6 +24,9 @@ django-rq = "*"
 django-debug-toolbar = "*"
 python-dotenv = "*"
 ipython = "*"
+coverage = "*"
+pytest-django = "*"
+pytest-xdist = "*"
 
 [dev-packages]
 ipython = "*"
