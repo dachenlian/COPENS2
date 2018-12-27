@@ -18,7 +18,7 @@ from .forms import UploadCorpusForm, SearchForm
 from .mixins import MultiFormsView
 from .models import Corpus, CopensUser
 
-logger = logging.getLogger('')
+logger = logging.getLogger(__name__)
 
 redis_conn = Redis(host='redis')
 q = Queue(connection=redis_conn)
@@ -150,7 +150,6 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         #     return redirect('create:home')
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
-        logger.debug('COPENS user:', copens_user.user)
         raw_dir = Path(copens_user.raw_dir)
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
@@ -170,10 +169,11 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         # print('TCSL', tcsl.tcsl_corpus_name)
 
         if needs_preprocessing:
+            logger.debug(f'Preprocessing: {filename}')
             s_attrs = ""
             p_attrs = "-P pos"
             preprocess_job = q.enqueue(utils.preprocess, raw_dir / filename, raw_dir=raw_dir)
-            filename = f"{filename.split('.')[0]}.vrt"
+            filename = f'{filename}.vrt'
             encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
                                    registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,
                                    depends_on=preprocess_job)
@@ -181,7 +181,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         else:
             encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
                                    registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,)
-            make_job = q.enqueue(utils.cwb_make, Path(file.name).stem, registry_dir, depends_on=encode_job)
+            make_job = q.enqueue(utils.cwb_make, Path(filename).stem, registry_dir, depends_on=encode_job)
 
         create_corpus_job = q.enqueue(
             utils.create_corpus,

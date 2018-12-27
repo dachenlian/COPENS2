@@ -20,11 +20,10 @@ from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 from django.http import request
 from django.utils.text import slugify
-from django_rq import job
 
 from .models import CopensUser, Corpus
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
@@ -33,7 +32,8 @@ def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
     :param raw_dir: A path to user uploaded unprocessed corpora files.
     """
     filename = Path(file.name)
-    filename = f'{slugify(filename.stem)}{filename.suffix}'
+    stem, suffix = slugify(filename.stem), filename.suffix
+    filename = f'{stem}{suffix}'
     logger.debug(f'Before: {file.name}, after: {filename}, type: {type(filename)}')
 
     if raw_dir.joinpath(filename).exists():
@@ -57,8 +57,8 @@ def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
     :return: None
     """
     raw_path = Path(copens_user.raw_dir) / corpus.file_name
-    reg_path = Path(copens_user.registry_dir) / corpus.en_name.lower()
-    data_path = Path(copens_user.data_dir) / corpus.en_name.lower()
+    reg_path = Path(copens_user.registry_dir) / corpus.file_name.split('.')[0]
+    data_path = Path(copens_user.data_dir) / corpus.file_name.split('.')[0]
 
     if corpus.is_public:
         os.unlink(Path(settings.CWB_PUBLIC_REG_DIR) / corpus.en_name.lower())
@@ -68,6 +68,8 @@ def delete_files_from_drive(copens_user: CopensUser, corpus: Corpus) -> None:
         shutil.rmtree(data_path)
     except FileNotFoundError as e:
         logging.warning(f'Cannot find files: {e}')
+    else:
+        logging.info('Successfully deleted files.')
 
 
 def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str, s_attrs: str) -> None:
@@ -125,6 +127,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     :param user_registry: A path to the user's personal registry.
     :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
     """
+    logger.debug(corpora)
     corpora_results = {}
     registry = f"{settings.CWB_PUBLIC_REG_DIR}"
     if user_registry:
