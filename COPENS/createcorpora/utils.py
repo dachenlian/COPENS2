@@ -27,12 +27,14 @@ from .models import CopensUser, Corpus
 logger = logging.getLogger()
 
 
-def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[None, str]:
+def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
     """
     :param file: A Django UploadedFile file
     :param raw_dir: A path to user uploaded unprocessed corpora files.
     """
-    filename = slugify(file.name)
+    filename = Path(file.name)
+    filename = f'{slugify(filename.stem)}{filename.suffix}'
+    logger.debug(f'Before: {file.name}, after: {filename}, type: {type(filename)}')
 
     if raw_dir.joinpath(filename).exists():
         return None

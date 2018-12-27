@@ -150,7 +150,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         #     return redirect('create:home')
 
         copens_user = get_object_or_404(CopensUser, user=self.request.user)
-        logger.debug(copens_user.user)
+        logger.debug('COPENS user:', copens_user.user)
         raw_dir = Path(copens_user.raw_dir)
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)

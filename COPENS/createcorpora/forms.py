@@ -41,19 +41,19 @@ class UploadCorpusForm(forms.Form):
             raise forms.ValidationError("Structural attributes must begin with -S", code='invalid')
         return cleaned_data
 
-    def clean(self):
-        cleaned_data = super().clean()
-        file = cleaned_data.get('file')
-        en_name = cleaned_data.get('en_name')
-
-        filename = file.name.split('.')[0].lower()
-        en_name = en_name.lower()
-
-        print(filename, en_name)
-        if filename != en_name:
-            raise forms.ValidationError(
-                'English corpus name and filename are not the same.'
-            )
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     file = cleaned_data.get('file')
+    #     en_name = cleaned_data.get('en_name')
+    #
+    #     filename = file.name.split('.')[0].lower()
+    #     en_name = en_name.lower()
+    #
+    #     print(filename, en_name)
+    #     if filename != en_name:
+    #         raise forms.ValidationError(
+    #             'English corpus name and filename are not the same.'
+    #         )
 
 
 class SearchForm(forms.Form):
@@ -66,11 +66,11 @@ class SearchForm(forms.Form):
         if self.user.is_authenticated:
             logging.debug('Authenticated!')
             self.copens_user = CopensUser.objects.get(user=self.user)
-            self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')  # value, label
+            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
                                for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
         else:
             logging.debug('Not authenticated!')
-            self.DB_CHOICES = [(c.en_name, f'{c.zh_name} / {c.owner}')
+            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')
                                for c in Corpus.objects.filter(is_public=True)]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
 
