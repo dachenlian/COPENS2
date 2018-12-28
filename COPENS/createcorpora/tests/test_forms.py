@@ -39,9 +39,13 @@ class UploadCorpusFormTest(TestCase):
             'en_name': 'ASBC',
             'needs_preprocessing': False,
             'is_public': False,
-            'positional_attrs': '-P pos',
-            'structural_attrs': '-S s'
+            'positional_attrs': 'P pos',
+            'structural_attrs': 'S s'
         }, file)
         self.assertFalse(form.is_valid(), msg=form.errors)
         self.assertEqual(form['file'].errors,
                          ["You may only use the characters A to Z, 0 to 9, and simple punctuation in your password."])
+        self.assertEqual(form['positional_attrs'].errors,
+                         ["Positional attributes must begin with -P"])
+        self.assertEqual(form['structural_attrs'].errors,
+                         ["Structural attributes must begin with -S"])
