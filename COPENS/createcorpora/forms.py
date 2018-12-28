@@ -10,7 +10,7 @@ from django.contrib.auth.models import AnonymousUser
 
 from .models import Corpus, CopensUser
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class UploadCorpusForm(forms.Form):
@@ -41,19 +41,12 @@ class UploadCorpusForm(forms.Form):
             raise forms.ValidationError("Structural attributes must begin with -S", code='invalid')
         return cleaned_data
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     file = cleaned_data.get('file')
-    #     en_name = cleaned_data.get('en_name')
-    #
-    #     filename = file.name.split('.')[0].lower()
-    #     en_name = en_name.lower()
-    #
-    #     print(filename, en_name)
-    #     if filename != en_name:
-    #         raise forms.ValidationError(
-    #             'English corpus name and filename are not the same.'
-    #         )
+    def clean_file(self):
+        cleaned_data = self.cleaned_data['file']
+        if not cleaned_data.name.isascii():
+            raise forms.ValidationError("You may only use the characters A to Z, 0 to 9, "
+                                        "and simple punctuation in your password.")
+        return cleaned_data
 
 
 class SearchForm(forms.Form):

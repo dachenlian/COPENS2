@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 from pathlib import Path
+import sys
 
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
@@ -148,6 +149,14 @@ DATABASES = {
         'PORT': 3306,
     }
 }
+
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
+        }
+    }
 
 LOGGING = {
     'version': 1,
