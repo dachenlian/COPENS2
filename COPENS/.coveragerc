@@ -1,8 +1,9 @@
 [run]
 include = ./*
 branch = True
-omit = ./*migrations*
-
+omit =
+    ./*migrations*
+    ./*factories*
 [report]
 exclude_lines =
     if __name__ == .__main__.:

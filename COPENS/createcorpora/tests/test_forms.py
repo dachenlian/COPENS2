@@ -1,8 +1,13 @@
+import logging
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
 
 from createcorpora.forms import UploadCorpusForm, SearchForm
 from createcorpora.models import CopensUser, Corpus
+from ..factories import UserFactory
+
+logger = logging.getLogger(__name__)
 
 
 def create_text_file(name):
@@ -49,3 +54,13 @@ class UploadCorpusFormTest(TestCase):
                          ["Positional attributes must begin with -P"])
         self.assertEqual(form['structural_attrs'].errors,
                          ["Structural attributes must begin with -S"])
+
+
+# class SearchFormTest(TestCase):
+    # def setUp(self):
+    #     user = UserFactory()
+    #
+    #     Corpus.objects.create(
+    #
+    #     )
+

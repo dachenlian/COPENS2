@@ -12,7 +12,7 @@ from django.dispatch import receiver
 
 from .models import CopensUser
 
-logger = logging.getLogger('')
+logger = logging.getLogger(__name__)
 
 
 def make_dir(path: Path) -> Path:
@@ -55,4 +55,4 @@ def create_copens_user(sender, instance, created: bool, **kwargs) -> None:
             registry_dir=registry_dir,
         )
 
-    logging.info('CopensUser created.')
+    logging.debug('CopensUser created.')

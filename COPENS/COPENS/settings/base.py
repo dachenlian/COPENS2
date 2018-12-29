@@ -184,6 +184,11 @@ LOGGING = {
         }
     },
     'loggers': {
+        'parso': {  # suppress debug info from appearing in shell_plus (IPython)
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         '': {
             'handlers': ['file', 'console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),

@@ -27,6 +27,7 @@ ipython = "*"
 coverage = "*"
 pytest-xdist = "*"
 pytest-django = "*"
+factory-boy = "*"
 
 [dev-packages]
 ipython = "*"
