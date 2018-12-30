@@ -19,9 +19,9 @@ from dotenv import load_dotenv
 
 
 def show_toolbar(request):
-    if request.is_ajax():
+    if request.is_ajax():  # pragma: no cover
         return False
-    return True
+    return True  # pragma: no cover
 
 
 DEBUG_TOOLBAR_CONFIG = {
@@ -150,7 +150,7 @@ DATABASES = {
     }
 }
 
-if 'test' in sys.argv:
+if 'test' in sys.argv:  # pragma: no cover
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
