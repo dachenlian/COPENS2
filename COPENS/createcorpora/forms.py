@@ -56,15 +56,10 @@ class SearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', AnonymousUser())
-        if self.user.is_authenticated:
-            logging.debug('Authenticated!')
-            self.copens_user = CopensUser.objects.get(user=self.user)
-            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
-                               for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
-        else:
-            logging.debug('Not authenticated!')
-            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')
-                               for c in Corpus.objects.filter(is_public=True)]
+        logging.debug('Authenticated!')
+        self.copens_user = CopensUser.objects.get(user=self.user)
+        self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
+                           for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
 
         try:

@@ -1,13 +1,11 @@
 import logging
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 from createcorpora.forms import UploadCorpusForm, SearchForm
 from createcorpora.models import CopensUser, Corpus
-from ..factories import UserFactory
-
-logger = logging.getLogger(__name__)
+from .. import factories
 
 
 def create_text_file(name):
@@ -56,11 +54,20 @@ class UploadCorpusFormTest(TestCase):
                          ["Structural attributes must begin with -S"])
 
 
-# class SearchFormTest(TestCase):
-    # def setUp(self):
-    #     user = UserFactory()
-    #
-    #     Corpus.objects.create(
-    #
-    #     )
+class SearchFormTest(TestCase):
+    def setUp(self):
+        self.user = factories.UserFactory(username='rich')
+
+    def test_no_corpora_returns_blank_choices(self):
+        form = SearchForm(user=self.user)
+        self.assertEqual(len(form.DB_CHOICES), 0)
+
+    def test_user_can_only_see_own_and_public_corpora(self):
+        factories.CorpusFactory.create_batch(size=10, owner=self.user.copens_user, is_public=True)
+        factories.CorpusFactory.create_batch(size=10, owner=self.user.copens_user, is_public=False)
+        factories.CorpusFactory.create_batch(size=25, is_public=False)
+        factories.CorpusFactory.create_batch(size=25, is_public=True)
+        form = SearchForm(user=self.user)
+        self.assertEqual(len(form.DB_CHOICES),
+                         Corpus.objects.filter(Q(owner=self.user.copens_user) | Q(is_public=True)).count())
 
