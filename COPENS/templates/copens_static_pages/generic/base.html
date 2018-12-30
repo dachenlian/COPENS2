@@ -1,165 +1,319 @@
 {% load static %}
 {% load account socialaccount %}
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>COPENS</title>
-  <meta name="description" content="COPENS">
-  <meta name="keywords" content="COPENS, corpus">
-  <meta name="author" content="LOPE">
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116959239-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="http://demo.tempload.com/babil/assets/images/favicon/favicon.png">
+        function gtag() {
+            dataLayer.push(arguments);
+        }
 
-  <!-- Bootstrap 4.1.3 CSS -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        gtag('js', new Date());
 
-  <!-- FontAwesome CSS -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+        gtag('config', 'UA-116959239-2');
+    </script>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>COPENS</title>
+    <meta name="description" content="COPENS">
+    <meta name="keywords" content="COPENS, corpus">
+    <meta name="author" content="LOPE">
 
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/css/bootstrap-slider.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="http://demo.tempload.com/babil/assets/images/favicon/favicon.png">
 
-  <!-- Custom CSS -->
-  <link href="{% static 'css/copens.css' %}" rel="stylesheet" type="text/css">
+    <!-- Bootstrap 4.1.3 CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet"
+          type="text/css">
+
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+          integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/css/bootstrap-slider.min.css">
+
+    <!-- Custom CSS -->
+    <link href="{% static 'css/copens.css' %}" rel="stylesheet" type="text/css">
 
 
 </head>
 <body>
-  <!--- Login modal: begin -->
+<!--- Login modal: begin -->
 <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModal" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <!-- <h5 class="modal-title" id="exampleModalLabel">Modal title</h5> -->
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="login" aria-selected="true">登入</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="register" aria-selected="false">註冊</a>
-                </li>
-            </ul>
-            <div class="tab-content" id="myTabContent">
-              <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="login-tab">
-                <div class="row" style="margin: 20px 0">
-                  <div class="col-lg-12">
-                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'github' %}" role="button">使用Github登入</a>
-                  </div>
-{#                  <div class="col-lg-6">#}
-{#                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'google' %}" role="button">使用Google登入</a>#}
-{#                  </div>#}
-                </div>
-                <div class="row">
-                  <div class="col-lg-12">
-                    <form class="login form-horizontal" method="POST" action="{% url 'account_login' %}">
-                      {% csrf_token %}
-                      {{ form.non_field_errors }}
-                      <div class="form-group">
-                        {{ form.login.errors }}
-                        <input class="form-control" autofocus="autofocus" id="id_login" maxlength="30" name="login" placeholder="請輸入完整Email帳號" type="text" />
-                      </div>
-                      <div class="form-group">
-                        {{ form.password.errors }}
-                        <input class="form-control" id="id_password" name="password" placeholder="密碼" type="password">
-                        <a href="{% url 'account_reset_password' %}">忘記密碼?</a>
-                      </div>
-                      <div class="form-group">
-                        {{ form.remember.errors }}
-                        <!-- <label for="inputDefault" class="col-lg-3 control-label"></label> -->
-                        <input id="id_remember" name="remember" type="checkbox" /> 記住我
-                      </div>
-                      {% if redirect_field_value %}
-                      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-                      {% endif %}
-
-                      <div class="form-group">
-                        <button class="primaryAction btn btn-block btn-primary" type="submit">登入</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
-                <div class="row" style="margin: 20px 0">
-                  <div class="col-lg-12">
-                    <form class="login form-horizontal" method="POST" action="{% url 'account_signup' %}">
-                      {% csrf_token %}
-                      {{ form.non_field_errors }}
-                      <div class="form-group">
-                        {{ form.login.errors }}
-                        <input class="form-control" autofocus="autofocus" id="id_email" maxlength="30" name="email" placeholder="Email帳號" type="email" required/>
-                      </div>
-                      <div class="form-group">
-                        {{ form.password.errors }}
-                        <input class="form-control" id="id_password1" name="password1" placeholder="密碼" type="password" required>
-                      </div>
-                      <div class="form-group">
-                        {{ form.password.errors }}
-                        <input class="form-control" id="id_password2" name="password2" placeholder="確認密碼" type="password" required>
-                      </div>
-                      
-                      {% if redirect_field_value %}
-                      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-                      {% endif %}
-
-                      <div class="form-group">
-                        <button class="primaryAction btn btn-block btn-primary" type="submit">註冊</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
+    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <!-- <h5 class="modal-title" id="exampleModalLabel">Modal title</h5> -->
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-          </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab"
+                                   aria-controls="login" aria-selected="true">登入</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab"
+                                   aria-controls="register" aria-selected="false">註冊</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="login" role="tabpanel"
+                                 aria-labelledby="login-tab">
+                                <div class="row" style="margin: 20px 0">
+                                    <div class="col-lg-12">
+                                        <a class="btn btn-outline-dark btn-block"
+                                           href="{% provider_login_url 'github' %}" role="button">使用Github登入</a>
+                                    </div>
+                                    {#                  <div class="col-lg-6">#}
+                                    {#                      <a class="btn btn-outline-dark btn-block" href="{% provider_login_url 'google' %}" role="button">使用Google登入</a>#}
+                                    {#                  </div>#}
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <form class="login form-horizontal" method="POST"
+                                              action="{% url 'account_login' %}">
+                                            {% csrf_token %}
+                                            {{ form.non_field_errors }}
+                                            <div class="form-group">
+                                                {{ form.login.errors }}
+                                                <input class="form-control" autofocus="autofocus" id="id_login"
+                                                       maxlength="30" name="login" placeholder="請輸入完整Email帳號"
+                                                       type="text"/>
+                                            </div>
+                                            <div class="form-group">
+                                                {{ form.password.errors }}
+                                                <input class="form-control" id="id_password" name="password"
+                                                       placeholder="密碼" type="password">
+                                                <a href="{% url 'account_reset_password' %}">忘記密碼?</a>
+                                            </div>
+                                            <div class="form-group">
+                                                {{ form.remember.errors }}
+                                                <!-- <label for="inputDefault" class="col-lg-3 control-label"></label> -->
+                                                <input id="id_remember" name="remember" type="checkbox"/> 記住我
+                                            </div>
+                                            {% if redirect_field_value %}
+                                                <input type="hidden" name="{{ redirect_field_name }}"
+                                                       value="{{ redirect_field_value }}"/>
+                                            {% endif %}
+
+                                            <div class="form-group">
+                                                <button class="primaryAction btn btn-block btn-primary" type="submit">
+                                                    登入
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="register-tab">
+                                <div class="row" style="margin: 20px 0">
+                                    <div class="col-lg-12">
+                                        <form class="login form-horizontal" method="POST"
+                                              action="{% url 'account_signup' %}">
+                                            {% csrf_token %}
+                                            {{ form.non_field_errors }}
+                                            <div class="form-group">
+                                                {{ form.login.errors }}
+                                                <input class="form-control" autofocus="autofocus" id="id_email"
+                                                       maxlength="30" name="email" placeholder="Email帳號" type="email"
+                                                       required/>
+                                            </div>
+                                            <div class="form-group">
+                                                {{ form.password.errors }}
+                                                <input class="form-control" id="id_password1" name="password1"
+                                                       placeholder="密碼" type="password" required>
+                                            </div>
+                                            <div class="form-group">
+                                                {{ form.password.errors }}
+                                                <input class="form-control" id="id_password2" name="password2"
+                                                       placeholder="確認密碼" type="password" required>
+                                            </div>
+
+                                            {% if redirect_field_value %}
+                                                <input type="hidden" name="{{ redirect_field_name }}"
+                                                       value="{{ redirect_field_value }}"/>
+                                            {% endif %}
+
+                                            <div class="form-group">
+                                                <button class="primaryAction btn btn-block btn-primary" type="submit">
+                                                    註冊
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 <!--- Login modal: end -->
 
-  {% include "./navbar.html" %}
+{% include "./navbar.html" %}
 
-  {% block content %}
-  {% endblock content %}
+{% block content %}
+{% endblock content %}
 
-  {% include "./footer.html" %}
-  
-
-  
+{% include "./footer.html" %}
 
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 
 
-  <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
-  <script>
+<script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js"
+        integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9"
+        crossorigin="anonymous"></script>
+<script>
     $('body').bootstrapMaterialDesign();
-  </script>
-  <!-- Plugins -->
-  <script>
+</script>
+<!-- Plugins -->
+<script>
     /*! Scroll Reveal Animations */
-window.scrollReveal=function(t){"use strict";function e(e){this.docElem=t.document.documentElement,this.options=this.extend(this.defaults,e),this.styleBank={},1==this.options.init&&this.init()}var i=1,o=function(){return t.requestAnimationFrame||t.webkitRequestAnimationFrame||t.mozRequestAnimationFrame||function(e){t.setTimeout(e,1e3/60)}}();return e.prototype={defaults:{after:"0s",enter:"bottom",move:"24px",over:"0.66s",easing:"ease-in-out",opacity:0,viewportFactor:.33,reset:!1,init:!0},init:function(){this.scrolled=!1;var e=this;this.elems=Array.prototype.slice.call(this.docElem.querySelectorAll("[data-scroll-reveal]")),this.elems.forEach(function(t,o){var r=t.getAttribute("data-scroll-reveal-id");r||(r=i++,t.setAttribute("data-scroll-reveal-id",r)),e.styleBank[r]||(e.styleBank[r]=t.getAttribute("style")),e.update(t)});var r=function(t){e.scrolled||(e.scrolled=!0,o(function(){e._scrollPage()}))},n=function(){function t(){e._scrollPage(),e.resizeTimeout=null}e.resizeTimeout&&clearTimeout(e.resizeTimeout),e.resizeTimeout=setTimeout(t,200)};t.addEventListener("scroll",r,!1),t.addEventListener("resize",n,!1)},_scrollPage:function(){var t=this;this.elems.forEach(function(e,i){t.update(e)}),this.scrolled=!1},parseLanguage:function(t){function e(t){var e=[],i=["from","the","and","then","but","with"];return t.forEach(function(t,o){i.indexOf(t)>-1||e.push(t)}),e}var i=t.getAttribute("data-scroll-reveal").split(/[, ]+/),o={};return i=e(i),i.forEach(function(t,e){switch(t){case"enter":return void(o.enter=i[e+1]);case"after":return void(o.after=i[e+1]);case"wait":return void(o.after=i[e+1]);case"move":return void(o.move=i[e+1]);case"ease":return o.move=i[e+1],void(o.ease="ease");case"ease-in":return o.move=i[e+1],void(o.easing="ease-in");case"ease-in-out":return o.move=i[e+1],void(o.easing="ease-in-out");case"ease-out":return o.move=i[e+1],void(o.easing="ease-out");case"over":return void(o.over=i[e+1]);default:return}}),o},update:function(t){var e=this.genCSS(t),i=this.styleBank[t.getAttribute("data-scroll-reveal-id")];return null!=i?i+=";":i="",t.getAttribute("data-scroll-reveal-initialized")||(t.setAttribute("style",i+e.initial),t.setAttribute("data-scroll-reveal-initialized",!0)),this.isElementInViewport(t,this.options.viewportFactor)?t.getAttribute("data-scroll-reveal-complete")?void 0:this.isElementInViewport(t,this.options.viewportFactor)?(t.setAttribute("style",i+e.target+e.transition),void(this.options.reset||setTimeout(function(){""!=i?t.setAttribute("style",i):t.removeAttribute("style"),t.setAttribute("data-scroll-reveal-complete",!0)},e.totalDuration))):void 0:void(this.options.reset&&t.setAttribute("style",i+e.initial+e.reset))},genCSS:function(t){var e,i,o=this.parseLanguage(t);o.enter?(("top"==o.enter||"bottom"==o.enter)&&(e=o.enter,i="y"),("left"==o.enter||"right"==o.enter)&&(e=o.enter,i="x")):(("top"==this.options.enter||"bottom"==this.options.enter)&&(e=this.options.enter,i="y"),("left"==this.options.enter||"right"==this.options.enter)&&(e=this.options.enter,i="x")),("top"==e||"left"==e)&&(o.move?o.move="-"+o.move:o.move="-"+this.options.move);var r=o.move||this.options.move,n=o.over||this.options.over,s=o.after||this.options.after,a=o.easing||this.options.easing,l=o.opacity||this.options.opacity,u="-webkit-transition: -webkit-transform "+n+" "+a+" "+s+",  opacity "+n+" "+a+" "+s+";transition: transform "+n+" "+a+" "+s+", opacity "+n+" "+a+" "+s+";-webkit-perspective: 1000;-webkit-backface-visibility: hidden;",c="-webkit-transition: -webkit-transform "+n+" "+a+" 0s,  opacity "+n+" "+a+" "+s+";transition: transform "+n+" "+a+" 0s,  opacity "+n+" "+a+" "+s+";-webkit-perspective: 1000;-webkit-backface-visibility: hidden;",f="-webkit-transform: translate"+i+"("+r+");transform: translate"+i+"("+r+");opacity: "+l+";",p="-webkit-transform: translate"+i+"(0);transform: translate"+i+"(0);opacity: 1;";return{transition:u,initial:f,target:p,reset:c,totalDuration:1e3*(parseFloat(n)+parseFloat(s))}},getViewportH:function(){var e=this.docElem.clientHeight,i=t.innerHeight;return i>e?i:e},getOffset:function(t){var e=0,i=0;do isNaN(t.offsetTop)||(e+=t.offsetTop),isNaN(t.offsetLeft)||(i+=t.offsetLeft);while(t=t.offsetParent);return{top:e,left:i}},isElementInViewport:function(e,i){var o=t.pageYOffset,r=o+this.getViewportH(),n=e.offsetHeight,s=this.getOffset(e).top,a=s+n,i=i||0;return r>=s+n*i&&a>=o||"fixed"==(e.currentStyle?e.currentStyle:t.getComputedStyle(e,null)).position},extend:function(t,e){for(var i in e)e.hasOwnProperty(i)&&(t[i]=e[i]);return t}},e}(window);  
+    window.scrollReveal = function (t) {
+        "use strict";
 
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/bootstrap-slider.min.js"></script>
-  <!-- Global Init -->
-  <script src="{% static 'js/copens.js' %}">
-  </script>
-  
-  {% block extra_js %}
+        function e(e) {
+            this.docElem = t.document.documentElement, this.options = this.extend(this.defaults, e), this.styleBank = {}, 1 == this.options.init && this.init()
+        }
 
-  {% endblock extra_js %}  
+        var i = 1, o = function () {
+            return t.requestAnimationFrame || t.webkitRequestAnimationFrame || t.mozRequestAnimationFrame || function (e) {
+                t.setTimeout(e, 1e3 / 60)
+            }
+        }();
+        return e.prototype = {
+            defaults: {
+                after: "0s",
+                enter: "bottom",
+                move: "24px",
+                over: "0.66s",
+                easing: "ease-in-out",
+                opacity: 0,
+                viewportFactor: .33,
+                reset: !1,
+                init: !0
+            }, init: function () {
+                this.scrolled = !1;
+                var e = this;
+                this.elems = Array.prototype.slice.call(this.docElem.querySelectorAll("[data-scroll-reveal]")), this.elems.forEach(function (t, o) {
+                    var r = t.getAttribute("data-scroll-reveal-id");
+                    r || (r = i++, t.setAttribute("data-scroll-reveal-id", r)), e.styleBank[r] || (e.styleBank[r] = t.getAttribute("style")), e.update(t)
+                });
+                var r = function (t) {
+                    e.scrolled || (e.scrolled = !0, o(function () {
+                        e._scrollPage()
+                    }))
+                }, n = function () {
+                    function t() {
+                        e._scrollPage(), e.resizeTimeout = null
+                    }
 
-</body></html>
+                    e.resizeTimeout && clearTimeout(e.resizeTimeout), e.resizeTimeout = setTimeout(t, 200)
+                };
+                t.addEventListener("scroll", r, !1), t.addEventListener("resize", n, !1)
+            }, _scrollPage: function () {
+                var t = this;
+                this.elems.forEach(function (e, i) {
+                    t.update(e)
+                }), this.scrolled = !1
+            }, parseLanguage: function (t) {
+                function e(t) {
+                    var e = [], i = ["from", "the", "and", "then", "but", "with"];
+                    return t.forEach(function (t, o) {
+                        i.indexOf(t) > -1 || e.push(t)
+                    }), e
+                }
+
+                var i = t.getAttribute("data-scroll-reveal").split(/[, ]+/), o = {};
+                return i = e(i), i.forEach(function (t, e) {
+                    switch (t) {
+                        case"enter":
+                            return void (o.enter = i[e + 1]);
+                        case"after":
+                            return void (o.after = i[e + 1]);
+                        case"wait":
+                            return void (o.after = i[e + 1]);
+                        case"move":
+                            return void (o.move = i[e + 1]);
+                        case"ease":
+                            return o.move = i[e + 1], void (o.ease = "ease");
+                        case"ease-in":
+                            return o.move = i[e + 1], void (o.easing = "ease-in");
+                        case"ease-in-out":
+                            return o.move = i[e + 1], void (o.easing = "ease-in-out");
+                        case"ease-out":
+                            return o.move = i[e + 1], void (o.easing = "ease-out");
+                        case"over":
+                            return void (o.over = i[e + 1]);
+                        default:
+                            return
+                    }
+                }), o
+            }, update: function (t) {
+                var e = this.genCSS(t), i = this.styleBank[t.getAttribute("data-scroll-reveal-id")];
+                return null != i ? i += ";" : i = "", t.getAttribute("data-scroll-reveal-initialized") || (t.setAttribute("style", i + e.initial), t.setAttribute("data-scroll-reveal-initialized", !0)), this.isElementInViewport(t, this.options.viewportFactor) ? t.getAttribute("data-scroll-reveal-complete") ? void 0 : this.isElementInViewport(t, this.options.viewportFactor) ? (t.setAttribute("style", i + e.target + e.transition), void (this.options.reset || setTimeout(function () {
+                    "" != i ? t.setAttribute("style", i) : t.removeAttribute("style"), t.setAttribute("data-scroll-reveal-complete", !0)
+                }, e.totalDuration))) : void 0 : void (this.options.reset && t.setAttribute("style", i + e.initial + e.reset))
+            }, genCSS: function (t) {
+                var e, i, o = this.parseLanguage(t);
+                o.enter ? (("top" == o.enter || "bottom" == o.enter) && (e = o.enter, i = "y"), ("left" == o.enter || "right" == o.enter) && (e = o.enter, i = "x")) : (("top" == this.options.enter || "bottom" == this.options.enter) && (e = this.options.enter, i = "y"), ("left" == this.options.enter || "right" == this.options.enter) && (e = this.options.enter, i = "x")), ("top" == e || "left" == e) && (o.move ? o.move = "-" + o.move : o.move = "-" + this.options.move);
+                var r = o.move || this.options.move, n = o.over || this.options.over, s = o.after || this.options.after,
+                    a = o.easing || this.options.easing, l = o.opacity || this.options.opacity,
+                    u = "-webkit-transition: -webkit-transform " + n + " " + a + " " + s + ",  opacity " + n + " " + a + " " + s + ";transition: transform " + n + " " + a + " " + s + ", opacity " + n + " " + a + " " + s + ";-webkit-perspective: 1000;-webkit-backface-visibility: hidden;",
+                    c = "-webkit-transition: -webkit-transform " + n + " " + a + " 0s,  opacity " + n + " " + a + " " + s + ";transition: transform " + n + " " + a + " 0s,  opacity " + n + " " + a + " " + s + ";-webkit-perspective: 1000;-webkit-backface-visibility: hidden;",
+                    f = "-webkit-transform: translate" + i + "(" + r + ");transform: translate" + i + "(" + r + ");opacity: " + l + ";",
+                    p = "-webkit-transform: translate" + i + "(0);transform: translate" + i + "(0);opacity: 1;";
+                return {
+                    transition: u,
+                    initial: f,
+                    target: p,
+                    reset: c,
+                    totalDuration: 1e3 * (parseFloat(n) + parseFloat(s))
+                }
+            }, getViewportH: function () {
+                var e = this.docElem.clientHeight, i = t.innerHeight;
+                return i > e ? i : e
+            }, getOffset: function (t) {
+                var e = 0, i = 0;
+                do isNaN(t.offsetTop) || (e += t.offsetTop), isNaN(t.offsetLeft) || (i += t.offsetLeft); while (t = t.offsetParent);
+                return {top: e, left: i}
+            }, isElementInViewport: function (e, i) {
+                var o = t.pageYOffset, r = o + this.getViewportH(), n = e.offsetHeight, s = this.getOffset(e).top,
+                    a = s + n, i = i || 0;
+                return r >= s + n * i && a >= o || "fixed" == (e.currentStyle ? e.currentStyle : t.getComputedStyle(e, null)).position
+            }, extend: function (t, e) {
+                for (var i in e) e.hasOwnProperty(i) && (t[i] = e[i]);
+                return t
+            }
+        }, e
+    }(window);
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/bootstrap-slider.min.js"></script>
+<!-- Global Init -->
+<script src="{% static 'js/copens.js' %}">
+</script>
+
+{% block extra_js %}
+
+{% endblock extra_js %}
+
+</body>
+</html>
