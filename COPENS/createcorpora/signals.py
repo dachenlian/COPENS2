@@ -43,7 +43,7 @@ def create_copens_user(sender, instance, created: bool, **kwargs) -> None:
 
     logging.debug('User created signal received.')
 
-    if created:
+    if created:  #pragma: no cover
         raw_dir = make_dir(Path(settings.CWB_RAW_DIR) / instance.username)
         data_dir = make_dir(Path(settings.CWB_DATA_DIR) / instance.username)
         registry_dir = make_dir(Path(settings.CWB_REGISTRY_DIR) / instance.username)
