@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 def make_dir(path: Path) -> Path:
     """
-    Creates a directory provided by path of it does not exist.
+    Creates a directory provided by path if it does not exist.
     :param path: A system path
     :return: A Path object representing a newly created or existing path.
     """
@@ -41,9 +41,9 @@ def create_copens_user(sender, instance, created: bool, **kwargs) -> None:
     :return: None
     """
 
-    logging.debug('User created signal received.')
-
     if created:  #pragma: no cover
+        logging.debug('User created signal received.')
+
         raw_dir = make_dir(Path(settings.CWB_RAW_DIR) / instance.username)
         data_dir = make_dir(Path(settings.CWB_DATA_DIR) / instance.username)
         registry_dir = make_dir(Path(settings.CWB_REGISTRY_DIR) / instance.username)
