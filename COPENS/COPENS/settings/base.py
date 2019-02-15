@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 
     'copens_static_pages.apps.CopensStaticPagesConfig',
     'createcorpora.apps.CreatecorporaConfig',
+    'crispy_forms_materialize.apps.CrispyFormsMaterializeConfig',
     'crispy_forms',
     'django_extensions',
     'django_rq',
@@ -240,7 +241,7 @@ INTERNAL_IPS = ['*']
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_TEMPLATE_PACK = 'materialize'
 
 CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
 CWB_PUBLIC_REG_DIR = os.path.join(CWB_REGISTRY_DIR, 'public')

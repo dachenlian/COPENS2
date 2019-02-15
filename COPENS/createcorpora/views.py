@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from redis import Redis
@@ -24,18 +24,18 @@ redis_conn = Redis(host='redis')
 q = Queue(connection=redis_conn)
 
 
-class Home(ListView):
-    template_name = 'createcorpora/home.html'
-    model = Corpus
-    paginate_by = 100
+# class Home(ListView):
+#     template_name = 'createcorpora/home.html'
+#     model = Corpus
+#     paginate_by = 100
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated:
-            user = CopensUser.objects.get(user=self.request.user)
-            context['private_corpora'] = Corpus.objects.filter(owner=user)
-        context['public_corpora'] = Corpus.objects.filter(is_public=True)
-        return context
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         if self.request.user.is_authenticated:
+#             user = CopensUser.objects.get(user=self.request.user)
+#             context['private_corpora'] = Corpus.objects.filter(owner=user)
+#         context['public_corpora'] = Corpus.objects.filter(is_public=True)
+#         return context
 
 
 class SearchView(FormView):
@@ -43,7 +43,7 @@ class SearchView(FormView):
     User chooses what databases to query from.
     """
 
-    template_name = 'createcorpora/search.html'
+    template_name = 'createcorpora/query_concordance.html'
     form_class = SearchForm
 
     def get_form_kwargs(self):
@@ -83,6 +83,7 @@ class ResultsView(View):
             return render(request, self.template_name, {'results': results})
 
         form = SearchForm(self.request.GET, user=self.request.user)
+
         if form.is_valid():
             results_list = []
             if self.request.user.is_authenticated:
@@ -90,6 +91,7 @@ class ResultsView(View):
             else:
                 user_registry = None
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            print(results_dict)
             for corpus, path in results_dict.items():
                 try:
                     results_list.extend(utils.read_results(path))
@@ -103,11 +105,12 @@ class ResultsView(View):
             results.total = len(results_list)
             results.object_list = list(map(for_concordance_tag, results.object_list))
             self.request.session['results_list'] = results_list
-
+            print(results.object_list)
             return render(request, self.template_name, {'results': results})
         else:
+            print(form.errors)
             if self.request.user.is_authenticated:
-                return redirect('create:home')
+                return redirect('create:concordance')
             else:
                 return redirect('static_pages:query')
 
@@ -131,7 +134,7 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
     User can upload personal corpora to COPENS.
     """
     login_url = 'account_login'
-    template_name = 'createcorpora/index.html'
+    template_name = 'createcorpora/upload.html'
     form_class = UploadCorpusForm
     success_url = reverse_lazy('create:home')
 
@@ -242,6 +245,14 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         return super().form_valid(form)
 
 
+class UploadedView(TemplateView):
+    """
+    顯示使用者已上傳的語料庫
+    """
+
+    template_name = 'createcorpora/uploaded.html'
+
+
 class DeleteCorpusView(LoginRequiredMixin, DeleteView):
     """Delete user uploaded corpora."""
     login_url = 'account_login'
@@ -259,37 +270,37 @@ class DeleteCorpusView(LoginRequiredMixin, DeleteView):
             return redirect('create:home')
 
 
-class UserPanelView(LoginRequiredMixin, MultiFormsView):
-    login_url = 'account_login'
-    template_name = 'createcorpora/user_panel.html'
+# class UserPanelView(LoginRequiredMixin, MultiFormsView):
+#     login_url = 'account_login'
+#     template_name = 'createcorpora/user_panel.html'
 
-    form_classes = {
-        'upload': UploadCorpusForm,
-        'search': SearchForm,
-        # 'keyness': KeynessForm
-    }
+#     form_classes = {
+#         'upload': UploadCorpusForm,
+#         'search': SearchForm,
+#         # 'keyness': KeynessForm
+#     }
 
-    success_urls = {
-        'upload': reverse_lazy('create:home'),
-        'search': ''
-    }
+#     success_urls = {
+#         'upload': reverse_lazy('create:home'),
+#         'search': ''
+#     }
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        copens_user = CopensUser.objects.get(user=self.request.user)
-        private_corpora = Corpus.objects.filter(owner=copens_user)
-        public_corpora = Corpus.objects.filter(is_public=True)
-        context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
-        context['private_corpora'] = private_corpora
-        return context
+#     def get_context_data(self, *, object_list=None, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         copens_user = CopensUser.objects.get(user=self.request.user)
+#         private_corpora = Corpus.objects.filter(owner=copens_user)
+#         public_corpora = Corpus.objects.filter(is_public=True)
+#         context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
+#         context['private_corpora'] = private_corpora
+#         return context
 
-    def get_form_kwargs(self, form_name, bind_form=False):
-        kwargs = super().get_form_kwargs(form_name, bind_form)
-        kwargs['user'] = self.request.user
-        return kwargs
+#     def get_form_kwargs(self, form_name, bind_form=False):
+#         kwargs = super().get_form_kwargs(form_name, bind_form)
+#         kwargs['user'] = self.request.user
+#         return kwargs
 
-    def search_form_valid(self, form):
-        print(form.cleaned_data.items())
+#     def search_form_valid(self, form):
+#         print(form.cleaned_data.items())
 
 
 class KeynessResultView(View):

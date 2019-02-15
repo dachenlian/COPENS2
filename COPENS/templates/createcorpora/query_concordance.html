@@ -1,0 +1,14 @@
+{% extends 'createcorpora/user_base.html' %}
+
+
+
+{% block user_panel_content %}
+	{{ form.errors }}
+    {% load crispy_forms_tags %}
+
+    <form action="{% url 'create:results' %}" method="get">
+        {{ form|crispy }}
+        <button class="btn btn-primary" type="submit">搜尋</button>
+    </form>
+
+{% endblock user_panel_content %}

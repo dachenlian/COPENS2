@@ -1,0 +1,6 @@
+<p>
+    <label for="id_{{ field.html_name}}"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+        <input type="checkbox" name="{{ field.html_name }}" id="id_{{ field.html_name }}">
+        <span>{{ field.label }}</span>
+    </label>
+</p>

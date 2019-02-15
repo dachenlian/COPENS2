@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s3"><a class="active" href="#concordance">Concordance</a></li>
+                    <li class="tab col s3"><a class="active" href="{% url 'static_pages:concordance' %}">Concordance</a></li>
                     <li class="tab col s3"><a href="#wordlist">Word list</a></li>
                     <li class="tab col s3"><a href="#test3">Collocation</a></li>
                     <li class="tab col s3"><a href="#test4">Word Sketch</a></li>
@@ -27,10 +27,18 @@
         </div>
         
         <!-- Concordance -->
-        <div id="concordance" class="row">
+        <div class="row">
             <div class="col s12 m8 l8">
                 <div class="card z-depth-0">
                     <div class="card-content">
+                        {{ form.errors }}
+                        {% load crispy_forms_tags %}
+
+                        <form action="{% url 'static_pages:concordance_result' %}" method="get">
+                            {{ form|crispy }}
+                            <button class="btn btn-primary" type="submit">搜尋</button>
+                        </form>
+<!--
                         <form method="get" action="{% url 'create:results' %}">
                             <div class="row">
                                 <div class="input-field col s12">
@@ -105,6 +113,7 @@
                             </div>
                             
                         </form>
+                    -->
                     </div>
                 </div>
             </div>
@@ -124,84 +133,6 @@
             </div>
         </div>
 
-        <!-- Wordlist -->
-        <div id="wordlist" class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <form method="get" action="{% url 'create:results' %}">
-                            <div class="row">
-                                <div class="input-field col l6">
-                                    <p>選擇語料庫</p>
-                                    <p>
-                                        <label for="corpus_plurk">
-                                            <input id="corpus_plurk" type="checkbox" value="Plurk" />
-                                            <span>噗浪</span>
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label for="corpus_cna">
-                                            <input id="corpus_cna" type="checkbox" value="CNA" />
-                                            <span>中央社</span>
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label for="corpus_ASBC">
-                                            <input id="corpus_ASBC" type="checkbox" value="ASBC" />
-                                            <span>中研院平衡語料庫</span>
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label for="corpus_TCCM">
-                                            <input id="corpus_TCCM" type="checkbox" value="TCCM" />
-                                            <span>台灣兒童語言語料庫</span>
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label for="corpus_NTUSpeak">
-                                            <input id="corpus_NTUSpeak" type="checkbox" value="NTUSpeak" />
-                                            <span>台大口語語料庫</span>
-                                        </label>
-                                    </p>
-                                    <p>
-                                        <label for="corpus_Lyrics">
-                                            <input id="corpus_Lyrics" type="checkbox" value="Lyrics" />
-                                            <span>歌詞語料庫</span>
-                                        </label>
-                                    </p>
-                                </div>
-                                <div class="col l6">
-                                    <div>
-                                        <label for="select_corpora">進階選項</label>
-                                    </div>
-                                    
-                                    <div class="form-row form-group" style="margin-bottom: 0">
-                                        <div class="col">
-                                            <div class="form-check">
-                                                <label class="form-check-label" for="corpora">
-                                                    <input class="form-check-input" type="checkbox" name="show_pos" value="on">顯示詞性(POS)
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                                
-                            <button style="margin-top:20px" type="submit" class="btn btn-primary btn-block">查詢
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-    <div id="test3" class="col s12">
-        Under construction.
-    </div>
-    <div id="test4" class="col s12">
-        Under construction.
-    </div>
 
 </section>
 {% endblock %}

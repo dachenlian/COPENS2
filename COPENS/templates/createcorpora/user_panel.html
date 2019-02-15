@@ -1,4 +1,8 @@
 {% extends 'copens_static_pages/generic/base.html' %}
+{% block page_header %}
+使用者後台
+{% endblock %}
+
 {% block content %}
     {% load crispy_forms_tags %}
     <!-- Confirm delete modal -->
@@ -24,15 +28,8 @@
             </div>
         </div>
     </div>
-    <section class="header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h2>使用者後台</h2>
-                </div>
-            </div>
-        </div>
-    </section>
+
+
     <section class="section content-section" id="user-panel-section">
 
         <div class="container">
@@ -45,7 +42,21 @@
 
             {% endif %}
             <div class="row">
-                <div class="col-12">
+                <div class="col-3">
+                    <ul>
+                        <li>
+                            上傳語料
+                        </li>
+                        <li>
+                            已上傳語料
+                        </li>
+                        <li>
+                            帳號資訊
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="col-9">
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         
                         <li class="nav-item">

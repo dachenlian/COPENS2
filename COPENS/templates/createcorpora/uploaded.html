@@ -1,0 +1,38 @@
+{% extends 'createcorpora/user_base.html' %}
+
+
+
+{% block user_panel_content %}
+
+{% load crispy_forms_tags %}
+
+<table class="table table-hover table-sm">
+    <thead class="thead-light">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">上傳日期時間</th>
+        <th scope="col">英文名稱</th>
+        <th scope="col">中文名稱</th>
+        <th scope="col">是否公開</th>
+        <th scope="col">刪除</th>
+
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for corpus in private_corpora %}
+        <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>{{ corpus.date_uploaded|date:'M d, Y H:i' }}</td>
+            <td>{{ corpus.en_name }}</td>
+            <td>{{ corpus.zh_name }}</td>
+            <td>{{ corpus.is_public }}</td>
+            <td><a class="delete_button" href="#" id="{{ corpus.id }}"><i
+                    class="fa fa-trash-alt"></i></a></td>
+            <!-- <td><a class="btn btn-primary btn-sm" href="{% url 'create:delete' pk=corpus.id %}">刪掉</a></td> -->
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock user_panel_content %}

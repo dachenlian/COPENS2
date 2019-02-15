@@ -1,10 +1,11 @@
 {% load static %}
-<header class="header-area {% if not home %} not-index-header {% endif %}">
+<!--
+<header class="header-area {% if not home %} not-index-header {% endif %} z-depth-5">
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <nav class="main-nav">
-                    <!-- ***** Logo Start ***** -->
+
                     <a href="{% url 'copens_static_pages:home' %}" class="logo">
               <img src="{% static 'images/copens_logo.svg' %}" class="light-logo" alt="COPENS" style="display: block;">
 
@@ -15,18 +16,13 @@
               {% endif %}
              
             </a>
-                    <!-- ***** Logo End ***** -->
-                    <!-- ***** Menu Start ***** -->
+
                     <ul class="nav">
                         <li><a href="{% url 'copens_static_pages:home' %}">首頁</a></li>
                         <li>
                             <a href="{% url 'copens_static_pages:query' %}">語料庫</a>
                         </li>
-                        <!---
-                        <li class="submenu">
-                            <a href="{% url 'copens_static_pages:api_doc' %}">API</a>
-                        </li>
-                        -->
+
                         <li class="submenu">
                             <a href="#">關於 <i class="fa fa-angle-down"></i></a>
                             <ul>
@@ -53,9 +49,60 @@
                     <a class="menu-trigger" style="color: white">
               <span>Menu</span>
             </a>
-                    <!-- ***** Menu End ***** -->
+
                 </nav>
             </div>
         </div>
     </div>
 </header>
+-->
+<div class="{% if home %}navbar-fixed{% endif %}">
+
+<!-- Dropdown: 關於 -->
+<ul id="dropdown_about" class="dropdown-content">
+    <li><a href="{% url 'copens_static_pages:about' %}">關於COPENS</a></li>
+    <li><a href="{% url 'copens_static_pages:term_of_use' %}">使用條款</a></li>
+    <li><a href="{% url 'copens_static_pages:contact' %}">聯絡我們</a></li>
+</ul>
+
+<!-- Dropdown: 使用者後台 -->
+{% if user.is_authenticated %}
+<ul id="dropdown_user" class="dropdown-content">
+    <li><a href="{% url 'create:home' %}">使用者後台</a></li>
+    <li><form class="" method="POST" action="{% url 'account_logout' %}"><a href="#" onclick="$(this).closest('form').submit()">登出</a> {% csrf_token %}</form></li>
+</ul>
+{% endif %}
+
+<nav class="black-text z-depth-2">
+    <div class="nav-wrapper container">
+      <a href="{% url 'copens_static_pages:home' %}" class="brand-logo" id="lopen-logo">
+          <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="COPENS" style="display: block;">
+          {% if not home %}
+          <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="COPENS" style="display: none;">
+          {% else %}
+           <img src="{% static 'images/copens_logo_black.svg' %}" class="dark-logo" alt="COPENS" style="display: none;">
+          {% endif %}
+      </a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="{% url 'copens_static_pages:home' %}">首頁</a></li>
+        <li>
+            <a href="{% url 'copens_static_pages:concordance' %}">語料庫</a>
+        </li>
+
+        <!-- 關於 Dropdown -->
+        <li>
+            <a class="dropdown-trigger" href="#!" data-target="dropdown_about">關於<i class="material-icons right">arrow_drop_down</i></a>
+        </li>
+
+        {% if user.is_authenticated %}
+            <li>
+                <a class="dropdown-trigger" href="#!" data-target="dropdown_user">歡迎 {{ user.get_username }} <i class="material-icons right">arrow_drop_down</i></a>
+            </li>    
+        {% else %}
+            <li><a class="btn-nav modal-trigger" href="#login-modal">登入 | 註冊</a></li>
+            <!-- <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li> -->
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+</div>
