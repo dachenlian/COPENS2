@@ -17,13 +17,20 @@ import pexpect
 import requests
 from chardet.universaldetector import UniversalDetector
 from django.conf import settings
-from django.core.files.uploadedfile import UploadedFile
+from django.core.files.uploadedfile import UploadedFile, SimpleUploadedFile
 from django.http import request
 from django.utils.text import slugify
 
 from .models import CopensUser, Corpus
 
 logger = logging.getLogger(__name__)
+
+
+def create_text_file(name):
+    f = {
+        'file': SimpleUploadedFile(name=name, content=bytes('測試資料', encoding='utf8'))
+    }
+    return f
 
 
 def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:

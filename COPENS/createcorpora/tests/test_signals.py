@@ -24,7 +24,7 @@ class SignalsTest(TestCase):
         signals.make_dir(Path(settings.CWB_RAW_DIR) / username)
         self.assertEqual(mocked_mkdir.call_count, 1)
 
-    @mock.patch.object(signals.Path, 'mkdir', autospec=True)
+    @mock.patch.object(signals, 'Path', autospec=True)
     @mock.patch.object(signals.Path, 'exists', autospec=True)
     def test_make_directories_fail(self, mocked_exists, mocked_mkdir):
         username = 'rich'

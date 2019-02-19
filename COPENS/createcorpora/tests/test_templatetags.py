@@ -26,7 +26,6 @@ class TemplateTagTest(TestCase):
     def test_get_list_returns_list(self):
         lst = ['asbc', 'plurk', 'ntuspeak']
         context = QueryDict('&'.join(f'corpora={value}' for value in lst))
-        print(context)
         lst = my_tags.get_list(context, 'corpora')
         self.assertSequenceEqual(['asbc', 'plurk', 'ntuspeak'], lst)
 

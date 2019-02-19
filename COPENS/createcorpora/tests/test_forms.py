@@ -1,18 +1,11 @@
 import logging
 from django.test import TestCase
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q
 
 from createcorpora.forms import UploadCorpusForm, SearchForm
 from createcorpora.models import CopensUser, Corpus
 from .. import factories
-
-
-def create_text_file(name):
-    f = {
-        'file': SimpleUploadedFile(name=name, content=bytes('測試資料', encoding='utf8'))
-    }
-    return f
+from ..utils import create_text_file
 
 
 class UploadCorpusFormTest(TestCase):
