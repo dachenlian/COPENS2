@@ -144,7 +144,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     for corpus in corpora:
         filename = f'{random.randint(1, 1000000000)}.txt'
         path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
-
+        
         commands = [
             'set AutoShow off;',
             'set PrintMode html;'

@@ -89,12 +89,14 @@ class ResultsView(View):
                 user_registry = utils.get_user_registry(self.request)
             else:
                 user_registry = None
+            print(';;;;;;;')
+            print(user_registry)
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
             for corpus, path in results_dict.items():
                 try:
                     results_list.extend(utils.read_results(path))
                 except FileNotFoundError:
-                    messages.error(request, '查詢語法有誤！')
+                    messages.error(request, '找不到檔案！')
                     redirect('create:home')
 
             paginator = Paginator(results_list, 50)
