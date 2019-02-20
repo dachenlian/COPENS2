@@ -43,6 +43,7 @@ def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
     filename = f'{stem}{suffix}'
     logger.debug(f'Before: {file.name}, after: {filename}, type: {type(filename)}')
 
+    print(raw_dir)
     if raw_dir.joinpath(filename).exists():
         return None
 
