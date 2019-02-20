@@ -189,6 +189,14 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'factory': {
+            'handlers': ['console'],
+            'level': 'WARN',
+        },
+        'faker': {
+            'handlers': ['console'],
+            'level': 'WARN',
+        },
         '': {
             'handlers': ['file', 'console'],
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),

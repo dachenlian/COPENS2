@@ -5,6 +5,8 @@ from django.test import TestCase
 from django.core.files.uploadedfile import UploadedFile
 
 from .. import utils
+from ..models import CopensUser, Corpus
+from ..factories import CorpusFactory, CopensUserFactory
 
 
 class SaveFileToDriveTest(TestCase):
@@ -32,3 +34,20 @@ class SaveFileToDriveTest(TestCase):
         mocked_exist.assert_called_once()
         mocked_open.assert_called_once()
         self.assertEqual('test-with-spaces.vrt', result)
+
+
+class DeleteFilesFromDriveTest(TestCase):
+
+    @patch('createcorpora.utils.os.remove', autospec=True)
+    @patch('createcorpora.utils.os.unlink', autospec=True)
+    def test_files_successfully_deleted(self, mocked_unlink, mocked_remove):
+        # user = create_autospec(CopensUser)
+        # corpus = create_autospec(Corpus)
+        user = CopensUserFactory()
+        corpus = CorpusFactory(owner=user, is_public=True)
+        print('*'*40)
+        print(user, corpus)
+        # corpus.file_name = 'test.vrt'
+        # corpus.en_name = 'en_test'
+        utils.delete_files_from_drive(user, corpus)
+        mocked_unlink.assert_called()
