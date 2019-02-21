@@ -83,8 +83,8 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
     """
     Encode a verticalized XML file as a CWB corpus.
     :param vrt_file: A path to a verticalized XML file
-    :param data_dir: A path to corpus binary files.
-    :param registry_dir: A path to a user's registry.
+    :param data_dir: A path to corpus binary files
+    :param registry_dir: A path to a user's registry
     :param p_attrs: A string describing all positional attributes of the corpus
     :param s_attrs: A string describing all structural attributes of the corpus
     :return: None
@@ -130,7 +130,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     :param query: A query to be entered into the cqp program.
     :param corpora: A list of corpora for a query to be searched against.
     :param show_pos: Show part of speech for each token.
-    :param context: Context size around the query.
+    :param context: Context (window) size around the query.
     :param user_registry: A path to the user's personal registry.
     :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
     """

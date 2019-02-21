@@ -45,9 +45,37 @@ class DeleteFilesFromDriveTest(TestCase):
         # corpus = create_autospec(Corpus)
         user = CopensUserFactory()
         corpus = CorpusFactory(owner=user, is_public=True)
-        print('*'*40)
         print(user, corpus)
         # corpus.file_name = 'test.vrt'
         # corpus.en_name = 'en_test'
         utils.delete_files_from_drive(user, corpus)
         mocked_unlink.assert_called()
+
+
+class CwbTests(TestCase):
+
+    VRT_FILE = Path('test.vrt')
+    DATA_DIR = Path('path/to/data')
+    REGISTRY_DIR = Path('path/to/registry')
+
+    @patch('createcorpora.utils.Path.mkdir')
+    @patch('createcorpora.utils.Path.exists')
+    def test_cwb_encode_make_data_dir_if_not_exists(self, mocked_exists, mocked_mkdir):
+        p_attrs = '-P pos'
+        s_attrs = '-S s'
+        mocked_exists.return_value = False
+        utils.cwb_encode(self.VRT_FILE, self.DATA_DIR, self.REGISTRY_DIR, p_attrs, s_attrs)
+        mocked_mkdir.assert_called()
+
+
+class CqpTests(TestCase):
+
+    def test_valid_query_returns_result(self):
+        query = '台北'
+        corpora = ['asbc', ]
+        results = utils.cqp_query(query, corpora=corpora)
+        self.assertIsNotNone(results)
+        read_results = utils.read_results(list(results.values())[0])
+        print("*"*40)
+        self.assertTrue(read_results, 'Are there any corpora available publicly?')
+        print(read_results)
