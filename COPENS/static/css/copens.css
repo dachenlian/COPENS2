@@ -3864,3 +3864,12 @@ nav ul a {
 .btn {
     background-color: #4d6d8a;
 }
+
+/* concordance */
+
+#concordance-card {
+    padding: 0 24px;
+}
+#concordance-card .row {
+    margin-bottom: 0;
+}

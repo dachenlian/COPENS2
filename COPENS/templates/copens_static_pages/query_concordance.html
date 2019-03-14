@@ -36,10 +36,11 @@
 
                         <form action="{% url 'static_pages:concordance_result' %}" method="get">
                             {{ form|crispy }}
+                            
                             <button class="btn btn-primary" type="submit">搜尋</button>
                         </form>
 <!--
-                        <form method="get" action="{% url 'create:results' %}">
+                        <form method="get" action="{#{% url 'create:results' %}#}">
                             <div class="row">
                                 <div class="input-field col s12">
                                     <label for="exampleFormControlInput1">輸入關鍵字</label>

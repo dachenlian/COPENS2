@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Home, About, TermOfUse, Contact, ApiDoc, Query, ConcordanceQueryView, ConcordanceResultView
+from .views import Home, About, TermOfUse, Contact, ApiDoc, Query, ConcordanceQueryView, ConcordanceResultView, output_csv
 
 app_name = 'copens_static_pages'
 
@@ -12,6 +12,8 @@ urlpatterns = [
     path('query', Query.as_view(), name='query'),
     path('result', ConcordanceResultView.as_view(), name='concordance_result'),
     path('concordance', ConcordanceQueryView.as_view(), name='concordance'),
+    path('output_csv', output_csv, name='output_csv'),
+
 
 
 

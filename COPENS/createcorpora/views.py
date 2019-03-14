@@ -38,81 +38,81 @@ q = Queue(connection=redis_conn)
 #         return context
 
 
-class SearchView(FormView):
-    """
-    User chooses what databases to query from.
-    """
+# class SearchView(FormView):
+#     """
+#     User chooses what databases to query from.
+#     """
 
-    template_name = 'createcorpora/query_concordance.html'
-    form_class = SearchForm
+#     template_name = 'createcorpora/query_concordance.html'
+#     form_class = SearchForm
 
-    def get_form_kwargs(self):
-        """
-        Add the current logged in user to the form's context.
-        """
-        kwargs = super().get_form_kwargs()
+#     def get_form_kwargs(self):
+#         """
+#         Add the current logged in user to the form's context.
+#         """
+#         kwargs = super().get_form_kwargs()
 
-        kwargs['user'] = self.request.user
-        return kwargs
+#         kwargs['user'] = self.request.user
+#         return kwargs
 
-    def form_invalid(self, form):
-        print(form.errors)
+#     def form_invalid(self, form):
+#         print(form.errors)
 
 
-class ResultsView(View):
-    """
-    Results after querying CWB are returned here.
-    """
-    template_name = 'createcorpora/results.html'
+# class ResultsView(View):
+#     """
+#     Results after querying CWB are returned here.
+#     """
+#     template_name = 'createcorpora/results.html'
 
-    def get(self, request):
-        if not self.request.GET.getlist('corpora'):
-            messages.warning(self.request, '請至少選擇一個語料庫')
-            if self.request.user.is_authenticated:
-                return redirect('create:home')
-            else:
-                return redirect('static_pages:query')
+#     def get(self, request):
+#         if not self.request.GET.getlist('corpora'):
+#             messages.warning(self.request, '請至少選擇一個語料庫')
+#             if self.request.user.is_authenticated:
+#                 return redirect('create:home')
+#             else:
+#                 return redirect('static_pages:query')
 
-        if self.request.GET.get('page'):
-            results_list = self.request.session.get('results_list')
-            paginator = Paginator(results_list, 20)
-            page = request.GET.get('page')
-            results = paginator.get_page(page)
-            results.total = len(results_list)
-            results.object_list = list(map(for_concordance_tag, results.object_list))
-            return render(request, self.template_name, {'results': results})
+#         if self.request.GET.get('page'):
+#             results_list = self.request.session.get('results_list')
+#             paginator = Paginator(results_list, 20)
+#             page = request.GET.get('page')
+#             results = paginator.get_page(page)
+#             results.total = len(results_list)
+#             results.object_list = list(map(for_concordance_tag, results.object_list))
+#             return render(request, self.template_name, {'results': results})
 
-        form = SearchForm(self.request.GET, user=self.request.user)
+#         form = SearchForm(self.request.GET, user=self.request.user)
 
-        if form.is_valid():
-            results_list = []
-            if self.request.user.is_authenticated:
-                user_registry = utils.get_user_registry(self.request)
-            else:
-                user_registry = None
-            results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
-            print(results_dict)
-            for corpus, path in results_dict.items():
-                try:
-                    results_list.extend(utils.read_results(path))
-                except FileNotFoundError:
-                    messages.error(request, '查詢語法有誤！')
-                    redirect('create:home')
+#         if form.is_valid():
+#             results_list = []
+#             if self.request.user.is_authenticated:
+#                 user_registry = utils.get_user_registry(self.request)
+#             else:
+#                 user_registry = None
+#             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+#             print(results_dict)
+#             for corpus, path in results_dict.items():
+#                 try:
+#                     results_list.extend(utils.read_results(path))
+#                 except FileNotFoundError:
+#                     messages.error(request, '查詢語法有誤！')
+#                     redirect('create:home')
 
-            paginator = Paginator(results_list, 50)
-            page = request.GET.get('page')
-            results = paginator.get_page(page)
-            results.total = len(results_list)
-            results.object_list = list(map(for_concordance_tag, results.object_list))
-            self.request.session['results_list'] = results_list
-            print(results.object_list)
-            return render(request, self.template_name, {'results': results})
-        else:
-            print(form.errors)
-            if self.request.user.is_authenticated:
-                return redirect('create:concordance')
-            else:
-                return redirect('static_pages:query')
+#             paginator = Paginator(results_list, 50)
+#             page = request.GET.get('page')
+#             results = paginator.get_page(page)
+#             results.total = len(results_list)
+#             results.object_list = list(map(for_concordance_tag, results.object_list))
+#             self.request.session['results_list'] = results_list
+#             print(results.object_list)
+#             return render(request, self.template_name, {'results': results})
+#         else:
+#             print(form.errors)
+#             if self.request.user.is_authenticated:
+#                 return redirect('create:concordance')
+#             else:
+#                 return redirect('static_pages:query')
 
 
 def for_concordance_tag(elm):
@@ -252,6 +252,15 @@ class UploadedView(TemplateView):
 
     template_name = 'createcorpora/uploaded.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        copens_user = CopensUser.objects.get(user=self.request.user)
+        private_corpora = Corpus.objects.filter(owner=copens_user)
+        public_corpora = Corpus.objects.filter(is_public=True)
+        context['no_corpus'] = True if len(private_corpora) == 0 and len(public_corpora) == 0 else False
+        context['private_corpora'] = private_corpora
+        return context
+
 
 class DeleteCorpusView(LoginRequiredMixin, DeleteView):
     """Delete user uploaded corpora."""
@@ -303,44 +312,44 @@ class DeleteCorpusView(LoginRequiredMixin, DeleteView):
 #         print(form.cleaned_data.items())
 
 
-class KeynessResultView(View):
-    """
-    Results for keyness.
-    """
-    template_name = 'createcorpora/results.html'
+# class KeynessResultView(View):
+#     """
+#     Results for keyness.
+#     """
+#     template_name = 'createcorpora/results.html'
 
-    def get(self, request):
-        if not self.request.GET.getlist('corpora'):
-            messages.warning(self.request, '請至少選擇一個語料庫')
-            return redirect('create:home')
+#     def get(self, request):
+#         if not self.request.GET.getlist('corpora'):
+#             messages.warning(self.request, '請至少選擇一個語料庫')
+#             return redirect('create:home')
 
-        if self.request.GET.get('page'):
-            results_list = self.request.session.get('results_list')
-            paginator = Paginator(results_list, 20)
-            page = request.GET.get('page')
-            results = paginator.get_page(page)
-            results.total = len(results_list)
-            results.object_list = list(map(for_concordance_tag, results.object_list))
-            return render(request, self.template_name, {'results': results})
+#         if self.request.GET.get('page'):
+#             results_list = self.request.session.get('results_list')
+#             paginator = Paginator(results_list, 20)
+#             page = request.GET.get('page')
+#             results = paginator.get_page(page)
+#             results.total = len(results_list)
+#             results.object_list = list(map(for_concordance_tag, results.object_list))
+#             return render(request, self.template_name, {'results': results})
 
-        form = SearchForm(self.request.GET)
+#         form = SearchForm(self.request.GET)
 
-        if form.is_valid():
-            results_list = []
-            user_registry = utils.get_user_registry(self.request)
-            # print(list(form.cleaned_data.items()))
-            results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
-            # print(results_dict)
-            for corpus, path in results_dict.items():
-                results_list.extend(utils.read_results(path))
+#         if form.is_valid():
+#             results_list = []
+#             user_registry = utils.get_user_registry(self.request)
+#             # print(list(form.cleaned_data.items()))
+#             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+#             # print(results_dict)
+#             for corpus, path in results_dict.items():
+#                 results_list.extend(utils.read_results(path))
 
-            paginator = Paginator(results_list, 50)
-            page = request.GET.get('page')
-            results = paginator.get_page(page)
-            results.total = len(results_list)
-            results.object_list = list(map(for_concordance_tag, results.object_list))
-            self.request.session['results_list'] = results_list
+#             paginator = Paginator(results_list, 50)
+#             page = request.GET.get('page')
+#             results = paginator.get_page(page)
+#             results.total = len(results_list)
+#             results.object_list = list(map(for_concordance_tag, results.object_list))
+#             self.request.session['results_list'] = results_list
 
-            return render(request, self.template_name, {'results': results})
+#             return render(request, self.template_name, {'results': results})
 
-        return redirect('create:home')
+#         return redirect('create:home')

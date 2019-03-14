@@ -127,6 +127,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     :param user_registry: A path to the user's personal registry.
     :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
     """
+    print('@@@@@@')
     logger.debug(corpora)
     corpora_results = {}
     registry = f"{settings.CWB_PUBLIC_REG_DIR}"
@@ -146,6 +147,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     for corpus in corpora:
         filename = f'{random.randint(1, 1000000000)}.txt'
         path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
+        logger.debug(path)
 
         commands = [
             'set AutoShow off;',
@@ -155,6 +157,8 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
             query_command,
             f"cat > '{path}';",
         ]
+        logger.debug(commands)
+
         if show_pos:
             commands.insert(-2, 'show +pos;')
         for c in commands:

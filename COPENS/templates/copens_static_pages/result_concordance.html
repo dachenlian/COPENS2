@@ -9,22 +9,23 @@
 
 <section class="content-section">
     <div class="container">
-    {% if user.is_authenticated %}
-        <a href="{% url 'create:home' %}">重新查詢</a>
-    {% else %}
-        <a href="{% url 'static_pages:query' %}">重新查詢</a>
-    {% endif %}
         <div class="row">
-            <div class="col-12">
+            <div class="col s12">
+                <a href="{% url 'copens_static_pages:concordance' %}" class="waves-effect waves-light btn"><i class="material-icons left">refresh</i>重新查詢</a>
+                <a href="{% url 'copens_static_pages:output_csv' %}" class="waves-effect waves-light btn"><i class="material-icons left">file_copy</i>匯出 CSV 檔</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
                 <div class="card" style="margin-bottom: 2em">
-                    <div class="card-body">
+                    <div class="card-content">
                         <h5 class="card-title">查詢條件</h5>
                         <div class="row">
                             <div class="col">
                                 <p>搜尋字串: <span class="badge badge-dark badge-pill">{{ request.GET.query }}</span></p>
                             </div>
                             <div class="col">
-                                <p>上下文: <span class="badge badge-dark badge-pill">{{ request.GET.context }}</span></p>
+                                <p>上下文視窗大小: <span class="badge badge-dark badge-pill">{{ request.GET.context }}</span></p>
                             </div>
                             <div class="col">
                                 <p>語料庫: {% for c in request.GET|get_list:'corpora' %}
@@ -50,23 +51,44 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
+            <div class="col s12">
+                <div class="pagination center-align">
+                    <p class="current">
+                        第 {{ results.number }} 頁（共 {{ results.paginator.num_pages }} 頁）
+                    </p>
+                </div>
+                <div class="pagination center-align">
+                    <p class="step-links">
+                        {% if results.has_previous %}
+                        <a href="?{% param_replace page=1 %}">&laquo; 最首頁</a>
+                        <a href="?{% param_replace page=results.previous_page_number %}">上一頁</a>
+                        {% endif %}
+                        {% if results.has_next %}
+                        <a href="?{% param_replace page=results.next_page_number %}">下一頁</a>
+                        <a href="?{% param_replace page=results.paginator.num_pages %}">最末頁 &raquo;</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
                 <div class="card">
-                    <div class="card-body">
-                        <div class="card-content">
+                    
+                        <div class="card-content" id="concordance-card">
                             <table class="table table-hover" style="width: 100%">
                                 <tbody>
                                     {% for result in results.object_list %}
                                     <tr>
                                         <td>
                                             <div class="row">
-                                                <div class="col-5 text-right">
+                                                <div class="col s5 right-align">
                                                     {{ result.context_left }}
                                                 </div>
-                                                <div class="col text-center">
+                                                <div class="col s2 center-align">
                                                     {{ result.query_word }}
                                                 </div>
-                                                <div class="col-5 text-left">
+                                                <div class="col s5 left-align">
                                                     {{ result.context_right }}
                                                 </div>
                                             </div>
@@ -76,18 +98,18 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col">
-                <div class="pagination justify-content-center">
+            <div class="col s12">
+                <div class="pagination center-align">
                     <p class="current">
                         第 {{ results.number }} 頁（共 {{ results.paginator.num_pages }} 頁）
                     </p>
                 </div>
-                <div class="pagination justify-content-center">
+                <div class="pagination center-align">
                     <p class="step-links">
                         {% if results.has_previous %}
                         <a href="?{% param_replace page=1 %}">&laquo; 最首頁</a>

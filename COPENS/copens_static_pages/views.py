@@ -1,12 +1,18 @@
+import csv
+
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormView
+from django.http import StreamingHttpResponse
 
 from .forms import ConcordanceForm
 
 from createcorpora import utils
+from createcorpora.views import for_concordance_tag
+
+
 
 # Create your views here.
 class Home(TemplateView):
@@ -80,10 +86,6 @@ class ConcordanceResultView(View):
             return render(request, self.template_name, {'results': results})
 
         form = ConcordanceForm(self.request.GET, user=self.request.user)
-        print('@@@')
-        print(form.is_valid())
-        print(form.cleaned_data)
-
 
         if form.is_valid():
             results_list = []
@@ -93,8 +95,10 @@ class ConcordanceResultView(View):
             else:
                 user_registry = None
             results_dict = utils.cqp_query(user_registry=user_registry, **form.cleaned_data)
+            self.request.session['results_dict'] = results_dict
             print(results_dict)
             for corpus, path in results_dict.items():
+                print(corpus, path)
                 try:
                     results_list.extend(utils.read_results(path))
                 except FileNotFoundError:
@@ -112,3 +116,35 @@ class ConcordanceResultView(View):
         else:
             print(form.errors)
             return redirect('static_pages:concordance')
+
+
+
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+def output_csv(request):
+    """A view that streams a large CSV file."""
+    # Generate a sequence of rows. The range is based on the maximum number of
+    # rows that can be handled by a single sheet in most spreadsheet
+    # applications.
+    rows = []
+    for (corpus_name, file_path) in request.session['results_dict'].items():
+        with open(file_path) as f:
+            for line in f:
+                if '<HR>' in line or 'UL>' in line:
+                    continue
+                else:
+                    line_dict = for_concordance_tag(line)
+                    rows.append([corpus_name, line_dict['context_left'], line_dict['query_word'], line_dict['context_right']])
+    # rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                     content_type="text/csv")
+    response['Content-Disposition'] = 'attachment; filename="copens_concordance_output.csv"'
+    return response
