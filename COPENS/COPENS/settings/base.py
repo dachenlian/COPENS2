@@ -12,10 +12,21 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 from pathlib import Path
+import sys
 
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
+
+def show_toolbar(request):
+    if request.is_ajax():  # pragma: no cover
+        return False
+    return True  # pragma: no cover
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'COPENS.settings.base.show_toolbar'
+}
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -51,12 +62,15 @@ INSTALLED_APPS = [
 
     'copens_static_pages.apps.CopensStaticPagesConfig',
     'createcorpora.apps.CreatecorporaConfig',
+    'crispy_forms_materialize.apps.CrispyFormsMaterializeConfig',
     'crispy_forms',
     'django_extensions',
     'django_rq',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -137,25 +151,56 @@ DATABASES = {
     }
 }
 
+if 'test' in sys.argv:  # pragma: no cover
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
+        }
+    }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} - {levelname} - {name}:{lineno} - {funcName}(): {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
-            'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
         },
         'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler'
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         }
     },
     'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
+        'parso': {  # suppress debug info from appearing in shell_plus (IPython)
+            'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
+        },
+        'factory': {
+            'handlers': ['console'],
+            'level': 'WARN',
+        },
+        'faker': {
+            'handlers': ['console'],
+            'level': 'WARN',
+        },
+        '': {
+            'handlers': ['file', 'console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
     },
 }
@@ -200,9 +245,11 @@ STATICFILES_DIRS = [
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+INTERNAL_IPS = ['*']
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_TEMPLATE_PACK = 'materialize'
 
 CWB_REGISTRY_DIR = os.path.join(BASE_DIR, 'cwb', 'registry')
 CWB_PUBLIC_REG_DIR = os.path.join(CWB_REGISTRY_DIR, 'public')
@@ -218,9 +265,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 LOGIN_REDIRECT_URL = reverse_lazy('create:home')
 LOGOUT_REDIRECT_URL = reverse_lazy('copens_static_pages:home')
 
-
 TCSL_ENDPOINT = os.getenv('TCSL_ENDPOINT')
 TCSL_USERNAME = os.getenv('TCSL_USERNAME')
 TCSL_PASSWORD = os.getenv('TCSL_PASSWORD')
-
-

@@ -1,0 +1,16 @@
+{% extends 'createcorpora/user_base.html' %}
+
+{% block page_header %}
+	使用者後台 > 上傳語料
+{% endblock page_header %}
+
+{% block user_panel_content %}
+
+{% load crispy_forms_tags %}
+<form action="{% url 'create:upload' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button class="btn btn-outline-primary btn-block" type="submit">上傳</button>
+</form>
+
+{% endblock user_panel_content %}

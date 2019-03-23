@@ -1,209 +1,218 @@
 {% extends 'copens_static_pages/generic/base.html' %}
+{% block page_header %}
+語料庫查詢
+{% endblock page_header %}
 {% block content %}
-    {% load crispy_forms_tags %}
-    <section class="header-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h2>語料庫查詢</h2>
-                </div>
+{% load crispy_forms_tags %}
+<section>
+    <!-- <section style="padding: 30px 0"> -->
+    <div class="container">
+        {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for m in messages %}
+            <p>{{ m }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s3"><a class="active" href="#concordance">Concordance</a></li>
+                    <li class="tab col s3"><a href="#wordlist">Word list</a></li>
+                    <li class="tab col s3"><a href="#test3">Collocation</a></li>
+                    <li class="tab col s3"><a href="#test4">Word Sketch</a></li>
+                </ul>
             </div>
         </div>
-    </section>
-    <section style="padding: 30px 0">
-        <div class="container">
-            {% if messages %}
-                <div class="alert alert-info" role="alert">
-                    {% for m in messages %}
-                        <p>{{ m }}</p>
-                    {% endfor %}
+        
+        <!-- Concordance -->
+        <div id="concordance" class="row">
+            <div class="col s12 m8 l8">
+                <div class="card z-depth-0">
+                    <div class="card-content">
+                        <form method="get" action="{% url 'create:results' %}">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <label for="exampleFormControlInput1">輸入關鍵字</label>
+                                    <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1" placeholder="請直接輸入關鍵字，例如：台大" name="query" required>
+                                    <small id="" class="form-text text-muted">
+                                        若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <p>上下文視窗大小</p>
+                                    <input type="range" name="context" value="10" min="5" max="30" class="numberinput form-control" required="" id="id_context">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col l6">
+                                    <p>選擇語料庫</p>
+                                    <p>
+                                        <label for="corpus_plurk">
+                                            <input name="corpora" id="corpus_plurk" type="checkbox" value="Plurk" />
+                                            <span>噗浪</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_cna">
+                                            <input name="corpora" id="corpus_cna" type="checkbox" value="CNA" />
+                                            <span>中央社</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_ASBC">
+                                            <input name="corpora" id="corpus_ASBC" type="checkbox" value="ASBC" />
+                                            <span>中研院平衡語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_TCCM">
+                                            <input name="corpora" id="corpus_TCCM" type="checkbox" value="TCCM" />
+                                            <span>台灣兒童語言語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_NTUSpeak">
+                                            <input name="corpora" id="corpus_NTUSpeak" type="checkbox" value="NTUSpeak" />
+                                            <span>台大口語語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_Lyrics">
+                                            <input name="corpora" id="corpus_Lyrics" type="checkbox" value="Lyrics" />
+                                            <span>歌詞語料庫</span>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="input-field col l6">
+                                    <p>進階選項</p>
+                                    <p>
+                                        <label for="show_pos">
+                                            <input name="show_pos" id="show_pos" type="checkbox" value="on" />
+                                            <span>顯示詞性標記(POS)</span>
+                                        </label>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-bottom: 0">
+                                <div class="col s12">
+                                    <button type="submit" class="btn btn-primary btn-block" style="width: 100%">查詢
+                                    </button>  
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
                 </div>
-            {% endif %}
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" id="concordance-tab" data-toggle="tab" href="#concordance"
-                                   role="tab"
-                                   aria-controls="profile" aria-selected="false">Concordance</a>
-                            </li>
-                            <!-- <li class="nav-item">
-                                <a class="nav-link" id="collocation-tab" data-toggle="tab" href="#collocation" role="tab"
-                                       aria-controls="home" aria-selected="true">Collocation</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="n-gram-tab" data-toggle="tab" href="#n-gram" role="tab"
-                                       aria-controls="home" aria-selected="true">N-gram</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="similar-word-tab" data-toggle="tab" href="#similar-word" role="tab"
-                                       aria-controls="home" aria-selected="true">Similar words</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="word-doctor-tab" data-toggle="tab" href="#word-doctor" role="tab"
-                                       aria-controls="home" aria-selected="true">詞博士</a>
-                            </li> -->
-                        </ul>
-                        <div class="tab-content" id="myTabContent" style="margin-top: 20px">
+            </div>
 
-                            <!-- Concordance -->
-                            <div class="tab-pane fade show active" id="concordance" role="tabpanel"
-                                 aria-labelledby="concordance-tab">
-                                <div class="row">
-                                    <div class="col-lg-8">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <form method="get" action="{% url 'create:results' %}">
-                                                    <div class="form-group">
-                                                        <label for="exampleFormControlInput1">輸入關鍵字</label>
-                                                        <input type="text" class="form-control form-control-lg"
-                                                               id="exampleFormControlInput1"
-                                                               placeholder="請直接輸入關鍵字，例如：台大" name="query" required>
-                                                        <small id="" class="form-text text-muted">
-                                                            若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]
-                                                        </small>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label for="window_size">Window size:&nbsp;<span
-                                                                class="badge badge-pill badge-info"
-                                                                id="window_size_value"></label>
-                                                        <input type="range" name="context" value="10" min="5" max="30"
-                                                               class="numberinput form-control" required=""
-                                                               id="id_context">
-                                                    </div>
-                                                    <div>
-                                                        <label for="select_corpora">選擇語料庫</label>
-                                                    </div>
-                                                    <div class="card form-group">
-                                                        <div class="card-body">
-                                                            <div class="form-row form-group" style="margin-bottom: 0">
-                                                                <div class="col">
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label" for="corpora">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="Plurk">噗浪
-                                                                        </label>
-                                                                    </div>
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="CNA">中央社
-                                                                        </label>
-                                                                    </div>
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="ASBC">中研院平衡語料庫
-                                                                        </label>
-                                                                    </div>
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="TCCM">台灣兒童語言語料庫
-                                                                        </label>
-                                                                    </div>
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="NTUSpeak">台大口語語料庫
-                                                                        </label>
-                                                                    </div>
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="corpora"
-                                                                                   value="Lyrics">歌詞語料庫
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <label for="select_corpora">進階選項</label>
-                                                    </div>
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <div class="form-row form-group" style="margin-bottom: 0">
-                                                                <div class="col">
-                                                                    <div class="form-check">
-                                                                        <label class="form-check-label" for="corpora">
-                                                                            <input class="form-check-input"
-                                                                                   type="checkbox" name="show_pos"
-                                                                                   value="on">顯示詞性(POS)
-                                                                        </label>
-                                                                    </div>
+            <div class="col s12 m4 l4">
 
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                <ul class="collection with-header">
+                <li class="collection-header"><h4>CQL說明</h4></li>
+                <li class="collection-item">COPENS語料庫儲存與搜尋引擎係根據<a href="http://cwb.sourceforge.net/">CWB (The IMS Open Corpus
+                                Workbench)</a>建置而成</li>
+                <li class="collection-item">有關CQL (Corpus Query Language)之使用可參閱<a href="http://cwb.sourceforge.net/files/CQP_Tutorial.pdf">CQP
+                                Query Language Tutorial</a></li>
+                <li class="collection-item">本網站使用<a href="http://ckipsvr.iis.sinica.edu.tw/papers/category_list.pdf">中研院平衡語料庫詞類標記系統</a></li>
+                </ul>
+                    
+                    
+            </div>
+        </div>
 
-                                                    <button style="margin-top:20px" type="submit"
-                                                            class="btn btn-primary btn-block">查詢
-                                                    </button>
-                                            </div>
-                                            </form>
-                                        </div>
+        <!-- Wordlist -->
+        <div id="wordlist" class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <form method="get" action="{% url 'create:results' %}">
+                            <div class="row">
+                                <div class="input-field col l6">
+                                    <p>選擇語料庫</p>
+                                    <p>
+                                        <label for="corpus_plurk">
+                                            <input id="corpus_plurk" type="checkbox" value="Plurk" />
+                                            <span>噗浪</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_cna">
+                                            <input id="corpus_cna" type="checkbox" value="CNA" />
+                                            <span>中央社</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_ASBC">
+                                            <input id="corpus_ASBC" type="checkbox" value="ASBC" />
+                                            <span>中研院平衡語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_TCCM">
+                                            <input id="corpus_TCCM" type="checkbox" value="TCCM" />
+                                            <span>台灣兒童語言語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_NTUSpeak">
+                                            <input id="corpus_NTUSpeak" type="checkbox" value="NTUSpeak" />
+                                            <span>台大口語語料庫</span>
+                                        </label>
+                                    </p>
+                                    <p>
+                                        <label for="corpus_Lyrics">
+                                            <input id="corpus_Lyrics" type="checkbox" value="Lyrics" />
+                                            <span>歌詞語料庫</span>
+                                        </label>
+                                    </p>
+                                </div>
+                                <div class="col l6">
+                                    <div>
+                                        <label for="select_corpora">進階選項</label>
                                     </div>
-                                    <div class="col-lg-4">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                CQL說明
-                                            </div>
-                                            <div class="card-body">
-                                                <p class="card-text">COPENS語料庫儲存與搜尋引擎係根據<a
-                                                        href="http://cwb.sourceforge.net/">CWB (The IMS Open Corpus
-                                                    Workbench)</a>建置而成
-                                                </p>
-                                                <br>
-                                                <p class="card-text">有關CQL (Corpus Query Language)之使用可參閱<a
-                                                        href="http://cwb.sourceforge.net/files/CQP_Tutorial.pdf">CQP
-                                                    Query Language Tutorial</a></p>
-                                                <br>
-                                                <p class="card-text">本網站使用<a
-                                                        href="http://ckipsvr.iis.sinica.edu.tw/papers/category_list.pdf">中研院平衡語料庫詞類標記系統</a></p>
+                                    
+                                    <div class="form-row form-group" style="margin-bottom: 0">
+                                        <div class="col">
+                                            <div class="form-check">
+                                                <label class="form-check-label" for="corpora">
+                                                    <input class="form-check-input" type="checkbox" name="show_pos" value="on">顯示詞性(POS)
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- Collocation -->
-                            <div class="tab-pane fade" id="collocation" role="tabpanel"
-                                 aria-labelledby="collocation-tab">
-                            </div>
-                            <!-- N-gram -->
-                            <div class="tab-pane fade" id="n-gram" role="tabpanel" aria-labelledby="n-gram-tab">
-                            </div>
-                            <!-- Similar word -->
-                            <div class="tab-pane fade" id="similar-word" role="tabpanel"
-                                 aria-labelledby="similar-word-tab">
-                            </div>
-                            <!-- Word doctor -->
-                            <div class="tab-pane fade" id="word-doctor" role="tabpanel"
-                                 aria-labelledby="word-doctor-tab">
-                            </div>
+                            
+                                
+                            <button style="margin-top:20px" type="submit" class="btn btn-primary btn-block">查詢
+                            </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
-    </section>
-{% endblock %}
+        </div>
 
+    <div id="test3" class="col s12">
+        Under construction.
+    </div>
+    <div id="test4" class="col s12">
+        Under construction.
+    </div>
+
+</section>
+{% endblock %}
 {% block extra_js %}
-    <script>
-        $('#window_size_value').text($('#id_context').val());
-        $(document).on('input change', '#id_context', function () {
-            $('#window_size_value').html($(this).val());
-        });
-        // $('#id_context').change(function (){
-        //     $('#window_size_value').text($('#id_context').val());
-        // })
-    </script>
+<script>
+// $('#window_size_value').text($('#id_context').val());
+// $(document).on('input change', '#id_context', function() {
+//     $('#window_size_value').html($(this).val());
+// });
+// $('#id_context').change(function (){
+//     $('#window_size_value').text($('#id_context').val());
+// })
+</script>
 {% endblock extra_js %}

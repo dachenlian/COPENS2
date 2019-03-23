@@ -1,0 +1,45 @@
+{% extends 'copens_static_pages/generic/base.html' %}
+
+{% block page_header %}
+	使用者後台
+{% endblock page_header %}
+
+
+
+{% block content %}
+
+<section class="section content-section" id="user-panel-section">
+
+	<div class="container">
+	    {% if messages %}
+	        <div class="alert alert-info" role="alert">
+	            {% for m in messages %}
+	                <p>{{ m }}</p>
+	            {% endfor %}
+	        </div>
+	    {% endif %}
+	
+	    <div class="row">
+	        <div class="col l3" id="user_panel_menu">
+	            <ul>
+	                <li><a href="{% url 'create:upload' %}">上傳語料</a></li>
+	                <li><a href="{% url 'create:uploaded' %}">已上傳語料</a></li>
+	                <li><a href="#">帳號資訊</a></li>
+	                <!--
+	                <li>查詢語料庫</li>
+	                <ul>
+	                	<li><a href="{#{% url 'create:concordance' %}#}">Concordance</a></li>
+	                	
+	                </ul>
+	            	-->
+	            </ul>
+	        </div>
+	        <div class="col l9">
+	                {% block user_panel_content %}
+	                {% endblock %}
+	        </div>                 
+	    </div>
+	</div>
+</section>
+
+{% endblock content %}

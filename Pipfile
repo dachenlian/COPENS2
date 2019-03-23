@@ -23,6 +23,11 @@ chardet = "*"
 django-rq = "*"
 django-debug-toolbar = "*"
 python-dotenv = "*"
+ipython = "*"
+coverage = "*"
+pytest-xdist = "*"
+pytest-django = "*"
+factory-boy = "*"
 
 [dev-packages]
 ipython = "*"

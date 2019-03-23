@@ -1,15 +1,12 @@
 {% extends 'copens_static_pages/generic/base.html' %}
+
+{% block page_header %}
+    查詢結果
+{% endblock page_header %}
+
 {% load my_tags %}
 {% block content %}
-<section class="header-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2>查詢結果</h2>
-            </div>
-        </div>
-    </div>
-</section>
+
 <section class="content-section">
     <div class="container">
     {% if user.is_authenticated %}
