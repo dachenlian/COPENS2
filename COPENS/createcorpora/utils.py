@@ -154,7 +154,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
             'set PrintMode html;'
             f'{corpus.upper()};',
             f'show -cpos;',  # corpus position
-            query_command,
+            f'{query_command}',
             f"cat > '{path}';",
         ]
         logger.debug(commands)
@@ -164,6 +164,7 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
         for c in commands:
             cqp.sendline(c)  # must send a linesep to work
 
+        time.sleep(4)
         corpora_results[corpus] = path
     cqp.sendline('exit;')
 

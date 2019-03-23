@@ -3698,9 +3698,9 @@ nav ul a {
     width:100%;
     margin:auto;
     max-width:525px;
-    min-height:670px;
+    min-height:550px;
     position:relative;
-    background:url(https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg) no-repeat center;
+    /* background:url(https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg) no-repeat center; */
     box-shadow:0 12px 15px 0 rgba(0,0,0,.24),0 17px 50px 0 rgba(0,0,0,.19);
 }
 .login-html{
@@ -3708,11 +3708,11 @@ nav ul a {
     height:100%;
     position:absolute;
     padding:90px 70px 50px 70px;
-    background:rgba(40,57,101,.9);
+    background:rgb(228,228,228);
 }
 .login-html .sign-in-htm,
 .login-html .sign-up-htm{
-    top:0;
+    top: 0;
     left:0;
     right:0;
     bottom:0;
@@ -3741,7 +3741,7 @@ nav ul a {
 }
 .login-html .sign-in:checked + .tab,
 .login-html .sign-up:checked + .tab{
-    color:#fff;
+    color:#1161ee;
     border-color:#1161ee;
 }
 .login-form{
@@ -3757,7 +3757,7 @@ nav ul a {
 .login-form .group .input,
 .login-form .group .button{
     width:100%;
-    color:#fff;
+    color:#000;
     display:block;
 }
 .login-form .group .input,
@@ -3765,18 +3765,19 @@ nav ul a {
     border:none;
     padding:10px 10px;
     /* border-radius:25px; */
-    background:rgba(255,255,255,.1);
+    background:#efefef;
 }
 .login-form .group input[data-type="password"]{
     text-security:circle;
     -webkit-text-security:circle;
 }
 .login-form .group .label{
-    color:#aaa;
+    color:#606060;
     font-size:12px;
 }
 .login-form .group .button{
     background:#1161ee;
+    color: #fff;
 }
 .login-form .group label .icon{
     width:15px;
@@ -3825,7 +3826,9 @@ nav ul a {
     transform:rotate(0);
 }
 
-
+#forgot {
+    color: #1161ee;
+}
 
 #user_panel_menu {
     padding: 0;

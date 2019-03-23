@@ -1,12 +1,41 @@
 {% extends 'copens_static_pages/generic/base.html' %}
-
+{% load my_tags %}
 {% block page_header %}
     查詢結果
 {% endblock page_header %}
 
-{% load my_tags %}
-{% block content %}
 
+{% block content %}
+<div class="row" id="page_header">
+    <div class="container" style="margin-top: -20px">
+        <div class="col s12 section" style="padding: 15px 0">
+            <div class="col">
+                                <p>搜尋字串: <span class="badge badge-dark badge-pill">{{ request.GET.query }}</span></p>
+                            </div>
+                            <div class="col">
+                                <p>上下文視窗大小: <span class="badge badge-dark badge-pill">{{ request.GET.context }}</span></p>
+                            </div>
+                            <div class="col">
+                                <p>語料庫: {% for c in request.GET|get_list:'corpora' %}
+                                    <span class="badge badge-dark badge-pill">{{ c }}</span>
+                                {% endfor %}
+                                    </p>
+                            </div>
+                            <div class="col">
+                                <p>顯示詞性: <span class="badge badge-dark badge-pill">
+                        {% if request.GET.show_pos %}
+                        是
+                        {% else %}
+                        否
+                    {% endif %}
+                    </span> </p>
+                            </div>
+                            <div class="col">
+                                <p>總筆數: <span class="badge badge-dark badge-pill">{{ results.total }} 筆</span></p>
+                            </div>
+        </div>
+    </div>
+</div>
 <section class="content-section">
     <div class="container">
         <div class="row">
@@ -15,6 +44,7 @@
                 <a href="{% url 'copens_static_pages:output_csv' %}" class="waves-effect waves-light btn"><i class="material-icons left">file_copy</i>匯出 CSV 檔</a>
             </div>
         </div>
+        <!--
         <div class="row">
             <div class="col s12">
                 <div class="card" style="margin-bottom: 2em">
@@ -50,6 +80,7 @@
                 </div>
             </div>
         </div>
+    -->
         <div class="row">
             <div class="col s12">
                 <div class="pagination center-align">

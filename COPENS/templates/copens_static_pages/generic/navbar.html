@@ -99,7 +99,10 @@
                 <a class="dropdown-trigger" href="#!" data-target="dropdown_user">歡迎 {{ user.get_username }} <i class="material-icons right">arrow_drop_down</i></a>
             </li>    
         {% else %}
+            <li><a class="btn-nav" href="/accounts/login">登入 | 註冊</a></li>
+          <!--
             <li><a class="btn-nav modal-trigger" href="#login-modal">登入 | 註冊</a></li>
+          -->
             <!-- <li><a class="btn-nav" data-toggle="modal" data-target="#loginModal">登入 | 註冊</a></li> -->
         {% endif %}
       </ul>
