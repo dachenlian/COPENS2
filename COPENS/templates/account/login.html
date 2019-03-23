@@ -2,25 +2,20 @@
 {% load static %}
 {% load account socialaccount %}
 {% load i18n %}
+{% block page_header %}
+登入
+{% endblock page_header %}
+
 {% block content %}
-<section class="header-section">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h2>登入</h2>
-            </div>
-        </div>
-    </div>
-</section>
+
 <section style="padding: 30px 0">
     <div class="container">
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col s12">
                 <div class="card">
-                    <h5 class="card-header">
-                    	使用第三方登入
-                    </h5>
-                    <div class="card-body">
+                    
+                    <div class="card-content">
+                        <span class="card-title">使用第三方登入</span>
                         {% get_providers as socialaccount_providers %}
                         {% if socialaccount_providers %}
                         
@@ -44,12 +39,11 @@
 <section>
 <div class="container">
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col s12">
                 <div class="card">
-                	<h5 class="card-header">
-                    	使用帳號密碼登入
-                    </h5>
-                    <div class="card-body">
+                    <div class="card-content">
+                        <span class="card-title">使用帳號密碼登入</span>
+
                         <p>尚未擁有帳號？請先<a href="{{ signup_url }}">註冊新帳號</a></p>
                         <form class="login" method="POST" action="{% url 'account_login' %}">
                             {% csrf_token %}

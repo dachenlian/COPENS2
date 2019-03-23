@@ -134,11 +134,14 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     :param user_registry: A path to the user's personal registry.
     :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
     """
+    print('@@@@@@')
     logger.debug(corpora)
     corpora_results = {}
     registry = f"{settings.CWB_PUBLIC_REG_DIR}"
     if user_registry:
         registry += f":{user_registry}"
+    logger.debug(registry)
+
     cqp = pexpect.spawn(f'cqp -e -r {registry}', encoding='utf8')
     if context:
         cqp.write(f'set CONTEXT {context};')
@@ -151,22 +154,27 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
     for corpus in corpora:
         filename = f'{random.randint(1, 1000000000)}.txt'
         path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
-        
         commands = [
             'set AutoShow off;',
             'set PrintMode html;'
             f'{corpus.upper()};',
             f'show -cpos;',  # corpus position
-            query_command,
+            f'{query_command}',
             f"cat > '{path}';",
         ]
+        logger.debug(commands)
+
         if show_pos:
             commands.insert(-2, 'show +pos;')
         for c in commands:
             cqp.sendline(c)  # must send a linesep to work
 
+        time.sleep(4)
         corpora_results[corpus] = path
     cqp.sendline('exit;')
+
+    logging.info(corpora_results)
+
     return corpora_results
 
 
@@ -356,3 +364,32 @@ class TCSL:
             return True
         else:
             return False
+
+
+# 20190215 Update: query wordlist
+def cqp_query_wordlist(corpus: str, user_registry=None):
+    """
+    Use pexpect to send queries to cwb-lexdecode and write to file. Then, open and read said file and return contents.
+    :param corpus: A corpus for a query to be searched against.
+    :param user_registry: A path to the user's personal registry.
+    :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
+    """
+    logger.debug(corpus)
+    wordlist_result = {}
+    filename = f'{random.randint(1, 1000000000)}.txt'
+    path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
+
+    registry = f"{settings.CWB_PUBLIC_REG_DIR}"
+    if user_registry:
+        registry += f":{user_registry}"
+
+    # See chapter 7 of "CWB Encoding Tutorial Documentation"
+    query = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 | head -20'
+    output = pexpect.run(query, encoding='utf8')
+    # the output is just String, need transform to Python list or JSON
+
+    logging.info(f'Wordlist query: {query}')
+
+    wordlist_result = output
+
+    return wordlist_result

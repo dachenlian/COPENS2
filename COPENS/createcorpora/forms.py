@@ -61,7 +61,8 @@ class SearchForm(forms.Form):
         self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
                            for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
         super().__init__(*args, **kwargs)  # must call super() to have access to fields
-
+        print('self.DB_CHOICES')
+        print(self.DB_CHOICES)
         try:
             self.fields['corpora'] = forms.MultipleChoiceField(
                 label="選擇語料庫",
