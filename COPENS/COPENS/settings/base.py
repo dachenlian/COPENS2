@@ -66,11 +66,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'django_extensions',
     'django_rq',
-    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
