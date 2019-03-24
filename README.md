@@ -25,6 +25,11 @@ You'll have to upload a corpus first.
 
 This will combine base settings from `docker-compose.yml` with production settings from `docker-compose-production.yml`.
 
+### Workers
+During development or production, make sure to start workers because some parts use Redis Queue.
+1. Enter the `web` container `docker-compose exec web bash`.
+2. Run `python manage.py rqworker default`.
+
 ### Functions
 #### Searching
 url: `/user/search/`
