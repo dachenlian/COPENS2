@@ -3574,7 +3574,7 @@ footer .container {
 }
 
 .content-section {
-    padding: 50px 0;
+    /* padding: 50px 0; */
 }
 
 .toc_strict {
@@ -3850,13 +3850,16 @@ nav ul a {
 .tabs .tab a {
  color: #4d6d8a;
 }
+
+
 .tabs .tab a:focus,
 .tabs .tab a:focus.active {
  background-color: #a6b6c4;
 }
 .tabs .tab a:hover,
 .tabs .tab a.active {
- color:#4d6d8a;
+ background-color: #4d6d8a;
+ color: white;
 }
 
 .tabs .indicator {
@@ -3876,3 +3879,11 @@ nav ul a {
 #concordance-card .row {
     margin-bottom: 0;
 }
+
+.result-badge {
+    background: white;
+    color: #4d6d8a;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+

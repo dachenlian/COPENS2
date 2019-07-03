@@ -7,7 +7,13 @@ from django.views.generic import TemplateView, View
 from django.views.generic.edit import FormView
 from django.http import StreamingHttpResponse
 
-from .forms import ConcordanceForm
+from django.db.models import Q
+from django.contrib.auth.models import AnonymousUser
+
+from createcorpora.models import Corpus, CopensUser
+
+
+from .forms import ConcordanceForm, WordlistForm
 
 from createcorpora import utils
 from createcorpora.views import for_concordance_tag
@@ -22,7 +28,6 @@ class Home(TemplateView):
         context = super(Home, self).get_context_data(*args, **kwargs)
         context['home'] = True
         return context
-
 
 class About(TemplateView):
     template_name = 'copens_static_pages/about.html'
@@ -47,7 +52,7 @@ class Query(TemplateView):
 
 class ConcordanceQueryView(FormView):
     """
-    User chooses what databases to query from.
+    搜尋Concordance的頁面
     """
 
     template_name = 'copens_static_pages/query_concordance.html'
@@ -67,7 +72,7 @@ class ConcordanceQueryView(FormView):
 
 class ConcordanceResultView(View):
     """
-    Results after querying CWB are returned here.
+    顯示搜尋Concordance的結果頁面。
     """
     template_name = 'copens_static_pages/result_concordance.html'
 
@@ -117,7 +122,108 @@ class ConcordanceResultView(View):
             print(form.errors)
             return redirect('static_pages:concordance')
 
+class WordListQueryView(FormView):
+    """
+    User chooses what databases to query from.
+    """
 
+    template_name = 'copens_static_pages/query_wordlist.html'
+    form_class = WordlistForm
+
+    def get_form_kwargs(self):
+        """
+        Add the current logged in user to the form's context.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_invalid(self, form):
+        print(form.errors)
+
+class WordlistResultView(View):
+    """
+    顯示搜尋Concordance的結果頁面。
+    """
+    template_name = 'copens_static_pages/result_wordlist.html'
+
+    def get(self, request):
+        if not self.request.GET.getlist('corpus'):
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('static_pages:wordlist')
+
+        # if self.request.GET.get('page'):
+        #     results_list = self.request.session.get('results_list')
+        #     paginator = Paginator(results_list, 20)
+        #     page = request.GET.get('page')
+        #     results = paginator.get_page(page)
+        #     results.total = len(results_list)
+        #     results.object_list = list(map(for_concordance_tag, results.object_list))
+        #     return render(request, self.template_name, {'results': results})
+
+        form = WordlistForm(self.request.GET, user=self.request.user)
+        # print(form.is_valid())
+        if form.is_valid():
+            results_list = []
+            if self.request.user.is_authenticated:
+                user_registry = utils.get_user_registry(self.request)
+                print(user_registry)
+            else:
+                user_registry = None
+            list_of_words = utils.cqp_query_wordlist(user_registry=user_registry, **form.cleaned_data)
+            print(type(list_of_words))
+            print(list_of_words)
+            results = (word.strip().split('\t') for word in list_of_words)
+            print(results)
+            # self.request.session['results_dict'] = results_dict
+            # print(results_dict)
+            # for corpus, path in results_dict.items():
+            #     print(corpus, path)
+            #     try:
+            #         results_list.extend(utils.read_results(path))
+            #     except FileNotFoundError:
+            #         messages.error(request, '查詢語法有誤！')
+            #         return redirect('static_pages:concordance')
+
+            # paginator = Paginator(results_list, 50)
+            # page = request.GET.get('page')
+            # results = paginator.get_page(page)
+            # results.total = len(results_list)
+            # results.object_list = list(map(for_concordance_tag, results.object_list))
+            # self.request.session['results_list'] = results_list
+            # print(results.object_list)
+            return render(request, self.template_name, {'results': results})
+        else:
+            print(form.errors)
+            return redirect('static_pages:wordlist')
+
+
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super(Home, self).get_context_data(*args, **kwargs)
+    #     # Generate DB_CHOICES based on AnonymousUser / Logined User
+
+    #     if self.request.user.is_authenticated:
+    #         DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
+    #                        for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
+    #     else:
+    #         DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name}')  # value, label
+    #                        for c in Corpus.objects.filter(Q(is_public=True))]
+            
+        
+    #     super().__init__(*args, **kwargs)  # must call super() to have access to fields
+    #     return context
+
+    # def get_form_kwargs(self):
+    #     """
+    #     Add the current logged in user to the form's context.
+    #     """
+    #     kwargs = super().get_form_kwargs()
+
+    #     kwargs['user'] = self.request.user
+    #     return kwargs
+
+    # def form_invalid(self, form):
+    #     print(form.errors)
 
 class Echo:
     """An object that implements just the write method of the file-like

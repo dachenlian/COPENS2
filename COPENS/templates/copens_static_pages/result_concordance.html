@@ -6,33 +6,43 @@
 
 
 {% block content %}
-<div class="row" id="page_header">
+<div class="row" id="page_header" style="background: #708aa1">
     <div class="container" style="margin-top: -20px">
         <div class="col s12 section" style="padding: 15px 0">
             <div class="col">
-                                <p>搜尋字串: <span class="badge badge-dark badge-pill">{{ request.GET.query }}</span></p>
-                            </div>
-                            <div class="col">
-                                <p>上下文視窗大小: <span class="badge badge-dark badge-pill">{{ request.GET.context }}</span></p>
-                            </div>
-                            <div class="col">
-                                <p>語料庫: {% for c in request.GET|get_list:'corpora' %}
-                                    <span class="badge badge-dark badge-pill">{{ c }}</span>
-                                {% endfor %}
-                                    </p>
-                            </div>
-                            <div class="col">
-                                <p>顯示詞性: <span class="badge badge-dark badge-pill">
+                <p>搜尋字串: 
+                    <span class="result-badge">{{ request.GET.query }}</span>
+                </p>
+            </div>
+            <div class="col">
+                <p>上下文視窗大小: 
+                    <span class="result-badge">{{ request.GET.context }}</span>
+                </p>
+            </div>
+            <div class="col">
+                <p>語料庫: 
+                    {% for c in request.GET|get_list:'corpora' %}
+                        <span class="result-badge">{{ c }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+            <div class="col">
+                <p>顯示詞性: 
+                    <span class="result-badge">
                         {% if request.GET.show_pos %}
-                        是
+                            是
                         {% else %}
-                        否
-                    {% endif %}
-                    </span> </p>
-                            </div>
-                            <div class="col">
-                                <p>總筆數: <span class="badge badge-dark badge-pill">{{ results.total }} 筆</span></p>
-                            </div>
+                            否
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+            <div class="col">
+                <p>總筆數:
+                    <span class="result-badge">{{ results.total }} 筆</span>
+                </p>
+            </div>
+
         </div>
     </div>
 </div>
