@@ -1,0 +1,95 @@
+{% extends 'copens_static_pages/generic/base.html' %}
+{% load my_tags %}
+{% block page_header %}
+    查詢結果: 詞彙列表
+{% endblock page_header %}
+
+
+{% block content %}
+<div class="row" id="page_header" style="background: #708aa1">
+    <div class="container" style="margin-top: -20px">
+        <div class="col s12 section" style="padding: 15px 0">
+            <div class="col">
+                <p>查詢詞彙數: 
+                    <span class="result-badge">{{ request.GET.how_many_words }}</span>
+                </p>
+            </div>
+            <div class="col">
+                <p>語料庫: 
+                    {% for c in request.GET|get_list:'corpus' %}
+                        <span class="result-badge">{{ c }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content-section">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <a href="{% url 'copens_static_pages:wordlist' %}" class="waves-effect waves-light btn"><i class="material-icons left">refresh</i>重新查詢</a>
+                <a href="{% url 'copens_static_pages:output_csv' %}" class="waves-effect waves-light btn disabled"><i class="material-icons left">file_copy</i>匯出 CSV 檔</a>
+            </div>
+        </div>
+        <!--
+        <div class="row">
+            <div class="col s12">
+                <div class="pagination center-align">
+                    <p class="current">
+                        第 {{ results.number }} 頁（共 {{ results.paginator.num_pages }} 頁）
+                    </p>
+                </div>
+                <div class="pagination center-align">
+                    <p class="step-links">
+                        {% if results.has_previous %}
+                        <a href="?{% param_replace page=1 %}">&laquo; 最首頁</a>
+                        <a href="?{% param_replace page=results.previous_page_number %}">上一頁</a>
+                        {% endif %}
+                        {% if results.has_next %}
+                        <a href="?{% param_replace page=results.next_page_number %}">下一頁</a>
+                        <a href="?{% param_replace page=results.paginator.num_pages %}">最末頁 &raquo;</a>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        -->
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    
+                        <div class="card-content" id="concordance-card">
+                            <table class="table table-hover highlight centered" style="width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>詞彙</th>
+                                        <th>頻率</th>   
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in results %}
+                                    <tr>
+                                        <td>
+                                            {{forloop.counter }}
+                                        </td>
+                                        <td>
+                                            {{result.1}}
+                                        </td>
+                                        <td>
+                                            {{result.0}}
+                                        </td>
+                                    </tr>                                  
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+{% endblock %}

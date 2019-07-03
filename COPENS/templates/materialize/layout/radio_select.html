@@ -13,20 +13,28 @@
 
 {##############    CUSTOM CODE  ################}
 
-<label for="{{ field.id_for_label }}"
-       {% if field.field.required %}class="required"{% endif %}>
-    {{ field.label|safe }}
-</label>
+{# <label for="{{ field.id_for_label }}" #}
+       {# {% if field.field.required %}class="required"{% endif %}> #}
+    {# {{ field.label|safe }} #}
+{# </label> #}
 
 <div id="{{ field.auto_id }}_wrapper" class="col s12">
     {#    <div class="row">#}
     {% for choice in field.field.choices %}
-        <div class="radio">
-            <input type="radio" name="{{ field.html_name }}"
-                   id="id_{{ field.html_name }}_{{ forloop.counter }}"
-                   class="with-gap"
-                   value="{{ choice.0|unlocalize }}" {{ field.field.widget.attrs|flatatt }}>
-            <label for="id_{{ field.html_name }}_{{ forloop.counter }}">{{ choice.1|unlocalize }}</label>
-        </div>
+        
+        {# <div class="radio"> #}
+            {# <input type="radio" name="{{ field.html_name }}" #}
+                   {# id="id_{{ field.html_name }}_{{ forloop.counter }}" #}
+                   {# class="with-gap" #}
+                   {# value="{{ choice.0|unlocalize }}" {{ field.field.widget.attrs|flatatt }}> #}
+            {# <label for="id_{{ field.html_name }}_{{ forloop.counter }}">{{ choice.1|unlocalize }}</label> #}
+        {# </div> #}
+        <p>
+          <label for="id_{{ field.html_name }}_{{ forloop.counter }}">
+            <input name="{{ field.html_name }}" id="id_{{ field.html_name }}_{{ forloop.counter }}" type="radio" value="{{ choice.0|unlocalize }}" {{ field.field.widget.attrs|flatatt }} checked />
+            <span>{{ choice.1|unlocalize }}</span>
+          </label>
+        </p>
+
     {% endfor %}
 </div>

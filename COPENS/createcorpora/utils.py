@@ -32,8 +32,7 @@ def create_text_file(name):
     }
     return f
 
-
-def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
+def does_file_already_exist(file: UploadedFile, raw_dir: Path) -> Optional[str]:
     """
     :param file: A Django UploadedFile file
     :param raw_dir: A path to user uploaded unprocessed corpora files.
@@ -45,6 +44,21 @@ def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
 
     if raw_dir.joinpath(filename).exists():
         return None
+    else:
+        return filename
+
+def save_file_to_drive(file: UploadedFile, raw_dir: Path) -> Optional[str]:
+    """
+    :param file: A Django UploadedFile file
+    :param raw_dir: A path to user uploaded unprocessed corpora files.
+    """
+    filename = Path(file.name)
+    stem, suffix = slugify(filename.stem), filename.suffix
+    filename = f'{stem}{suffix}'
+    # logger.debug(f'Before: {file.name}, after: {filename}, type: {type(filename)}')
+
+    # if raw_dir.joinpath(filename).exists():
+    #     return None
 
     logging.info(f'Received: {filename}, size: {file.size}')
     path = raw_dir / filename
@@ -90,8 +104,12 @@ def cwb_encode(vrt_file: Path, data_dir: Path, registry_dir: Path, p_attrs: str,
     :return: None
     """
     name = vrt_file.stem  # filename without suffix
+    name_without_special_char = name.split('.')[0]
+    logging.info(f"!!!! name: {name}")
+    logging.info(f"!!!! name_without: {name_without_special_char}")
+
     data_dir = data_dir / name
-    registry_dir = registry_dir / name
+    registry_dir = registry_dir / name_without_special_char
     if not data_dir.exists():
         data_dir.mkdir()
 
@@ -367,7 +385,7 @@ class TCSL:
 
 
 # 20190215 Update: query wordlist
-def cqp_query_wordlist(corpus: str, user_registry=None):
+def cqp_query_wordlist(corpus: str, user_registry=None, how_many_words=20):
     """
     Use pexpect to send queries to cwb-lexdecode and write to file. Then, open and read said file and return contents.
     :param corpus: A corpus for a query to be searched against.
@@ -377,6 +395,7 @@ def cqp_query_wordlist(corpus: str, user_registry=None):
     logger.debug(corpus)
     wordlist_result = {}
     filename = f'{random.randint(1, 1000000000)}.txt'
+
     path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
 
     registry = f"{settings.CWB_PUBLIC_REG_DIR}"
@@ -384,12 +403,17 @@ def cqp_query_wordlist(corpus: str, user_registry=None):
         registry += f":{user_registry}"
 
     # See chapter 7 of "CWB Encoding Tutorial Documentation"
-    query = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 | head -20'
-    output = pexpect.run(query, encoding='utf8')
+    # shell_cmd = 'ls -l | grep LOG > logs.txt'
+    query_cmd = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 | head -{how_many_words} > {path}'
+    child = pexpect.spawn('/bin/bash', ['-c', query_cmd], encoding='utf8')
+    child.expect(pexpect.EOF)
+
+    with open(path, 'r') as f:
+        output = f.read()
     # the output is just String, need transform to Python list or JSON
 
-    logging.info(f'Wordlist query: {query}')
-
-    wordlist_result = output
+    logging.info(f'Wordlist query: {query_cmd}')
+    # logging.info(f'output: {output}')
+    wordlist_result = output.split('\n')
 
     return wordlist_result

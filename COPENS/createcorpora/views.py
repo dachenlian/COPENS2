@@ -114,6 +114,7 @@ class ResultsView(View):
                 return redirect('static_pages:query')
 
 
+
 def for_concordance_tag(elm):
     import re
     p = re.compile('<B>(.*)</B>')
@@ -156,10 +157,15 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
         data_dir = Path(copens_user.data_dir)
         registry_dir = Path(copens_user.registry_dir)
 
-        filename = utils.save_file_to_drive(file, raw_dir)
+        filename = utils.does_file_already_exist(file, raw_dir)
+        print(filename)
+        # filename = utils.save_file_to_drive(file, raw_dir)
         if not filename:
             messages.warning(self.request, '上傳失敗：您上傳的語料庫已存在！')
             return redirect('create:home')
+
+        filename = utils.save_file_to_drive(file, raw_dir)
+        print(filename)
 
         # Upload a copy to TCSL
         # if success: save `tcsl.tcsl_doc_id` and `tcsl.tcsl_corpus_name` into Corpus model
@@ -174,22 +180,26 @@ class UploadCorporaView(LoginRequiredMixin, FormView):
             logger.debug(f'Preprocessing: {filename}')
             s_attrs = ""
             p_attrs = "-P pos"
+
+            # Step 1: 先將文本清理乾淨，斷詞，產生.vrt檔，並存進raw_dir
             preprocess_job = q.enqueue(utils.preprocess, raw_dir / filename, raw_dir=raw_dir)
             filename = f'{filename}.vrt'
-            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
-                                   registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,
-                                   depends_on=preprocess_job)
-            make_job = q.enqueue(utils.cwb_make, Path(filename).stem, registry_dir, depends_on=encode_job)
-        else:
-            encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
-                                   registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,)
-            make_job = q.enqueue(utils.cwb_make, Path(filename).stem, registry_dir, depends_on=encode_job)
 
+        # Step 2: 對.vrt檔進行cwb-encode指令
+        encode_job = q.enqueue(utils.cwb_encode, vrt_file=raw_dir / filename, data_dir=data_dir,
+                               registry_dir=registry_dir, p_attrs=p_attrs, s_attrs=s_attrs,)
+
+        # Step 3: 進行cwb-make指令
+        make_job = q.enqueue(utils.cwb_make, Path(filename).stem, registry_dir, depends_on=encode_job)
+
+        # Step 4: 如果前面都成功，將這個新語料庫的metadata存進DB
         create_corpus_job = q.enqueue(
             utils.create_corpus,
             copens_user=copens_user,
-            zh_name=zh_name, en_name=en_name,
-            is_public=is_public, file_name=filename,
+            zh_name=zh_name,
+            en_name=en_name,
+            is_public=is_public,
+            file_name=filename,
             registry_dir=registry_dir,
             # tcsl_doc_id=tcsl.tcsl_doc_id,
             # tcsl_corpus_name=tcsl.tcsl_corpus_name,
