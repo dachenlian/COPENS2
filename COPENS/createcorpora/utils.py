@@ -11,6 +11,8 @@ import subprocess
 import time
 from pathlib import Path
 from typing import Generator, Optional
+from threading import Thread
+import math
 
 import jseg
 import pexpect
@@ -22,6 +24,7 @@ from django.http import request
 from django.utils.text import slugify
 
 from .models import CopensUser, Corpus
+from .PyCQP import CQP
 
 logger = logging.getLogger(__name__)
 
@@ -393,27 +396,276 @@ def cqp_query_wordlist(corpus: str, user_registry=None, how_many_words=20):
     :return: A dictionary containing corpora as keys and filenames where query results can be read from as values.
     """
     logger.debug(corpus)
-    wordlist_result = {}
-    filename = f'{random.randint(1, 1000000000)}.txt'
-
+    wordlist_result = []
+    filename = f'wordlist_{corpus}.txt'
     path = Path(settings.CWB_QUERY_RESULTS_DIR) / filename
+
+    if path.exists():
+        logger.debug('file exists!')
+    else:
+        registry = f"{settings.CWB_PUBLIC_REG_DIR}"
+        if user_registry:
+            registry += f":{user_registry}"
+
+        # See chapter 7 of "CWB Encoding Tutorial Documentation"
+        # shell_cmd = 'ls -l | grep LOG > logs.txt'
+        # query_cmd = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 | head -{how_many_words} > {path}'
+        # query_cmd = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 > {path}'
+        # child = pexpect.spawn('/bin/bash', ['-c', query_cmd], encoding='utf8')
+        # child.expect(pexpect.EOF)
+        generate_wordlist(registry, corpus, path)
+
+    with open(path, 'r') as f:
+        # output = f.read()
+        for nth_line, line in enumerate(f):
+            if nth_line < how_many_words:
+                wordlist_result.append(line)
+            else:
+                break
+    # the output is just String, need transform to Python list or JSON
+
+    # logging.info(f'Wordlist query: {query_cmd}')
+    # logging.info(f'output: {output}')
+    # wordlist_result = output.split('\n')
+
+    return wordlist_result
+
+def generate_wordlist(registry, corpus, wordlist_path):
+    """
+    呼叫 cwb-lexdecode 指令，產生詞頻表，並儲存成文件。
+
+    """
+    query_cmd = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 > {wordlist_path}'
+    child = pexpect.spawn('/bin/bash', ['-c', query_cmd], encoding='utf8')
+    child.expect(pexpect.EOF)
+    return
+
+# 20190215 Update: query wordsketch
+def cqp_query_word_sketch(query: str, corpus: str, user_registry=None, how_many_words=20):
+    """
+    Use pexpect to send queries to cwb-lexdecode and write to file. Then, open and read said file and return contents.
+    :param corpus: A corpus for a query to be searched against.
+    :param user_registry: A path to the user's personal registry.
+    :return:
+        query_word_freq (int): 查詢關鍵字在語料中的總詞頻
+        r (dict): {
+            "and_or": 
+        } 
+    """
+    logger.info(corpus)
+    start_time = time.time()
+
+    all_relevent_words = set()
+    r = {}
 
     registry = f"{settings.CWB_PUBLIC_REG_DIR}"
     if user_registry:
         registry += f":{user_registry}"
+    
+    wordlist_result = []
+    wordlist_filename = f'wordlist_{corpus}.txt'
+    wordlist_path = Path(settings.CWB_QUERY_RESULTS_DIR) / wordlist_filename
 
-    # See chapter 7 of "CWB Encoding Tutorial Documentation"
-    # shell_cmd = 'ls -l | grep LOG > logs.txt'
-    query_cmd = f'cwb-lexdecode -r {registry} -f {corpus.upper()} | sort -nr -k 1 | head -{how_many_words} > {path}'
-    child = pexpect.spawn('/bin/bash', ['-c', query_cmd], encoding='utf8')
-    child.expect(pexpect.EOF)
+    rand = random.randint(1, 1000000000)
 
-    with open(path, 'r') as f:
-        output = f.read()
-    # the output is just String, need transform to Python list or JSON
 
-    logging.info(f'Wordlist query: {query_cmd}')
-    # logging.info(f'output: {output}')
-    wordlist_result = output.split('\n')
+    sketch_dict = {
+        "N": [
+            "measure",
+            "and_or",
+            "possession_of",
+            "possessor_of",
+            "n_modifies",
+            "n_modifier",
+            "a_modifier"
+        ]
+    }
 
-    return wordlist_result
+
+    codist_path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{rand}_codist_{query}.txt'
+    logging.debug(codist_path)
+
+    # 確認該語料庫是否已經存在wordlist
+    if wordlist_path.exists():
+        logger.debug('wordlist exists!')
+    else:
+        logger.debug('wordlist not exists!')
+        logger.debug('generate one!')
+        generate_wordlist(registry, corpus, wordlist_path)
+        
+    registry = f"{settings.CWB_PUBLIC_REG_DIR}"
+    if user_registry:
+        registry += f":{user_registry}"
+
+    cqp = CQP(bin='cqp', options=f'-c -r {registry}')
+
+    ini_commands = [
+        'set AutoShow off;',
+        f'{corpus.upper()};',
+        'show -cpos;',  # corpus position
+        'define macro < "/app/COPENS/cwb/macros/macro.txt"',
+    ]
+
+    for c in ini_commands:
+        # cqp.sendline(c)
+        cqp.Exec(c)
+
+
+    # 先看query的詞，在語料庫中有哪些詞性
+    cqp.Exec(f'ALL = [word = "{query}"];')
+    cqp.Exec(f'count ALL by pos > "{codist_path}";')
+    cqp.Terminate()
+    # time.sleep(0.3)
+
+    # parse 該詞的所有詞性的文字檔，並把該詞的每個詞性存進pos
+    with open(f"{codist_path}", "r") as f:
+        t = f.read()
+        parsed_t = [p.split('\t') for p in t.split('\n') if p != '']
+        logging.debug(t)
+
+    pos = [p[-1] for p in parsed_t]
+
+    query_word_freq = sum([int(p[0]) for p in parsed_t])
+
+    # 該詞最頻繁的pos
+    most_common_pos = pos[0]
+
+    logging.debug(f'所有該詞的詞性：{pos}')
+    logging.debug(f'最高頻的詞性：{most_common_pos}')
+    logging.debug(f'該詞的總頻率：{query_word_freq}')
+
+
+    qqq = time.time()
+
+    # 根據不同詞性呼叫不同的word sketch，並分別寫入到不同檔案
+    # 應該是花最多時間的地方
+    if most_common_pos[0] == 'N':
+
+        for i, sketch in enumerate(sketch_dict['N']):
+            threads = [WordSketchGetter(query, sketch, rand, registry, corpus) for sketch in sketch_dict['N']]
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+    elif most_common_pos[0] == 'V':
+        pass
+    else:
+        pass
+
+    qqqq = time.time()
+
+    # 讀取所有產生的檔案
+    p = Path(settings.CWB_QUERY_RESULTS_DIR)
+    
+    for path in p.glob(f"{rand}_[!c]*.txt"):
+        file_name = f"{rand}_([\w_]+)_{query}"
+        ptn = re.compile(file_name)
+        sketch = re.search(ptn, str(path)).group(1)
+
+        with open(path, 'r') as f:
+            lines = f.readlines()
+            
+            # parse each text
+            relation_freq, result = parse_txt_generated_by_cqp(lines)
+
+            if result is not None:
+                r[sketch] = {
+                    "freq": relation_freq,
+                    "result": result
+                }
+                all_relevent_words.update(result.keys())
+
+            logging.debug(result)
+            logging.debug(all_relevent_words)
+
+    b = time.time()
+    logging.debug(all_relevent_words)
+    logging.debug(f"整個函式花掉的時間: {str(b - start_time)}")
+    logging.debug(f"一一執行cqp的時間: {qqqq-qqq}")
+    
+    # 將讀好的 result 與詞頻表作對照，得出檢定量 
+    wordlist_freq_table = {}
+    with open(wordlist_path, 'r') as f:
+        for line in f:
+            l = line.split()
+            if len(l) > 0 and l[1] in all_relevent_words:
+                wordlist_freq_table[l[1]] = int(l[0])
+
+    logging.debug(f"詞頻表中的頻率: {wordlist_freq_table}")
+
+    a = {}
+
+    # for sketch_name, word_dict in r.items():
+    #     for word, freq in word_dict.items():
+    #         r[sketch_name]['result'][word] = (freq, wordlist_freq_table[word])
+
+    for sketch_name in r:
+        w1_r = r[sketch_name]["freq"]
+        for word in r[sketch_name]["result"]:
+            w2 = wordlist_freq_table[word]
+            r[sketch_name]["result"][word] = {
+                "freq": r[sketch_name]["result"][word],
+                "log_dice": log_dice(r[sketch_name]["result"][word], w1_r, w2)
+            }
+
+        r[sketch_name]["result"] = sorted(r[sketch_name]["result"].items(), key = lambda x: x[1]["log_dice"], reverse=True)
+
+    logging.debug(r)
+    return query_word_freq, r
+
+def parse_txt_generated_by_cqp(lines):
+    result = {}
+    freq = 0
+
+    if len(lines) == 0:
+        return None, None
+
+    for line in lines:
+        if line == '':
+            continue
+
+        l = line.split('\t')
+        result[l[0].strip()] = int(l[1].strip())
+        freq += int(l[1].strip())
+
+    return freq, result
+
+def log_dice(w1_r_w2, w1_r, w2):
+    return round(14 + math.log(2 * w1_r_w2 / (w1_r + w2), 2), 2)
+
+class WordSketchGetter(Thread):
+    def __init__(self, query, sketch, rand, registry, corpus):
+        super().__init__()
+        self.query = query
+        self.rand = rand
+        self.sketch = sketch
+        self.registry = registry
+        self.corpus = corpus
+
+    def run(self):
+        path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{self.rand}_{self.sketch}_{self.query}.txt'
+
+        logging.debug(path)
+        r = random.randint(1, 100000)
+
+        logging.debug(self.registry)
+        logging.debug(self.corpus)
+
+        # 啟動 cqp + initial cmd
+        cqp = CQP(bin='cqp', options=f'-c -r {self.registry}')
+
+        ini_commands = [
+            f'{self.corpus.upper()};',
+            'show -cpos;',  # corpus position
+            'define macro < "/app/COPENS/cwb/macros/macro.txt"',
+        ]
+
+        for c in ini_commands:
+            cqp.Exec(c)
+
+        cqp.Exec(f'A{r} = /{self.sketch}["{self.query}"]')
+        cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
+        cqp.Terminate()

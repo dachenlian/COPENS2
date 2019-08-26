@@ -115,3 +115,50 @@ class WordlistForm(forms.Form):
         widget=forms.NumberInput(attrs={'type': 'range', 'min': 100, 'max': 500}),
         initial=100,
     ) 
+
+class WordSketchForm(forms.Form):
+    """
+    Form to answer which corpus to generate wordlist.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.helper = FormHelper()
+        self.user = kwargs.pop('user', AnonymousUser())
+        logging.debug('Authenticated!')
+
+        # Generate DB_CHOICES based on AnonymousUser / Logined User
+        if isinstance(self.user, AnonymousUser):
+            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name}')  # value, label
+                           for c in Corpus.objects.filter(Q(is_public=True))]
+        else:
+            self.copens_user = CopensUser.objects.get(user=self.user)
+            self.DB_CHOICES = [(c.file_name.split('.')[0], f'{c.zh_name} / {c.owner}')  # value, label
+                           for c in Corpus.objects.filter(Q(owner=self.copens_user) | Q(is_public=True))]
+        
+        super().__init__(*args, **kwargs)  # must call super() to have access to fields
+
+        # 要搜索的語料庫field
+        try:
+            self.fields['corpus'] = forms.ChoiceField(
+                label="選擇語料庫",
+                choices=self.DB_CHOICES,
+                # widget=forms.CheckboxSelectMultiple,
+                widget=forms.RadioSelect,
+                initial=self.DB_CHOICES[0]
+            )
+
+        except IndexError:
+            self.fields['corpus'] = forms.ChoiceField()
+
+    # query = forms.CharField(max_length=255, initial='台北',help_text="""若要使用CQL，請您直接輸入CQL格式的索引，例 [pos = "V.*"][pos = "N.*"]""")
+
+    # number_of_words = [(100, 100), (200, 200), (300, 300)]
+
+    # 要搜索的關鍵字field
+    query = forms.CharField(
+        max_length=255,
+        initial='台北',
+        help_text="""
+            請輸入欲搜尋的詞語
+        """
+    )

@@ -4,7 +4,7 @@
             <li class="tab col s3"><a target="_self" class="{% if current == 'concordance' %}active{% endif %}" href="{% url 'static_pages:concordance' %}">Concordance</a></li>
             <li class="tab col s3"><a target="_self" class="{% if current == 'wordlist' %}active{% endif %}" href="{% url 'static_pages:wordlist' %}">Word list</a></li>
             <li class="tab col s3"><a class="{% if current == 'collocation' %}active{% endif %}" href="#test3">Collocation</a></li>
-            <li class="tab col s3"><a class="{% if current == 'wordsketch' %}active{% endif %}" href="#test4">Word Sketch</a></li>
+            <li class="tab col s3"><a target="_self" class="{% if current == 'word_sketch' %}active{% endif %}" href="{% url 'static_pages:word_sketch' %}">Word Sketch</a></li>
         </ul>
     </div>
 </div>
