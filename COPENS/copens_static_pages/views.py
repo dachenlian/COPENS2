@@ -13,7 +13,7 @@ from django.contrib.auth.models import AnonymousUser
 from createcorpora.models import Corpus, CopensUser
 
 
-from .forms import ConcordanceForm, WordlistForm
+from .forms import ConcordanceForm, WordlistForm, WordSketchForm
 
 from createcorpora import utils
 from createcorpora.views import for_concordance_tag
@@ -143,7 +143,7 @@ class WordListQueryView(FormView):
 
 class WordlistResultView(View):
     """
-    顯示搜尋Concordance的結果頁面。
+    顯示搜尋Word list的結果頁面。
     """
     template_name = 'copens_static_pages/result_wordlist.html'
 
@@ -171,10 +171,10 @@ class WordlistResultView(View):
             else:
                 user_registry = None
             list_of_words = utils.cqp_query_wordlist(user_registry=user_registry, **form.cleaned_data)
-            print(type(list_of_words))
-            print(list_of_words)
+            # print(type(list_of_words))
+            # print(list_of_words)
             results = (word.strip().split('\t') for word in list_of_words)
-            print(results)
+            # print(results)
             # self.request.session['results_dict'] = results_dict
             # print(results_dict)
             # for corpus, path in results_dict.items():
@@ -254,3 +254,60 @@ def output_csv(request):
                                      content_type="text/csv")
     response['Content-Disposition'] = 'attachment; filename="copens_concordance_output.csv"'
     return response
+
+
+# 2019-08-09: Word sketch
+class WordSketchQueryView(FormView):
+    """
+    User chooses what databases to query from.
+    """
+
+    template_name = 'copens_static_pages/query_word_sketch.html'
+    form_class = WordSketchForm
+
+    def get_form_kwargs(self):
+        """
+        Add the current logged in user to the form's context.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_invalid(self, form):
+        print(form.errors)
+
+class WordSketchResultView(View):
+    """
+    顯示搜尋Word list的結果頁面。
+    """
+    template_name = 'copens_static_pages/result_word_sketch.html'
+
+    def get(self, request):
+        if not self.request.GET.getlist('corpus'):
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('static_pages:word_sketch')
+
+        form = WordSketchForm(self.request.GET, user=self.request.user)
+        # print(form.is_valid())
+        if form.is_valid():
+            # results_list = []
+            if self.request.user.is_authenticated:
+                user_registry = utils.get_user_registry(self.request)
+                print(user_registry)
+            else:
+                user_registry = None
+            query_word_freq, results = utils.cqp_query_word_sketch(user_registry=user_registry, **form.cleaned_data)
+
+            # results = (word.strip().split('\t') for word in list_of_words)
+            # results = list_of_words
+            return render(
+                request,
+                self.template_name,
+                {
+                    'results': results,
+                    'query_word_freq': query_word_freq
+                }
+            )
+        else:
+            print(form.errors)
+            return redirect('static_pages:word_sketch')

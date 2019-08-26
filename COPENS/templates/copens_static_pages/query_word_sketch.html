@@ -1,0 +1,49 @@
+{% extends 'copens_static_pages/generic/base.html' %}
+{% block page_header %}
+語料庫查詢: 詞彙特性素描
+{% endblock page_header %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<section>
+    <!-- <section style="padding: 30px 0"> -->
+    <div class="container">
+        {% if messages %}
+        <div class="alert alert-info" role="alert">
+            {% for m in messages %}
+            <p>{{ m }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% include 'copens_static_pages/generic/query_nav.html' with current='word_sketch' %}
+        
+        <!-- Wordlist -->
+        <div class="row">
+            <div class="col s12">
+                <div class="card z-depth-0">
+                    <div class="card-content">
+                        {{ form.errors }}
+                        <form action="{% url 'static_pages:word_sketch_result' %}" method="get">
+                            {{ form|crispy }}      
+                            <button class="btn btn-primary" type="submit">搜尋</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+</section>
+{% endblock %}
+{% block extra_js %}
+<script>
+// $('#window_size_value').text($('#id_context').val());
+// $(document).on('input change', '#id_context', function() {
+//     $('#window_size_value').html($(this).val());
+// });
+// $('#id_context').change(function (){
+//     $('#window_size_value').text($('#id_context').val());
+// })
+</script>
+{% endblock extra_js %}

@@ -3887,3 +3887,18 @@ nav ul a {
     padding: 5px 10px;
 }
 
+input.numberinput {
+    padding-top: 25px;
+}
+
+#sketch_result_section td {
+    padding: 5px 5px;
+}
+
+.smaller {
+    font-size: 14px;
+}
+
+.nomarginbottom {
+    margin-bottom: 0;
+}

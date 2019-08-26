@@ -1,0 +1,78 @@
+{% extends 'copens_static_pages/generic/base.html' %}
+{% load my_tags %}
+{% block page_header %}
+    查詢結果: 詞彙特性素描
+{% endblock page_header %}
+
+
+{% block content %}
+<div class="row" id="page_header" style="background: #708aa1">
+    <div class="container" style="margin-top: -20px">
+        <div class="col s12 section" style="padding: 15px 0">
+            <div class="col">
+                <p>查詢詞彙: 
+                    <span class="result-badge">{{ request.GET.query }}</span>
+                </p>
+            </div>
+            <div class="col">
+                <p>語料庫: 
+                    {% for c in request.GET|get_list:'corpus' %}
+                        <span class="result-badge">{{ c }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="content-section" id="sketch_result_section">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <a href="{% url 'copens_static_pages:wordlist' %}" class="waves-effect waves-light btn"><i class="material-icons left">refresh</i>重新查詢</a>
+                <a href="{% url 'copens_static_pages:output_csv' %}" class="waves-effect waves-light btn disabled"><i class="material-icons left">file_copy</i>匯出 CSV 檔</a>
+            </div>
+        </div>
+    
+        <div class="row nomarginbottom">
+            <div class="col s12">
+                <div class="card">       
+                    <div class="card-content">
+                        <span class="card-title">{{ request.GET.query }}</span>
+                        <p>語料中總詞頻 = {{ query_word_freq }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            {% for sketch_name, table in results.items %}
+                <div class="col l4 m4 s12">
+                    <div class="card">       
+                        <div class="card-content" style="background-color: #b7c4d0">
+                            <span class="card-title nomarginbottom ">{{ sketch_name }} 
+                                <span class="smaller">freq = {{ table.freq }}</span>
+                            </span>
+                            
+                        </div>
+                        <div class="card-action">
+                            <table>
+                                {% for word, t in table.result %}
+                                    <tr>
+                                        <td>{{word}}</td>
+                                        <td>{{t.freq}}</td>
+                                        <td>{{t.log_dice}}</td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+
+        
+    </div>
+</section>
+{% endblock %}
