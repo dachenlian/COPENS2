@@ -32,3 +32,5 @@ ADD . /app
 WORKDIR /app
 RUN pip install pipenv
 RUN pipenv install --system
+WORKDIR /app/COPENS
+RUN mkdir -p cwb/raw cwb/registry/public cwb/data cwb/results
