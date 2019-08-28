@@ -14,6 +14,7 @@ from typing import Generator, Optional
 from threading import Thread
 import math
 import multiprocessing
+from queue import Queue
 
 import jseg
 import pexpect
@@ -540,12 +541,13 @@ def cqp_query_word_sketch(query: str, corpus: str, user_registry=None, how_many_
 
     # 根據不同詞性呼叫不同的word sketch，並分別寫入到不同檔案
     # 應該是花最多時間的地方
+    q = multiprocessing.Queue()
     if most_common_pos[0] == 'N':
 
         for i, sketch in enumerate(sketch_dict['N']):
             # threads = [WordSketchGetter(query, sketch, rand, registry, corpus) for sketch in sketch_dict['N']]
             # def word_sketch_subprocess(query, registry, corpus, sketch, rand):
-            processes = [multiprocessing.Process(target=word_sketch_subprocess, args=(query, registry, corpus, sketch, rand)) for sketch in sketch_dict['N']]
+            processes = [multiprocessing.Process(target=word_sketch_subprocess, args=(query, registry, corpus, sketch, rand, q)) for sketch in sketch_dict['N']]
         
         # for thread in threads:
         #     thread.start()
@@ -565,29 +567,47 @@ def cqp_query_word_sketch(query: str, corpus: str, user_registry=None, how_many_
 
     qqqq = time.time()
 
+    logging.debug("HOLY QUEUE!!!")
+    while not q.empty():
+        _sketch, _result = q.get()
+        if len(_result) != 0:
+            relation_freq, result = parse_txt_generated_by_cqp_2(_result)
+            r[_sketch] = {
+                "freq": relation_freq,
+                "result": result
+            }
+            all_relevent_words.update(result.keys())
+        
+        # logging.debug(q.get())
+        logging.debug(_sketch)
+        logging.debug(_result)
+
+    logging.debug(f"r: {r}")
+
+
     # 讀取所有產生的檔案
-    p = Path(settings.CWB_QUERY_RESULTS_DIR)
+    # p = Path(settings.CWB_QUERY_RESULTS_DIR)
     
-    for path in p.glob(f"{rand}_[!c]*.txt"):
-        file_name = f"{rand}_([\w_]+)_{query}"
-        ptn = re.compile(file_name)
-        sketch = re.search(ptn, str(path)).group(1)
+    # for path in p.glob(f"{rand}_[!c]*.txt"):
+    #     file_name = f"{rand}_([\w_]+)_{query}"
+    #     ptn = re.compile(file_name)
+    #     sketch = re.search(ptn, str(path)).group(1)
 
-        with open(path, 'r') as f:
-            lines = f.readlines()
+    #     with open(path, 'r') as f:
+    #         lines = f.readlines()
             
-            # parse each text
-            relation_freq, result = parse_txt_generated_by_cqp(lines)
+    #         # parse each text
+    #         relation_freq, result = parse_txt_generated_by_cqp(lines)
 
-            if result is not None:
-                r[sketch] = {
-                    "freq": relation_freq,
-                    "result": result
-                }
-                all_relevent_words.update(result.keys())
+    #         if result is not None:
+    #             r[sketch] = {
+    #                 "freq": relation_freq,
+    #                 "result": result
+    #             }
+    #             all_relevent_words.update(result.keys())
 
-            logging.debug(result)
-            logging.debug(all_relevent_words)
+    #         logging.debug(result)
+    #         logging.debug(all_relevent_words)
 
     b = time.time()
     logging.debug(all_relevent_words)
@@ -641,6 +661,23 @@ def parse_txt_generated_by_cqp(lines):
 
     return freq, result
 
+def parse_txt_generated_by_cqp_2(string):
+    """
+    input: "醫學院\t12\n工學院\t8\n市長\t7\n地區\t6\n縣市\t5\n都會區\t5"
+    """
+    result = {}
+    freq = 0
+
+    pairs = [pair.split('\t') for pair in string.split('\n')]
+
+    for pair in pairs:
+        word = pair[0].strip()
+        word_freq = int(pair[1].strip())
+        result[word] = word_freq
+        freq += word_freq
+
+    return freq, result
+
 def log_dice(w1_r_w2, w1_r, w2):
     return round(14 + math.log(2 * w1_r_w2 / (w1_r + w2), 2), 2)
 
@@ -678,7 +715,7 @@ class WordSketchGetter(Thread):
         cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
         cqp.Terminate()
 
-def word_sketch_subprocess(query, registry, corpus, sketch, rand):
+def word_sketch_subprocess(query, registry, corpus, sketch, rand, q):
     path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{rand}_{sketch}_{query}.txt'
 
     logging.debug(path)
@@ -699,6 +736,10 @@ def word_sketch_subprocess(query, registry, corpus, sketch, rand):
     for c in ini_commands:
         cqp.Exec(c)
 
-    cqp.Exec(f'A{r} = /{sketch}["{query}"]')
-    cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
+    # cqp.Exec(f'A{r} = /{sketch}["{query}"]')
+    # cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
+    cqp.Exec(f'/{sketch}["{query}"]')
+    result = cqp.Group(subcorpus='Last', cutoff='5', spec1='target.word')
     cqp.Terminate()
+    q.put((sketch, result))
+    # return result
