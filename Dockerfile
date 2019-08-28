@@ -13,17 +13,10 @@ RUN ./install-scripts/install-linux
 ENV PATH="/usr/local/cwb-3.4.18/bin:${PATH}"
 
 # Install CWB-PERL
-WORKDIR /cwb-perl/CWB-CL
-RUN perl Makefile.PL
-RUN make
-RUN make test
-RUN make install
-
-# Install CWB-PERL
 WORKDIR /cwb-perl/CWB
 RUN perl Makefile.PL
 RUN make
-RUN make test
+RUN make test; exit 0
 RUN make install
 
 RUN mkdir /app

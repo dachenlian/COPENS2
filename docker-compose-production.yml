@@ -7,7 +7,7 @@ services:
       && python manage.py migrate --noinput
       && python manage.py collectstatic --noinput
       && uwsgi --uid root --master --http 0.0.0.0:8000 --module COPENS.wsgi
-      --processes 16 --manage-script-name --mount=/copens2=COPENS/wsgi.py --http-timeout 240 --enable-threads --threads 2"
+      --processes 16 --manage-script-name --close-on-exec --mount=/copens2=COPENS/wsgi.py --http-timeout 240 --enable-threads --threads 2"
     environment:
       - DJANGO_SETTINGS_MODULE=COPENS.settings.production
-      - DJANGO_LOG_LEVEL=INFO
+      - DJANGO_LOG_LEVEL=DEBUG
