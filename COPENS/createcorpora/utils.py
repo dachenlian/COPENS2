@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Generator, Optional
 from threading import Thread
 import math
+import multiprocessing
 
 import jseg
 import pexpect
@@ -542,13 +543,20 @@ def cqp_query_word_sketch(query: str, corpus: str, user_registry=None, how_many_
     if most_common_pos[0] == 'N':
 
         for i, sketch in enumerate(sketch_dict['N']):
-            threads = [WordSketchGetter(query, sketch, rand, registry, corpus) for sketch in sketch_dict['N']]
+            # threads = [WordSketchGetter(query, sketch, rand, registry, corpus) for sketch in sketch_dict['N']]
+            # def word_sketch_subprocess(query, registry, corpus, sketch, rand):
+            processes = [multiprocessing.Process(target=word_sketch_subprocess, args=(query, registry, corpus, sketch, rand)) for sketch in sketch_dict['N']]
+        
+        # for thread in threads:
+        #     thread.start()
 
-        for thread in threads:
-            thread.start()
+        # for thread in threads:
+        #     thread.join()
+        for process in processes:
+            process.start()
 
-        for thread in threads:
-            thread.join()
+        for process in processes:
+            process.join()
 
     elif most_common_pos[0] == 'V':
         pass
@@ -669,3 +677,28 @@ class WordSketchGetter(Thread):
         cqp.Exec(f'A{r} = /{self.sketch}["{self.query}"]')
         cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
         cqp.Terminate()
+
+def word_sketch_subprocess(query, registry, corpus, sketch, rand):
+    path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{rand}_{sketch}_{query}.txt'
+
+    logging.debug(path)
+    r = random.randint(1, 100000)
+
+    logging.debug(registry)
+    logging.debug(corpus)
+
+    # 啟動 cqp + initial cmd
+    cqp = CQP(bin='cqp', options=f'-c -r {registry}')
+
+    ini_commands = [
+        f'{corpus.upper()};',
+        'show -cpos;',  # corpus position
+        'define macro < "/app/COPENS/cwb/macros/macro.txt"',
+    ]
+
+    for c in ini_commands:
+        cqp.Exec(c)
+
+    cqp.Exec(f'A{r} = /{sketch}["{query}"]')
+    cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
+    cqp.Terminate()
