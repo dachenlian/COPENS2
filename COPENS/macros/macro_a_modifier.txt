@@ -1,0 +1,6 @@
+# 找出一個名詞可以被哪些形容動詞修飾
+# 例如 /a_modifier["男人"]: 無情 真正 堂堂正正
+
+MACRO a_modifier(1)
+   @TAR:[pos="A|VH11|VH13|VH21|V.*"][word="的"] [pos="N[abcd].*" & pos!="Ncd"]{0,2} KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY & TAR & KEY.word="$0"
+;

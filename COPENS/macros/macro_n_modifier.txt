@@ -1,0 +1,6 @@
+# 找出一個名詞可以被哪些名詞修飾
+# 例如 /n_modifier["男人"] ，可以找到中國男人...
+
+MACRO n_modifier(1)
+   @TAR:[pos="N[abcd].*" & pos!="Ncd"] KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] :: KEY & TAR & KEY.word="$0";
+;

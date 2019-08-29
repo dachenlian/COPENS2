@@ -1,0 +1,6 @@
+# 找出修飾動詞的副詞
+# 例如：放聲哭 悲痛地哭 一直哭
+
+MACRO modifier(1)
+   (@TAR:[pos="V.*"] [word="地"] KEY:[pos="V.*" & pos!="VH.*"] [pos!="DE"] | @TAR:[pos="D.*" & pos!="DE"] [word="地"]? KEY:[pos="V.*" & pos!="VH.*"] [pos!="DE"] ):: KEY & TAR & KEY.word = "$0"
+;

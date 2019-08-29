@@ -1,0 +1,6 @@
+# 找出名詞所使用的量詞
+# 例如 /measure["男人"] ，可以找到「位」「個」「群」男人
+
+MACRO measure(1)
+   @TAR:[pos="Nf.*"] ("A"|"VH11"|"VH13"|"VH21"|"V.*" "DE"){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY & TAR & KEY.word="$0"
+;

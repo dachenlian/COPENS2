@@ -1,0 +1,18 @@
+# KEY 為 VE (句賓動詞)
+# 例如 
+
+MACRO direct_sentence_obj_1(1)
+   KEY:[pos="VE.*"] [pos="Di|T|I|P.?.?"]? ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} @TAR:[pos="V.*" & pos!="VH.*"] [pos!="DE"] :: KEY & TAR & KEY.word="$0"
+;
+
+MACRO direct_sentence_obj_2(1)
+    KEY:[pos="VE.*"] [pos="Di|T|I|P.?.?"]? ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} @TAR:[pos="V.*" & pos!="VH.*"] [pos!="DE"] :: KEY & TAR & KEY.word="$0"
+;
+
+MACRO direct_sentence_obj_3(1)
+    [word="向"] ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} KEY:[pos="VE.*"] [pos="Di|T|I|P.?.?"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} @TAR:[pos="V.*" & pos!="VH.*"] [pos!="DE"] :: KEY & TAR & KEY.word="$0"
+;
+
+MACRO direct_sentence_obj_4(1)
+    [word="向"] ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} KEY:[pos="VE.*"] [pos="Di|T|I|P.?.?"]? ([pos!=".*Y" & pos!="DE"]{1,3} [pos="DE"])? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu"]|[pos="Neqa"] [pos="Nf.*"]|[pos="Neu"] [pos="Nf.*"]|[pos="Nf.*"])? ([pos="A|VH11|VH13|VH21"]|[pos="V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} [pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="Ncd"]? ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} @TAR:[pos="V.*" & pos!="VH.*"] [pos!="DE"] :: KEY & TAR & KEY.word="$0"
+;
