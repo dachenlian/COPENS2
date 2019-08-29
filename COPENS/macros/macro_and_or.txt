@@ -1,0 +1,11 @@
+MACRO and_or_1(1)
+    KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="PAUSECATEGORY"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neqa"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY.pos = TAR.pos & KEY & TAR & KEY.word = "$0" | TAR.word="$0";
+;
+
+MACRO and_or_2(1)
+    KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="C[ab].*"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neqa"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY.pos = TAR.pos & KEY & TAR & KEY.word = "$0" | TAR.word = "$0"
+;
+
+MACRO and_or(1)
+    (KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="PAUSECATEGORY"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neqa"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"]|KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="C[ab].*"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neqa"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"]) :: KEY.pos = TAR.pos & KEY & TAR & KEY.word = "$0"
+;

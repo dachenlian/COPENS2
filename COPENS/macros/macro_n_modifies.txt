@@ -1,0 +1,6 @@
+# 找出一個名詞可以修飾哪些名詞
+# 例如 /n_modifies["自然"] ，可以找到自然災害、自然世界...
+
+MACRO n_modifies(1)
+   KEY:[pos="N[abcd].*" & pos!="Ncd"] @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] :: KEY & TAR & KEY.word="$0";
+;

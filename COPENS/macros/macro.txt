@@ -1,0 +1,11 @@
+IMPORT /app/COPENS/macros/macro_modifier.txt 
+IMPORT /app/COPENS/macros/macro_a_modifier.txt 
+IMPORT /app/COPENS/macros/macro_a_modifies.txt 
+IMPORT /app/COPENS/macros/macro_measure.txt 
+IMPORT /app/COPENS/macros/macro_n_modifier.txt 
+IMPORT /app/COPENS/macros/macro_n_modifies.txt 
+IMPORT /app/COPENS/macros/macro_possessor_possession.txt 
+IMPORT /app/COPENS/macros/macro_and_or.txt 
+
+
+

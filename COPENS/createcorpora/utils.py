@@ -730,7 +730,7 @@ def word_sketch_subprocess(query, registry, corpus, sketch, rand, q):
     ini_commands = [
         f'{corpus.upper()};',
         'show -cpos;',  # corpus position
-        'define macro < "/app/COPENS/cwb/macros/macro.txt"',
+        'define macro < "/app/COPENS/macros/macro.txt"',
     ]
 
     for c in ini_commands:

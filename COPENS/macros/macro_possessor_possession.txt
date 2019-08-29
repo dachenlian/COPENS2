@@ -1,0 +1,7 @@
+MACRO possession_of(1)
+   KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="DE"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neq"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY & TAR & KEY.word = "$0"
+;
+
+MACRO possessor_of(1)
+   @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos="DE"] ([pos="D.*" & pos!="DE"]|[pos="V.*"] [pos="DE"]){0,2} ([pos="Neqa|Neu|Neq"] [pos="Nf.*|Neu"] [pos="Nf.*|Nf.*"])? ([pos="A|VH11|VH13|VH21|V.*"] [pos="DE"]){0,2} [pos="N[abcd].*" & pos!="Ncd"]{0,2} KEY:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY & TAR & KEY.word = "$0"
+;

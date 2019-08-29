@@ -1,0 +1,6 @@
+# 找出一個形容動詞可以修飾哪些名詞
+# 例如 /a_modifies["真正"]: 友情 情感 朋友
+
+MACRO a_modifies(1)
+   KEY:[pos="A|VH11|VH13|VH21|V.*"][word="的"] [pos="N[abcd].*" & pos!="Ncd"]{0,2} @TAR:[pos="N[abcdhf].*" & pos!="Nbc.*" & pos!="Ncd.*" & word!="者" & word!="們"] [pos!="N[abcdhef].*"|pos="Nbc.*"|pos="Ncd.*"] :: KEY & TAR & KEY.word="$0"
+;
