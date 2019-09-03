@@ -1,4 +1,5 @@
 import csv
+import logging
 
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -13,12 +14,12 @@ from django.contrib.auth.models import AnonymousUser
 from createcorpora.models import Corpus, CopensUser
 
 
-from .forms import ConcordanceForm, WordlistForm, WordSketchForm
+from .forms import ConcordanceForm, WordlistForm, WordSketchForm, CollocationForm
 
 from createcorpora import utils
 from createcorpora.views import for_concordance_tag
 
-
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class Home(TemplateView):
@@ -288,6 +289,60 @@ class WordSketchResultView(View):
             return redirect('static_pages:word_sketch')
 
         form = WordSketchForm(self.request.GET, user=self.request.user)
+
+        if form.is_valid():
+            logging.debug(f"word sketch表單參數: {form.cleaned_data}")
+            if self.request.user.is_authenticated:
+                user_registry = utils.get_user_registry(self.request)
+                print(user_registry)
+            else:
+                user_registry = None
+            query_word_freq, results = utils.cqp_query_word_sketch(user_registry=user_registry, **form.cleaned_data)
+
+            return render(
+                request,
+                self.template_name,
+                {
+                    'results': results,
+                    'query_word_freq': query_word_freq
+                }
+            )
+        else:
+            print(form.errors)
+            return redirect('static_pages:word_sketch')
+
+# 2019-08-29: Collocation
+class CollocationQueryView(FormView):
+    """
+    User chooses what databases to query from.
+    """
+
+    template_name = 'copens_static_pages/query_collocation.html'
+    form_class = CollocationForm
+
+    def get_form_kwargs(self):
+        """
+        Add the current logged in user to the form's context.
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_invalid(self, form):
+        print(form.errors)
+
+class CollocationResultView(View):
+    """
+    顯示搜尋Collocation的結果頁面。
+    """
+    template_name = 'copens_static_pages/result_collocation.html'
+
+    def get(self, request):
+        if not self.request.GET.getlist('corpus'):
+            messages.warning(self.request, '請至少選擇一個語料庫')
+            return redirect('static_pages:word_sketch')
+
+        form = CollocationForm(self.request.GET, user=self.request.user)
         # print(form.is_valid())
         if form.is_valid():
             # results_list = []
@@ -296,10 +351,9 @@ class WordSketchResultView(View):
                 print(user_registry)
             else:
                 user_registry = None
-            query_word_freq, results = utils.cqp_query_word_sketch(user_registry=user_registry, **form.cleaned_data)
+            logging.debug(f"collocation的表單參數: {form.cleaned_data}")
+            query_word_freq, results = utils.cqp_query_collocation(user_registry=user_registry, **form.cleaned_data)
 
-            # results = (word.strip().split('\t') for word in list_of_words)
-            # results = list_of_words
             return render(
                 request,
                 self.template_name,

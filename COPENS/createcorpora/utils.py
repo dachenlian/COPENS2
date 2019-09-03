@@ -15,6 +15,7 @@ from threading import Thread
 import math
 import multiprocessing
 from queue import Queue
+from collections import Counter
 
 import jseg
 import pexpect
@@ -167,11 +168,14 @@ def cqp_query(query: str, corpora: list, show_pos=False, context=None, user_regi
 
     cqp = pexpect.spawn(f'cqp -e -r {registry}', encoding='utf8')
     if context:
-        cqp.write(f'set CONTEXT {context};')
+        cqp.write(f'set Context {context} words;')
+    
+    # 檢查query是否使用CQL語法
     if '[' not in query:
         query_command = f"'{query}';"
     else:
         query_command = f"""{query};"""  # cqp search
+    
     logging.info(f'Query received: {query}')
 
     for corpus in corpora:
@@ -644,23 +648,6 @@ def cqp_query_word_sketch(query: str, corpus: str, user_registry=None, how_many_
     logging.debug(r)
     return query_word_freq, r
 
-def parse_txt_generated_by_cqp(lines):
-    result = {}
-    freq = 0
-
-    if len(lines) == 0:
-        return None, None
-
-    for line in lines:
-        if line == '':
-            continue
-
-        l = line.split('\t')
-        result[l[0].strip()] = int(l[1].strip())
-        freq += int(l[1].strip())
-
-    return freq, result
-
 def parse_txt_generated_by_cqp_2(string):
     """
     input: "醫學院\t12\n工學院\t8\n市長\t7\n地區\t6\n縣市\t5\n都會區\t5"
@@ -681,39 +668,8 @@ def parse_txt_generated_by_cqp_2(string):
 def log_dice(w1_r_w2, w1_r, w2):
     return round(14 + math.log(2 * w1_r_w2 / (w1_r + w2), 2), 2)
 
-class WordSketchGetter(Thread):
-    def __init__(self, query, sketch, rand, registry, corpus):
-        super().__init__()
-        self.query = query
-        self.rand = rand
-        self.sketch = sketch
-        self.registry = registry
-        self.corpus = corpus
-
-    def run(self):
-        path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{self.rand}_{self.sketch}_{self.query}.txt'
-
-        logging.debug(path)
-        r = random.randint(1, 100000)
-
-        logging.debug(self.registry)
-        logging.debug(self.corpus)
-
-        # 啟動 cqp + initial cmd
-        cqp = CQP(bin='cqp', options=f'-c -r {self.registry}')
-
-        ini_commands = [
-            f'{self.corpus.upper()};',
-            'show -cpos;',  # corpus position
-            'define macro < "/app/COPENS/cwb/macros/macro.txt"',
-        ]
-
-        for c in ini_commands:
-            cqp.Exec(c)
-
-        cqp.Exec(f'A{r} = /{self.sketch}["{self.query}"]')
-        cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
-        cqp.Terminate()
+def log_dice_for_collocation(f12, f1, f2):
+    return round(14 + math.log(2 * f12 / (f1 + f2), 2), 2)
 
 def word_sketch_subprocess(query, registry, corpus, sketch, rand, q):
     path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{rand}_{sketch}_{query}.txt'
@@ -736,10 +692,109 @@ def word_sketch_subprocess(query, registry, corpus, sketch, rand, q):
     for c in ini_commands:
         cqp.Exec(c)
 
-    # cqp.Exec(f'A{r} = /{sketch}["{query}"]')
-    # cqp.Exec(f'group A{r} target word cut 5 > "{path}";')
     cqp.Exec(f'/{sketch}["{query}"]')
     result = cqp.Group(subcorpus='Last', cutoff='5', spec1='target.word')
     cqp.Terminate()
     q.put((sketch, result))
-    # return result
+
+# 20190830 Update: query collocation
+def cqp_query_collocation(query: str, corpus: str, user_registry, left_context, right_context):
+    """
+
+    """
+
+    logger.info(corpus)
+    logging.debug(f"Left context: {left_context}")
+    logging.debug(f"Right context: {right_context}")
+
+    start_time = time.time()
+
+    r = {}
+    counter = Counter()
+
+    # 先將query加進去:
+    counter.update([query])
+    logging.debug(counter)
+
+    registry = f"{settings.CWB_PUBLIC_REG_DIR}"
+    if user_registry:
+        registry += f":{user_registry}"
+    
+    wordlist_result = []
+    wordlist_filename = f'wordlist_{corpus}.txt'
+    wordlist_path = Path(settings.CWB_QUERY_RESULTS_DIR) / wordlist_filename
+
+
+    rand = random.randint(1, 1000000000)
+
+    collocation_file_path = Path(settings.CWB_QUERY_RESULTS_DIR) / f'{rand}_collocation.txt'
+
+    logging.debug(collocation_file_path)
+
+    # 確認該語料庫是否已經存在wordlist
+    if wordlist_path.exists():
+        logger.debug('wordlist exists!')
+    else:
+        logger.debug('wordlist not exists!')
+        logger.debug('generate one!')
+        generate_wordlist(registry, corpus, wordlist_path)
+
+    cqp = CQP(bin='cqp', options=f'-c -r {registry}')
+
+    ini_commands = [
+        'set PrettyPrint off;',
+        f'set LeftContext {left_context} words;',
+        f'set RightContext {right_context} words;',
+        f'{corpus.upper()};',
+        'show -cpos;',
+        f'A = [word = "{query}"];',
+        f'cat A > "{collocation_file_path}";',
+    ]
+
+    for c in ini_commands:
+        cqp.Exec(c)
+        logging.debug(f'執行cqp指令: {c}')
+
+    start_time = time.time()
+    with open(collocation_file_path, "r") as f:
+        for line in f:
+            words = line.strip().split(' ')
+            counter.update(words)
+
+    end_time = time.time()
+    logging.debug(f"逐行讀出collocates所花的時間: {end_time - start_time}")
+
+    # 將讀好的 result 與詞頻表作對照，得出檢定量 
+    wordlist_freq_table = {}
+    relevent_words = counter.keys()
+    with open(wordlist_path, 'r') as f:
+        for line in f:
+            l = line.split()
+            if len(l) > 0 and l[1] in relevent_words:
+                wordlist_freq_table[l[1]] = int(l[0])
+
+    # logging.debug(f"詞頻表中的頻率: {wordlist_freq_table}")
+
+
+    try:
+        freq_of_query_word = wordlist_freq_table[query]
+    except KeyError:
+    # 如果遇到KeyError 即表示該詞不存在於詞頻表當中
+        return 0, None
+
+    logging.debug(f"搜尋詞: {query}")
+    # logging.debug(f"搜尋詞在語料庫中的總頻率: {freq_of_query_word}")
+
+    for word in wordlist_freq_table:
+        r[word] = {
+            "freq_in_collocates": counter[word],
+            "freq_in_wordlist": wordlist_freq_table[word],
+            "log_dice": log_dice_for_collocation(counter[word], wordlist_freq_table[word], freq_of_query_word)
+        }
+
+
+    r = sorted(r.items(), key = lambda x: x[1]["log_dice"], reverse=True)
+
+    # logging.debug(r)
+
+    return freq_of_query_word, r
