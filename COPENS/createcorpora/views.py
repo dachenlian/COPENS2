@@ -117,10 +117,10 @@ class ResultsView(View):
 
 def for_concordance_tag(elm):
     import re
-    p = re.compile('<B>(.*)</B>')
+    p = re.compile('<(.*)>')
     query_word = p.search(elm).group(1)
-    context_left = elm.split('<B>')[0].replace('<LI>', '')
-    context_right = elm.split('</B>')[1].replace('</LI>', '')
+    context_left = elm.split('<')[0].replace('<LI>', '')
+    context_right = elm.split('>')[1].replace('</LI>', '')
 
     return {
         'context_left': context_left,
